@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
+import 'package:flutter_application_1/features/home/presantation/home_page.dart';
 import 'package:go_router/go_router.dart';
 
 enum Approute{home, session, profile}
@@ -16,8 +17,9 @@ GoRouter buildRouter() {
               GoRoute(
                 path: '/home',
                 name: Approute.home.name,
-                builder: (context, state) => const Scaffold(body: Center(child: Text('Home')),),
+                builder: (context, state) => const Scaffold(body: Center(child: HomePage()),
               ),
+              )
             ],
           ),
           StatefulShellBranch(

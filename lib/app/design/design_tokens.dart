@@ -12,7 +12,7 @@ class DT{
   static const rCardLarge = 24.0;
 
   //Background color
-  static const bg = Color(0xFFF2EEF9);
+  static const bg = Color.fromARGB(255, 245, 243, 250);
   static const gbBlack = Colors.black;
   static const gbWhite = Colors.white;
 
@@ -50,7 +50,7 @@ class DT{
   static const socialBlue = Colors.blue;
 
   // Shadow Colors
-  static const shadowLight = Color(0xBA600008);
+  static const shadowLight = Color.fromARGB(184, 131, 130, 130);
   static const shadowMedium = Color(0x1A000000);
   static const shadowDark = Colors.blue;
   static const bottomNavBG = Color(0xFF0F1115);
