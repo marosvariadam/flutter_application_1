@@ -4,7 +4,7 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 ThemeData buildTheme() {
   final base = ThemeData(
     useMaterial3: true,
-    colorSchemeSeed: DT.cardGreen,
+    colorSchemeSeed: DT.cardTeal,
     brightness: Brightness.light
   );
 
