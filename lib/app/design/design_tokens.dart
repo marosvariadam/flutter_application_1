@@ -61,6 +61,6 @@ class DT{
 
   //Icon Colors
   static const iconLight = Color(0xFF666666);
-  static const iconLightGrey = Color(0xFFE0E0E0E);
+  static const iconLightGrey = Color(0xffe0e0e0e);
 
 }

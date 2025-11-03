@@ -60,6 +60,7 @@ class _navItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+        onTap: onTap,
         child: Container(
           width: 56,
           height: 56,
@@ -73,7 +74,6 @@ class _navItem extends StatelessWidget {
             size: DT.s6,
         )
         ),
-      onTap: onTap,
     );
   }
 }
