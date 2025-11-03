@@ -252,8 +252,20 @@ class _weeklyListComponent extends StatelessWidget {
                 children: [
                   Text(
                     DateFormat('E').format(date), 
-                    style: TextStyle(),
+                    style: TextStyle(
+                      fontSize: DT.s3,
+                      color: isSelected ? DT.gbWhite : DT.textPrimary,
+                      fontWeight: FontWeight.w500
                     ),
+                  ),
+                  Text(
+                    DateFormat('d').format(date), 
+                    style: TextStyle(
+                      fontSize: DT.s4,
+                      color: isSelected ? DT.gbWhite : DT.textPrimary,
+                      fontWeight: FontWeight.w500
+                    ),
+                  ),
                 ],
               ),
             ),
