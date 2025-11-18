@@ -1,9 +1,9 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
               height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: DT.gbWhite, width: 2),
+                border: Border.all(color: DT.bg, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: DT.shadowMedium,
