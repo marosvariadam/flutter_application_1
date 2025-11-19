@@ -35,9 +35,9 @@ class DT{
   static const challangeCardGradientEnd = Color(0xFFF0EBF7);
 
   //Metric crad color
-  static const metrictreen = Color(0xFFE7F8ED);
-  static const aetriclue = Color(0xFFB802FF);
-  static const setricOrange = Color(0xFFFFEED6);
+  static const metricGreen = Color(0xFFE7F8ED);
+  static const metricBlue = Color.fromARGB(255, 66, 138, 233);
+  static const metricOrange = Color.fromARGB(255, 248, 223, 189);
 
   // Difficulty Colors
   static const difficultyLight = Colors.green;

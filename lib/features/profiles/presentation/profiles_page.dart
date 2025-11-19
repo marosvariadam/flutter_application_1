@@ -39,7 +39,7 @@ class ProfilesPage extends StatelessWidget {
             _MetricsCard(),
             const SizedBox(height: DT.s6),
 
-            //_ActivityList(),
+            _ActivityList(),
             const SizedBox(height: DT.s6),
           ],
         ),
@@ -171,11 +171,28 @@ class _MetricsCard extends StatelessWidget {
       children: [
         Expanded(
           child: _MetricCard(
-            color: DT.metrictreen,
+            color: DT.metricGreen,
             title: 'Kezdő súly: ',
             value: '82.2 kg'
           )
-        )
+        ),
+        const SizedBox(width: DT.s3,),
+        Expanded(
+          child: _MetricCard(
+            color: DT.metricBlue,
+            title: 'Jelenlegi súly: ',
+            value: '76.6 kg'
+          )
+        ),
+        const SizedBox(width: DT.s3,),
+        Expanded(
+          child: _MetricCard(
+            color: DT.metricOrange,
+            title: 'Magasság: ',
+            value: '176 cm'
+          )
+        ),
+        const SizedBox(width: DT.s3,),
       ],
     );
   }
@@ -189,7 +206,114 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container(
+      padding: const EdgeInsets.all(DT.s2),
+      height: 80,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(DT.rCardSmall)
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: DT.s3,
+              color: DT.textSecondary
+            ),
+          ),
+          const SizedBox(height: DT.s2,),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: DT.s4,
+              color: DT.textPrimary
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActivityList extends StatelessWidget {
+  const _ActivityList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ActivityItem(icon: Icons.directions_run, title: 'Fizikai Edzés', subtitle: '3 napja',onTap: () {},),
+        _ActivityItem(icon: Icons.assessment, title: 'Statisztika', subtitle: '163 edzés idén',onTap: () {},),
+        _ActivityItem(icon: Icons.route, title: 'Fejlődés', subtitle: 'Eddigi fejlődés',onTap: () {},),
+        _ActivityItem(icon: Icons.flash_on, title: 'Eszközök', subtitle: 'Eddig használt eszközök',onTap: () {},),
+      ],
+    );
+  }
+}
+
+class _ActivityItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ActivityItem({super.key, required this.icon, required this.title, required this.subtitle, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: DT.s4),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: DT.borderLight, width: 1)
+          )
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                color: DT.iconLight.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20)
+              ),
+              child: Icon(icon, color: DT.iconLightGrey, size: 20),
+            ),
+            const SizedBox(width:DT.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: DT.s4,
+                      fontWeight: FontWeight.w500,
+                      color: DT.textPrimary
+                    ),
+                  ),
+                  const SizedBox(height: 2,),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: DT.s3,
+                      fontWeight: FontWeight.w500,
+                      color: DT.textSecondary
+                    ),
+                  ),
+                ],
+            )
+            ),
+            const Icon(Icons.arrow_forward_ios, color: DT.textfrey, size: 14)
+          ],
+        )
+
+      ),
+    );
   }
 }
 
