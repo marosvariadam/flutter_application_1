@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
 import 'package:flutter_application_1/features/home/presantation/home_page.dart';
+import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
+import 'package:flutter_application_1/features/session/presentations/session_page.dart';
 import 'package:go_router/go_router.dart';
 
 enum Approute{home, session, profile}
@@ -17,8 +19,7 @@ GoRouter buildRouter() {
               GoRoute(
                 path: '/home',
                 name: Approute.home.name,
-                builder: (context, state) => const Scaffold(body: Center(child: HomePage()),
-              ),
+                pageBuilder: (context, state) => const NoTransitionPage(child: HomePage(),),
               )
             ],
           ),
@@ -27,8 +28,8 @@ GoRouter buildRouter() {
               GoRoute(
                 path: '/session',
                 name: Approute.session.name,
-                builder: (context, state) => const Scaffold(body: Center(child: Text('Session')),),
-              ),
+                pageBuilder: (context, state) => const NoTransitionPage(child: SessionsPage())
+              )
             ],
           ),
           StatefulShellBranch(
@@ -36,7 +37,7 @@ GoRouter buildRouter() {
               GoRoute(
                 path: '/profile',
                 name: Approute.profile.name,
-                builder: (context, state) => const Scaffold(body: Center(child: Text('Profile')),),
+                pageBuilder: (context, state) => const NoTransitionPage(child: ProfilesPage()),
               ),
             ],
           ),

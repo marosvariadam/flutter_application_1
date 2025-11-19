@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DT{
 
   //sizes
-  static const s1=4.0, s2=8.0, s3=12.0, s4=16.0, s5=20.0, s6=24.0, s8=32.0;
+  static const s1=4.0, s2=8.0, s3=12.0, s4=16.0, s5=20.0, s6=24.0, s8=32.0, s9=36.0;
 
   //radius
   static const rChip = 16.0;
