@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rive/rive.dart' as RV;
 
 
 class HomePage extends StatefulWidget {
@@ -173,11 +174,7 @@ class _dailyChallangeCard extends StatelessWidget {
       padding: const EdgeInsets.all(DT.s5),
       margin: const EdgeInsets.only(bottom: DT.s6),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [DT.challangeCardGradientStart, DT.challangeCardGradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          ),
+        color: DT.gbWhite,
           borderRadius: BorderRadius.circular(DT.rCard),
           boxShadow: [
             BoxShadow(
@@ -229,6 +226,7 @@ class _dailyChallangeCard extends StatelessWidget {
               ],
             )
           ),
+          
         ],
       )
     );
