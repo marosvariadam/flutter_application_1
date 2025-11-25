@@ -10,8 +10,13 @@ enum Approute{home, session, profile, login}
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/login',
     routes: [
+      GoRoute(
+        path: '/login',
+        name: Approute.login.name,
+        pageBuilder: (context, state) => const NoTransitionPage(child: LoginPage()),
+      ),
       StatefulShellRoute.indexedStack(
         builder:(context, state, shell) => BottomNavScaffold(shell: shell),
         branches: [

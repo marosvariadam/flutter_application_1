@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 
 class LoginPage extends StatelessWidget {
@@ -74,13 +75,13 @@ class LoginPage extends StatelessWidget {
                         TextButton(onPressed: () {}, child: const Text('Elfelejtett jelszó?'))
                       ],
                     ),
-                    const SizedBox(height: DT.s4),
+                    const SizedBox(height: DT.s6),
 
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {}, //validacio es beleptetes
+                        onPressed: ()=>{context.go('/home')}, //validacio es beleptetes
                         style: ElevatedButton.styleFrom(
                           backgroundColor: DT.metricBlue,
                           shape: RoundedRectangleBorder(
@@ -97,6 +98,7 @@ class LoginPage extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: DT.s5),
 
                     SizedBox(
                       width: double.infinity,
