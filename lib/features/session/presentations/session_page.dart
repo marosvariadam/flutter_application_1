@@ -15,7 +15,7 @@ class SessionsPage extends StatelessWidget {
         backgroundColor: DT.bg,
         elevation: 0,
         title: const Text(
-          'Edezés',
+          'Edzés',
           style: TextStyle(
             color: DT.textPrimary,
             fontSize: DT.s4,
@@ -226,8 +226,6 @@ class _SessionCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class _InfoChip extends StatelessWidget {
   const _InfoChip({super.key, required this.icon, required this.text});

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
 import 'package:flutter_application_1/features/home/presantation/home_page.dart';
+import 'package:flutter_application_1/features/login/login_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentations/session_page.dart';
 import 'package:go_router/go_router.dart';
 
-enum Approute{home, session, profile}
+enum Approute{home, session, profile, login}
 
 GoRouter buildRouter() {
   return GoRouter(
@@ -14,6 +15,7 @@ GoRouter buildRouter() {
       StatefulShellRoute.indexedStack(
         builder:(context, state, shell) => BottomNavScaffold(shell: shell),
         branches: [
+          
           StatefulShellBranch(
             routes: [
               GoRoute(
