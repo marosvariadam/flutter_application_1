@@ -49,7 +49,7 @@ class DT {
   static const socialBlue = Colors.blue;
 
   // Shadow colors
-  static const shadowLight = Color.fromARGB(184, 179, 177, 177);
+  static const shadowLight = Color.fromARGB(40, 0, 0, 0);
   static const shadowMedium = Color(0x1A000000);
   static const bottomNavBG = Color(0xFF0F1115);
 

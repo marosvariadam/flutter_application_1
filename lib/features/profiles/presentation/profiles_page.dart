@@ -21,8 +21,7 @@ class ProfilesPage extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: () {}, 
-          icon: const Icon(Icons.settings))
+          IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
         ],
       ),
       body: SingleChildScrollView(
@@ -30,13 +29,11 @@ class ProfilesPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _UserProfileSelection(),
+            const _UserProfileSection(),
             const SizedBox(height: DT.s6),
-
-            _MetricsCard(),
+            const _MetricsRow(),
             const SizedBox(height: DT.s6),
-
-            _ActivityList(),
+            const _ActivityList(),
             const SizedBox(height: DT.s6),
           ],
         ),
@@ -44,38 +41,44 @@ class ProfilesPage extends StatelessWidget {
     );
   }
 }
-class _UserProfileSelection extends StatelessWidget {
-  const _UserProfileSelection({super.key});
+
+class _UserProfileSection extends StatelessWidget {
+  const _UserProfileSection();
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Avatar
         Container(
-          width: 60,
-          height: 60,
+          width: 64,
+          height: 64,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: DT.borderGrey, width: 2),
-            boxShadow: [BoxShadow(
-              color: DT.shadowLight,
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+            boxShadow: const [
+              BoxShadow(
+                color: DT.shadowLight,
+                blurRadius: 10,
+                offset: Offset(0, 2),
               ),
             ],
           ),
           child: ClipOval(
             child: Image.network(
-          'https://example.com/user_profile.jpg',
-          fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: DT.iconLightGrey.withOpacity(0.3),
-                    child: const Icon(Icons.person, size: DT.s6, color: DT.iconLightGrey)
-                  )
-        ),
+              'https://example.com/user_profile.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: DT.iconLightGrey.withOpacity(0.3),
+                child:
+                    const Icon(Icons.person, size: DT.s6, color: DT.iconLight),
+              ),
+            ),
           ),
         ),
         const SizedBox(width: DT.s4),
+        // Name + stats
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,69 +91,50 @@ class _UserProfileSelection extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(width: DT.s1),
-              Text(
+              const SizedBox(height: DT.s1),
+              const Text(
                 'Budapest, Hungary',
-                style: const TextStyle(
+                style: TextStyle(
                   color: DT.textSecondary,
                   fontSize: DT.s3,
                 ),
               ),
-              const SizedBox(width: DT.s3),
+              const SizedBox(height: DT.s2),
               Row(
-                children: [
+                children: const [
                   Text(
-                    'Edzések száma: 42',
-                    style: const TextStyle(
+                    'Edzések: 42',
+                    style: TextStyle(
                       color: DT.textSecondary,
                       fontSize: DT.s3,
-                      fontWeight: FontWeight.w500
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(width: DT.s3),
+                  SizedBox(width: DT.s3),
                   Text(
                     'Streak: 7 nap',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: DT.textSecondary,
                       fontSize: DT.s3,
-                      fontWeight: FontWeight.w500
+                      fontWeight: FontWeight.w500,
                     ),
-                  )
+                  ),
                 ],
               ),
             ],
           ),
         ),
+        // Action buttons — proper 48×48 touch targets
         Column(
           children: [
-            Container(
-              width: DT.s9,
-              height: DT.s9,
-              decoration: BoxDecoration(
-                color: DT.iconLight.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(DT.s2)
-              ),
-              child:
-              const Icon(
-                Icons.edit,
-                color: DT.iconLightGrey,
-                size: DT.s3,
-              ),
+            _ProfileActionButton(
+              icon: Icons.edit,
+              onTap: () {},
             ),
-            const SizedBox(height: DT.s2,),
-            Container(
-              width: DT.s9,
-              height: DT.s9,
-              decoration: BoxDecoration(
-                color: DT.iconLight.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(DT.s2)
-              ),
-              child:
-              const Icon(
-                Icons.share,
-                color: DT.iconLightGrey,
-                size: DT.s3,
-              ),
+            const SizedBox(height: DT.s2),
+            _ProfileActionButton(
+              icon: Icons.share,
+              onTap: () {},
             ),
           ],
         ),
@@ -159,8 +143,34 @@ class _UserProfileSelection extends StatelessWidget {
   }
 }
 
-class _MetricsCard extends StatelessWidget {
-  const _MetricsCard({super.key});
+class _ProfileActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ProfileActionButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: DT.iconLight.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(DT.s2),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(DT.s2),
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: Icon(icon, color: DT.iconLight, size: DT.s5),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetricsRow extends StatelessWidget {
+  const _MetricsRow();
 
   @override
   Widget build(BuildContext context) {
@@ -169,27 +179,26 @@ class _MetricsCard extends StatelessWidget {
         Expanded(
           child: _MetricCard(
             color: DT.metricGreen,
-            title: 'Kezdő súly: ',
-            value: '82.2 kg'
-          )
+            title: 'Kezdő súly',
+            value: '82.2 kg',
+          ),
         ),
-        const SizedBox(width: DT.s3,),
+        const SizedBox(width: DT.s3),
         Expanded(
           child: _MetricCard(
             color: DT.metricBlue,
-            title: 'Jelenlegi súly: ',
-            value: '76.6 kg'
-          )
+            title: 'Jelenlegi súly',
+            value: '76.6 kg',
+          ),
         ),
-        const SizedBox(width: DT.s3,),
+        const SizedBox(width: DT.s3),
         Expanded(
           child: _MetricCard(
             color: DT.metricOrange,
-            title: 'Magasság: ',
-            value: '176 cm'
-          )
+            title: 'Magasság',
+            value: '176 cm',
+          ),
         ),
-        const SizedBox(width: DT.s3,),
       ],
     );
   }
@@ -199,33 +208,37 @@ class _MetricCard extends StatelessWidget {
   final String title;
   final String value;
   final Color color;
-  const _MetricCard({super.key, required this.title, required this.value, required this.color});
+
+  const _MetricCard(
+      {required this.title, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(DT.s2),
-      height: 80,
+      padding: const EdgeInsets.all(DT.s3),
+      constraints: const BoxConstraints(minHeight: 80),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(DT.rCardSmall)
+        borderRadius: BorderRadius.circular(DT.rCardSmall),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: DT.s3,
-              color: DT.textSecondary
+              color: DT.textSecondary,
             ),
           ),
-          const SizedBox(height: DT.s2,),
+          const SizedBox(height: DT.s2),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: DT.s4,
-              color: DT.textPrimary
+              fontWeight: FontWeight.w700,
+              color: DT.textPrimary,
             ),
           ),
         ],
@@ -235,16 +248,36 @@ class _MetricCard extends StatelessWidget {
 }
 
 class _ActivityList extends StatelessWidget {
-  const _ActivityList({super.key});
+  const _ActivityList();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ActivityItem(icon: Icons.directions_run, title: 'Fizikai Edzés', subtitle: '3 napja',onTap: () {},),
-        _ActivityItem(icon: Icons.assessment, title: 'Statisztika', subtitle: '163 edzés idén',onTap: () {},),
-        _ActivityItem(icon: Icons.route, title: 'Fejlődés', subtitle: 'Eddigi fejlődés',onTap: () {},),
-        _ActivityItem(icon: Icons.flash_on, title: 'Eszközök', subtitle: 'Eddig használt eszközök',onTap: () {},),
+        _ActivityItem(
+          icon: Icons.directions_run,
+          title: 'Fizikai Edzés',
+          subtitle: '3 napja',
+          onTap: () {},
+        ),
+        _ActivityItem(
+          icon: Icons.assessment,
+          title: 'Statisztika',
+          subtitle: '163 edzés idén',
+          onTap: () {},
+        ),
+        _ActivityItem(
+          icon: Icons.route,
+          title: 'Fejlődés',
+          subtitle: 'Eddigi fejlődés',
+          onTap: () {},
+        ),
+        _ActivityItem(
+          icon: Icons.flash_on,
+          title: 'Eszközök',
+          subtitle: 'Eddig használt eszközök',
+          onTap: () {},
+        ),
       ],
     );
   }
@@ -256,7 +289,12 @@ class _ActivityItem extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
-  const _ActivityItem({super.key, required this.icon, required this.title, required this.subtitle, required this.onTap});
+  const _ActivityItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -264,10 +302,10 @@ class _ActivityItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: DT.s4),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: DT.borderLight, width: 1)
-          )
+            bottom: BorderSide(color: DT.borderLight, width: 1),
+          ),
         ),
         child: Row(
           children: [
@@ -276,11 +314,11 @@ class _ActivityItem extends StatelessWidget {
               width: 40,
               decoration: BoxDecoration(
                 color: DT.iconLight.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20)
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(icon, color: DT.iconLightGrey, size: 20),
+              child: Icon(icon, color: DT.iconLight, size: 20),
             ),
-            const SizedBox(width:DT.s4),
+            const SizedBox(width: DT.s4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,27 +328,24 @@ class _ActivityItem extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: DT.s4,
                       fontWeight: FontWeight.w500,
-                      color: DT.textPrimary
+                      color: DT.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2,),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: const TextStyle(
                       fontSize: DT.s3,
-                      fontWeight: FontWeight.w500,
-                      color: DT.textSecondary
+                      color: DT.textSecondary,
                     ),
                   ),
                 ],
-            )
+              ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: DT.textGrey, size: 14)
+            const Icon(Icons.arrow_forward_ios, color: DT.textGrey, size: 14),
           ],
-        )
-
+        ),
       ),
     );
   }
 }
-
