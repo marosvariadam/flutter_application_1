@@ -572,6 +572,7 @@ class _SocialMediaCard extends StatelessWidget {
                 icon: Icons.chat_bubble_outline,
                 color: DT.socialBlue,
                 label: 'Üzenet',
+                onTap: () => context.go('/messages'),
               ),
             ],
           ),
@@ -585,14 +586,15 @@ class _SocialIconItem extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String label;
+  final VoidCallback? onTap;
 
   const _SocialIconItem(
-      {required this.icon, required this.color, required this.label});
+      {required this.icon, required this.color, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: BorderRadius.circular(DT.rCard),
       child: Padding(
         padding: const EdgeInsets.all(DT.s2),
