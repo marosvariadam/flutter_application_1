@@ -61,6 +61,24 @@ class SessionsPage extends StatelessWidget {
             }
 
             if (state is SessionLoaded) {
+              if (state.sessions.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.fitness_center_outlined,
+                          size: 64, color: DT.iconLightGrey),
+                      SizedBox(height: DT.s4),
+                      Text(
+                        'Jelenleg nincs elérhető edzés.',
+                        style:
+                            TextStyle(color: DT.textSecondary, fontSize: DT.s4),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
               return ListView.separated(
                 padding: const EdgeInsets.all(DT.s5),
                 itemCount: state.sessions.length,
@@ -92,114 +110,124 @@ class _SessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final difficultyColor = {
-      'könnyű': DT.difficultyLight,
-      'közepes': DT.difficultyMedium,
-      'nehéz': DT.difficultyHard,
-    }[session.difficulty.toLowerCase()] ??
+          'könnyű': DT.difficultyLight,
+          'közepes': DT.difficultyMedium,
+          'nehéz': DT.difficultyHard,
+        }[session.difficulty.toLowerCase()] ??
         DT.difficultyMedium;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(DT.s5),
-        decoration: BoxDecoration(
-          color: DT.gbWhite,
-          borderRadius: BorderRadius.circular(DT.s5),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 80,
-              decoration: BoxDecoration(
-                color: session.color,
-                borderRadius: BorderRadius.circular(DT.s2),
-              ),
-            ),
-            const SizedBox(width: DT.s4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Material(
+      color: DT.gbWhite,
+      borderRadius: BorderRadius.circular(DT.s5),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(DT.s5),
+        child: Padding(
+          padding: const EdgeInsets.all(DT.s5),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Colored left bar — stretches to content height
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: session.color,
+                    borderRadius: BorderRadius.circular(DT.s2),
+                  ),
+                ),
+                const SizedBox(width: DT.s4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        session.title,
-                        style: const TextStyle(
-                          color: DT.textPrimary,
-                          fontSize: DT.s4,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: DT.s2, vertical: DT.s1),
-                        decoration: BoxDecoration(
-                          color: difficultyColor,
-                          borderRadius: BorderRadius.circular(DT.s2),
-                        ),
-                        child: Text(
-                          session.difficulty,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: DT.s3,
-                            fontWeight: FontWeight.w500,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              session.title,
+                              style: const TextStyle(
+                                color: DT.textPrimary,
+                                fontSize: DT.s4,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
+                          const SizedBox(width: DT.s2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: DT.s2, vertical: DT.s1),
+                            decoration: BoxDecoration(
+                              color: difficultyColor,
+                              borderRadius: BorderRadius.circular(DT.s2),
+                            ),
+                            child: Text(
+                              session.difficulty,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: DT.s3,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: DT.s1),
+                      Text(
+                        'Edző: ${session.trainer}',
+                        style: const TextStyle(
+                          color: DT.textSecondary,
+                          fontSize: DT.s3,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: DT.s1),
+                      Text(
+                        session.description,
+                        style: const TextStyle(
+                          color: DT.textSecondary,
+                          fontSize: DT.s3,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: DT.s2),
+                      Row(
+                        children: [
+                          _InfoChip(
+                            icon: Icons.access_time,
+                            text: session.duration,
+                          ),
+                          const SizedBox(width: DT.s3),
+                          _InfoChip(
+                            icon: Icons.local_fire_department,
+                            text: session.kcal,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: DT.s1),
-                  Text(
-                    'Edző: ${session.trainer}',
-                    style: const TextStyle(
-                      color: DT.textSecondary,
-                      fontSize: DT.s3,
+                ),
+                const SizedBox(width: DT.s3),
+                // Arrow
+                Center(
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: session.color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(DT.rChip),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: DT.s1),
-                  Text(
-                    'Leírás: ${session.description}',
-                    style: const TextStyle(
-                      color: DT.textSecondary,
-                      fontSize: DT.s3,
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: session.color,
+                      size: 14,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: DT.s1),
-                  Row(
-                    children: [
-                      _InfoChip(
-                        icon: Icons.access_time,
-                        text: session.duration,
-                      ),
-                      const SizedBox(width: DT.s2),
-                      _InfoChip(
-                        icon: Icons.local_fire_department,
-                        text: session.kcal,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: DT.s2),
-                ],
-              ),
+                ),
+              ],
             ),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: session.color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(DT.rChip),
-              ),
-              child: Icon(
-                Icons.arrow_forward_ios,
-                color: session.color,
-                size: 16,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
