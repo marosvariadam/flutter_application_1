@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
+import 'package:flutter_application_1/features/chat_page.dart/inbox_page.dart';
 import 'package:flutter_application_1/features/home/presantation/home_page.dart';
 import 'package:flutter_application_1/features/login/login_page.dart';
+import 'package:flutter_application_1/features/register/register_page.dart'; 
+import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
+import 'package:flutter_application_1/features/session/presentations/session_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentations/session_page.dart';
 import 'package:go_router/go_router.dart';
 
-enum Approute{home, session, profile, login}
+enum Approute{home, session, profile, login, register, chat}
 
 GoRouter buildRouter() {
   return GoRouter(
@@ -16,6 +20,11 @@ GoRouter buildRouter() {
         path: '/login',
         name: Approute.login.name,
         pageBuilder: (context, state) => const NoTransitionPage(child: LoginPage()),
+      ),
+      GoRoute(
+        path: '/register',
+        name: Approute.register.name,
+        pageBuilder: (context, state) => const NoTransitionPage(child: RegisterPage()),
       ),
       StatefulShellRoute.indexedStack(
         builder:(context, state, shell) => BottomNavScaffold(shell: shell),
@@ -36,6 +45,15 @@ GoRouter buildRouter() {
                 path: '/session',
                 name: Approute.session.name,
                 pageBuilder: (context, state) => const NoTransitionPage(child: SessionsPage())
+              )
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/inbox', 
+                name: Approute.chat.name,
+                pageBuilder: (context, state) => const NoTransitionPage(child: InboxPage()),
               )
             ],
           ),

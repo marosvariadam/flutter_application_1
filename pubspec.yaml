@@ -28,6 +28,9 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  http: ^1.6.0
+  flutter_secure_storage: ^9.0.0
+  signalr_netcore: ^1.3.6
   flutter:
     sdk: flutter
 
@@ -73,7 +76,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/mock/
-    - assets/images/motivationpic.png
+    #- assets/images/motivationpic.png
     - assets\images\8904-17031-weightlifting-competition.riv
 
 
