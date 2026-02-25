@@ -1,9 +1,7 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rive/rive.dart' as RV;
 
 
 class HomePage extends StatefulWidget {

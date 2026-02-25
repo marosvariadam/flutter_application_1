@@ -1,8 +1,5 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
 
 class ProfilesPage extends StatelessWidget {
   const ProfilesPage({super.key});
@@ -308,7 +305,7 @@ class _ActivityItem extends StatelessWidget {
                 ],
             )
             ),
-            const Icon(Icons.arrow_forward_ios, color: DT.textfrey, size: 14)
+            const Icon(Icons.arrow_forward_ios, color: DT.textGrey, size: 14)
           ],
         )
 
