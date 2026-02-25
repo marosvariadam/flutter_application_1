@@ -1,30 +1,57 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/app/app.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:flutter_application_1/app/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('Login page renders key elements', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Üdvözlünk vissza!'), findsOneWidget);
+    expect(find.text('Bejelentkezés'), findsOneWidget);
+    expect(find.text('Regisztráció'), findsOneWidget);
+    expect(find.text('Elfelejtett jelszó?'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Login form shows validation errors on empty submit',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const App());
+    await tester.pumpAndSettle();
+
+    // Tap login without filling in the form
+    await tester.tap(find.text('Bejelentkezés'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Kérjük add meg az email címed'), findsOneWidget);
+    expect(find.text('Kérjük add meg a jelszavad'), findsOneWidget);
+  });
+
+  testWidgets('Login form validates email format', (WidgetTester tester) async {
+    await tester.pumpWidget(const App());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Email cím'),
+      'not-an-email',
+    );
+    await tester.tap(find.text('Bejelentkezés'));
+    await tester.pump();
+
+    expect(find.text('Érvénytelen email cím'), findsOneWidget);
+  });
+
+  testWidgets('Password visibility toggle works', (WidgetTester tester) async {
+    await tester.pumpWidget(const App());
+    await tester.pumpAndSettle();
+
+    // Initially the password is hidden (visibility icon shown)
+    expect(find.byIcon(Icons.visibility), findsOneWidget);
+
+    // Tap the toggle
+    await tester.tap(find.byIcon(Icons.visibility));
+    await tester.pump();
+
+    // Now the password is visible (visibility_off icon shown)
+    expect(find.byIcon(Icons.visibility_off), findsOneWidget);
   });
 }

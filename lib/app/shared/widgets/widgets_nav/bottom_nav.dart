@@ -6,74 +6,113 @@ class BottomNavScaffold extends StatelessWidget {
   final StatefulNavigationShell shell;
   const BottomNavScaffold({super.key, required this.shell});
 
-  void _onTap(int index) => shell.goBranch(index, initialLocation: index == shell.currentIndex);
+  void _onTap(int index) =>
+      shell.goBranch(index, initialLocation: index == shell.currentIndex);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: shell,
       bottomNavigationBar: Container(
-        height: 90,
-        decoration: BoxDecoration(
-          color: DT.bg
-        ),
+        height: 100,
+        decoration: const BoxDecoration(color: DT.bg),
         child: Container(
           decoration: BoxDecoration(
-          color: DT.bottomNavBG,
-          borderRadius: BorderRadius.circular(20)
+            color: DT.bottomNavBG,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          margin: const EdgeInsets.only(
+            bottom: DT.s8,
+            top: DT.s2,
+            left: DT.s6,
+            right: DT.s6,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: DT.s4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _NavItem(
+                icon: Icons.home_outlined,
+                label: 'Kezdőlap',
+                isSelected: shell.currentIndex == 0,
+                onTap: () => _onTap(0),
+              ),
+              _NavItem(
+                icon: Icons.fitness_center_outlined,
+                label: 'Edzés',
+                isSelected: shell.currentIndex == 1,
+                onTap: () => _onTap(1),
+              ),
+              _NavItem(
+                icon: Icons.person_outlined,
+                label: 'Profil',
+                isSelected: shell.currentIndex == 2,
+                onTap: () => _onTap(2),
+              ),
+            ],
+          ),
         ),
-        margin: EdgeInsets.only(bottom: DT.s8, top: DT.s2, left: DT.s6, right: DT.s6),
-        padding: EdgeInsets.symmetric(vertical: DT.s2),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _navItem(
-              icon: Icons.home_outlined,
-              isSelected: shell.currentIndex == 0,
-              onTap: () => _onTap(0)
-            ),
-            _navItem(
-              icon: Icons.fitness_center_outlined,
-              isSelected: shell.currentIndex == 1,
-              onTap: () => _onTap(1)
-            ),
-            _navItem(
-              icon: Icons.person_outlined,
-              isSelected: shell.currentIndex == 2,
-              onTap: () => _onTap(2)  
-            )
-          ],
-        ),
-      )
-      )
+      ),
     );
   }
 }
 
-
-class _navItem extends StatelessWidget {
+class _NavItem extends StatelessWidget {
   final IconData icon;
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  const _navItem({required this.icon, required this.isSelected, required this.onTap});
+
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: isSelected ? DT.bg : Colors.transparent,
-            shape: BoxShape.circle
-          ),
-          child: Icon(
-            icon, 
-            color: isSelected ? DT.gbBlack : DT.bg,
-            size: DT.s6,
-        )
+    final iconColor =
+        isSelected ? DT.gbBlack : Colors.white.withOpacity(0.5);
+    final labelColor =
+        isSelected ? DT.gbWhite : Colors.white.withOpacity(0.5);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(DT.rCard),
+      splashColor: Colors.white.withOpacity(0.1),
+      highlightColor: Colors.white.withOpacity(0.05),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: DT.s4, vertical: DT.s2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isSelected ? DT.bg : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: DT.s6),
+            ),
+            const SizedBox(height: 2),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 10,
+                color: labelColor,
+                fontWeight:
+                    isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+              child: Text(label),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
