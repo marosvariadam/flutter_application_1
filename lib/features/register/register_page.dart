@@ -15,19 +15,29 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+  final _trainerNameController = TextEditingController();
+
   // 0 = Trainer (Edző), 1 = Athlete (Sportoló)
-  int _selectedRole = 1; 
+  int _selectedRole = 1;
   bool _isLoading = false;
   final AuthService _authService = AuthService();
 
+  bool get _isAthlete => _selectedRole == 1;
+
   Future<void> _handleRegister() async {
-    if (_firstNameController.text.isEmpty || 
+    if (_firstNameController.text.isEmpty ||
         _lastNameController.text.isEmpty ||
-        _emailController.text.isEmpty || 
+        _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Minden mező kitöltése kötelező!')),
+      );
+      return;
+    }
+
+    if (_isAthlete && _trainerNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kérjük, add meg az edződ nevét!')),
       );
       return;
     }
@@ -46,11 +56,15 @@ class _RegisterPageState extends State<RegisterPage> {
       if (!mounted) return;
 
       if (success) {
-        // Success! Go back to login 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sikeres regisztráció! Jelentkezz be.')),
-        );
-        context.pop(); // Go back to Login Page
+        if (_isAthlete) {
+          // Athletes go through the onboarding survey before logging in
+          context.push('/athlete-survey');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sikeres regisztráció! Jelentkezz be.')),
+          );
+          context.pop();
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Hiba történt a regisztráció során.')),
@@ -102,7 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: DT.s5),
 
-              // Fields
+              // Name fields
               Row(
                 children: [
                   Expanded(
@@ -127,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ],
               ),
               const SizedBox(height: DT.s2),
-              
+
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -137,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: DT.s2),
-              
+
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
@@ -150,7 +164,11 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: DT.s4),
 
               // Role Selector
-              Text('Válassz szerepkört:', style: TextStyle(color: DT.textSecondary, fontWeight: FontWeight.w600)),
+              Text(
+                'Válassz szerepkört:',
+                style: TextStyle(
+                    color: DT.textSecondary, fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: DT.s2),
               Row(
                 children: [
@@ -163,9 +181,37 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ],
               ),
+
+              // Trainer name field — only shown for athletes
+              if (_isAthlete) ...[
+                const SizedBox(height: DT.s4),
+                Text(
+                  'Edző neve',
+                  style: TextStyle(
+                      color: DT.textSecondary, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: DT.s2),
+                TextFormField(
+                  controller: _trainerNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Az edződ neve',
+                    hintText: 'Pl. Kovács László',
+                    prefixIcon: Icon(Icons.person_search),
+                  ),
+                ),
+                const SizedBox(height: DT.s2),
+                Text(
+                  'Add meg annak az edzőnek a nevét, akihez csatlakozni szeretnél.',
+                  style: TextStyle(
+                    color: DT.textSecondary,
+                    fontSize: DT.s3,
+                  ),
+                ),
+              ],
+
               const SizedBox(height: DT.s6),
 
-              // Register Button 
+              // Register Button
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -197,7 +243,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  
   Widget _buildRoleCard(String title, int value, IconData icon) {
     final isSelected = _selectedRole == value;
     return GestureDetector(
