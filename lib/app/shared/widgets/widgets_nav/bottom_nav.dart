@@ -44,10 +44,16 @@ class BottomNavScaffold extends StatelessWidget {
                 onTap: () => _onTap(1),
               ),
               _NavItem(
-                icon: Icons.person_outlined,
-                label: 'Profil',
+                icon: Icons.chat_bubble_outline,
+                label: 'Üzenetek',
                 isSelected: shell.currentIndex == 2,
                 onTap: () => _onTap(2),
+              ),
+              _NavItem(
+                icon: Icons.person_outlined,
+                label: 'Profil',
+                isSelected: shell.currentIndex == 3,
+                onTap: () => _onTap(3),
               ),
             ],
           ),
