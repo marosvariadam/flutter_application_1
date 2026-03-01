@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/user_session.dart';
 
 class ProfilesPage extends StatelessWidget {
   const ProfilesPage({super.key});
@@ -26,18 +27,28 @@ class ProfilesPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DT.s5),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _UserProfileSection(),
-            const SizedBox(height: DT.s6),
-            const _MetricsRow(),
-            const SizedBox(height: DT.s6),
-            const _ActivityList(),
-            const SizedBox(height: DT.s6),
-          ],
-        ),
+        child: _ProfileBody(),
       ),
+    );
+  }
+}
+
+class _ProfileBody extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final isCoach = UserSession.instance.isCoach;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _UserProfileSection(),
+        if (!isCoach) ...[
+          const SizedBox(height: DT.s6),
+          const _MetricsRow(),
+        ],
+        const SizedBox(height: DT.s6),
+        _ActivityList(isCoach: isCoach),
+        const SizedBox(height: DT.s6),
+      ],
     );
   }
 }
@@ -248,7 +259,9 @@ class _MetricCard extends StatelessWidget {
 }
 
 class _ActivityList extends StatelessWidget {
-  const _ActivityList();
+  final bool isCoach;
+
+  const _ActivityList({required this.isCoach});
 
   @override
   Widget build(BuildContext context) {
@@ -260,12 +273,13 @@ class _ActivityList extends StatelessWidget {
           subtitle: '3 napja',
           onTap: () {},
         ),
-        _ActivityItem(
-          icon: Icons.assessment,
-          title: 'Statisztika',
-          subtitle: '163 edzés idén',
-          onTap: () {},
-        ),
+        if (!isCoach)
+          _ActivityItem(
+            icon: Icons.assessment,
+            title: 'Statisztika',
+            subtitle: '163 edzés idén',
+            onTap: () {},
+          ),
         _ActivityItem(
           icon: Icons.route,
           title: 'Fejlődés',

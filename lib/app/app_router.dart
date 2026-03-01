@@ -10,6 +10,7 @@ import 'package:flutter_application_1/features/profiles/presentation/profiles_pa
 import 'package:flutter_application_1/features/session/presentation/session_page.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
+import 'package:flutter_application_1/features/register/athlete_survey_page.dart';
 import 'package:flutter_application_1/features/register/register_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,6 +32,11 @@ GoRouter buildRouter() {
         name: Approute.register.name,
         pageBuilder: (context, state) =>
             const NoTransitionPage(child: RegisterPage()),
+      ),
+      GoRoute(
+        path: '/athlete-survey',
+        pageBuilder: (context, state) =>
+            const MaterialPage(child: AthleteSurveyPage()),
       ),
 
       // ── Full-screen routes (outside shell) ──────────────────────────────────
