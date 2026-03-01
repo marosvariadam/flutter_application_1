@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -40,6 +41,9 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       if (success) {
+        // Load the role stored by AuthService so UserSession is populated
+        await UserSession.instance.loadFromStorage();
+        if (!mounted) return;
         context.go('/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
