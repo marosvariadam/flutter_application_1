@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +16,8 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final _authService = AuthService();
 
   @override
   void dispose() {
@@ -23,10 +26,32 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: replace with actual auth call via BLoC
-      context.go('/home');
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final success = await _authService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        context.go('/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hibás email vagy jelszó!')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hiba történt: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -139,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _submit,
+                          onPressed: _isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: DT.metricBlue,
                             shape: RoundedRectangleBorder(
@@ -147,14 +172,17 @@ class _LoginPageState extends State<LoginPage> {
                                   BorderRadius.circular(DT.rCardSmall),
                             ),
                           ),
-                          child: Text(
-                            'Bejelentkezés',
-                            style: TextStyle(
-                              color: DT.textWhite,
-                              fontSize: DT.s4,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : Text(
+                                  'Bejelentkezés',
+                                  style: TextStyle(
+                                    color: DT.textWhite,
+                                    fontSize: DT.s4,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: DT.s5),
@@ -162,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         height: 50,
                         child: OutlinedButton(
-                          onPressed: () {}, // TODO: navigate to registration
+                          onPressed: () => context.push('/register'),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: DT.metricBlue),
                             shape: RoundedRectangleBorder(
