@@ -6,8 +6,6 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/messaging/bloc/chat_bloc.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
 import 'package:flutter_application_1/features/messaging/data/models/message_model.dart';
-import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart'
-    show _AvatarFallback;
 
 class ChatPage extends StatelessWidget {
   final String contactId;
@@ -330,6 +328,45 @@ class _ChatViewState extends State<_ChatView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AvatarFallback extends StatelessWidget {
+  final String name;
+  const _AvatarFallback(this.name);
+
+  static const _colors = [
+    DT.cardBlue,
+    DT.cardTeal,
+    DT.cardOrange,
+    DT.cardYellow,
+    DT.metricBlue,
+    DT.cardRed,
+  ];
+
+  Color get _color => _colors[name.codeUnitAt(0) % _colors.length];
+
+  String get _initials {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}';
+    return parts[0][0];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: _color.withValues(alpha: 0.3),
+      child: Center(
+        child: Text(
+          _initials.toUpperCase(),
+          style: TextStyle(
+            color: _color,
+            fontSize: DT.s4,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ),
     );
   }
