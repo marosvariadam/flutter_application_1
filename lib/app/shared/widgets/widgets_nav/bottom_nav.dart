@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class BottomNavScaffold extends StatelessWidget {
@@ -11,6 +13,10 @@ class BottomNavScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthBloc>().state;
+    final isTrainer = authState is AuthAuthenticated &&
+        authState.user.isTrainer;
+
     return Scaffold(
       body: shell,
       bottomNavigationBar: Container(
@@ -38,8 +44,10 @@ class BottomNavScaffold extends StatelessWidget {
                 onTap: () => _onTap(0),
               ),
               _NavItem(
-                icon: Icons.fitness_center_outlined,
-                label: 'Edzés',
+                icon: isTrainer
+                    ? Icons.group_outlined
+                    : Icons.fitness_center_outlined,
+                label: isTrainer ? 'Sportolók' : 'Edzés',
                 isSelected: shell.currentIndex == 1,
                 onTap: () => _onTap(1),
               ),

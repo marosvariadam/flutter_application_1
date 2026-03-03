@@ -1,152 +1,144 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/shared/widgets/notification_bell.dart';
+import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
+import 'package:flutter_application_1/features/user/data/models/user_model.dart';
 
 class ProfilesPage extends StatelessWidget {
   const ProfilesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: DT.bg,
-      appBar: AppBar(
-        backgroundColor: DT.bg,
-        elevation: 0,
-        title: const Text(
-          'Profil',
-          style: TextStyle(
-            color: DT.textPrimary,
-            fontSize: DT.s4,
-            fontWeight: FontWeight.w600,
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        final user = authState is AuthAuthenticated ? authState.user : null;
+        return Scaffold(
+          backgroundColor: DT.bg,
+          appBar: AppBar(
+            backgroundColor: DT.bg,
+            elevation: 0,
+            title: const Text(
+              'Profil',
+              style: TextStyle(
+                color: DT.textPrimary,
+                fontSize: DT.s4,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+            actions: const [NotificationBell()],
           ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(DT.s5),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _UserProfileSection(),
-            const SizedBox(height: DT.s6),
-            const _MetricsRow(),
-            const SizedBox(height: DT.s6),
-            const _ActivityList(),
-            const SizedBox(height: DT.s6),
-          ],
-        ),
-      ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(DT.s5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _UserProfileSection(user: user),
+                const SizedBox(height: DT.s6),
+                if (user?.isAthlete == true) ...[
+                  const _MetricsRow(),
+                  const SizedBox(height: DT.s6),
+                ],
+                _MenuSection(user: user),
+                const SizedBox(height: DT.s6),
+                _LogoutButton(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
+// ── Profile header ─────────────────────────────────────────────────────────
+
 class _UserProfileSection extends StatelessWidget {
-  const _UserProfileSection();
+  final UserModel? user;
+  const _UserProfileSection({required this.user});
 
   @override
   Widget build(BuildContext context) {
+    final name = user != null
+        ? '${user!.firstName} ${user!.lastName}'.trim()
+        : 'Betöltés...';
+    final email = user?.email ?? '';
+    final role = user?.isTrainer == true ? 'Edző' : 'Sportoló';
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Avatar
         Container(
           width: 64,
           height: 64,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
+            color: DT.metricBlue.withOpacity(0.15),
             border: Border.all(color: DT.borderGrey, width: 2),
-            boxShadow: const [
-              BoxShadow(
-                color: DT.shadowLight,
-                blurRadius: 10,
-                offset: Offset(0, 2),
-              ),
-            ],
           ),
-          child: ClipOval(
-            child: Image.network(
-              'https://example.com/user_profile.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: DT.iconLightGrey.withOpacity(0.3),
-                child:
-                    const Icon(Icons.person, size: DT.s6, color: DT.iconLight),
-              ),
+          child: Center(
+            child: Text(
+              _initials(name),
+              style: const TextStyle(
+                  color: DT.metricBlue,
+                  fontWeight: FontWeight.w700,
+                  fontSize: DT.s4),
             ),
           ),
         ),
         const SizedBox(width: DT.s4),
-        // Name + stats
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Jane Doe',
-                style: TextStyle(
-                  color: DT.textPrimary,
-                  fontSize: DT.s5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: DT.s1),
-              const Text(
-                'Budapest, Hungary',
-                style: TextStyle(
-                  color: DT.textSecondary,
-                  fontSize: DT.s3,
-                ),
-              ),
+              Text(name,
+                  style: const TextStyle(
+                      color: DT.textPrimary,
+                      fontSize: DT.s5,
+                      fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text(email,
+                  style: const TextStyle(
+                      color: DT.textSecondary, fontSize: DT.s3)),
               const SizedBox(height: DT.s2),
-              Row(
-                children: const [
-                  Text(
-                    'Edzések: 42',
-                    style: TextStyle(
-                      color: DT.textSecondary,
-                      fontSize: DT.s3,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(width: DT.s3),
-                  Text(
-                    'Streak: 7 nap',
-                    style: TextStyle(
-                      color: DT.textSecondary,
-                      fontSize: DT.s3,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: DT.s2, vertical: 2),
+                decoration: BoxDecoration(
+                  color: DT.metricBlue.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(role,
+                    style: const TextStyle(
+                        color: DT.metricBlue,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600)),
               ),
             ],
           ),
         ),
-        // Action buttons — proper 48×48 touch targets
-        Column(
-          children: [
-            _ProfileActionButton(
-              icon: Icons.edit,
-              onTap: () {},
-            ),
-            const SizedBox(height: DT.s2),
-            _ProfileActionButton(
-              icon: Icons.share,
-              onTap: () {},
-            ),
-          ],
+        _ProfileActionButton(
+          icon: Icons.edit_outlined,
+          onTap: () => context.push('/profile/edit'),
         ),
       ],
     );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+    }
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 }
 
 class _ProfileActionButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-
   const _ProfileActionButton({required this.icon, required this.onTap});
 
   @override
@@ -158,16 +150,16 @@ class _ProfileActionButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(DT.s2),
         child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Center(
-            child: Icon(icon, color: DT.iconLight, size: DT.s5),
-          ),
+          width: 40,
+          height: 40,
+          child: Center(child: Icon(icon, color: DT.iconLight, size: DT.s4)),
         ),
       ),
     );
   }
 }
+
+// ── Metrics row (athlete only) ─────────────────────────────────────────────
 
 class _MetricsRow extends StatelessWidget {
   const _MetricsRow();
@@ -175,29 +167,20 @@ class _MetricsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: [
+      children: const [
         Expanded(
           child: _MetricCard(
-            color: DT.metricGreen,
-            title: 'Kezdő súly',
-            value: '82.2 kg',
-          ),
+              color: DT.metricGreen, title: 'Kezdő súly', value: '— kg'),
         ),
-        const SizedBox(width: DT.s3),
+        SizedBox(width: DT.s3),
         Expanded(
           child: _MetricCard(
-            color: DT.metricBlue,
-            title: 'Jelenlegi súly',
-            value: '76.6 kg',
-          ),
+              color: DT.metricBlue, title: 'Jelenlegi', value: '— kg'),
         ),
-        const SizedBox(width: DT.s3),
+        SizedBox(width: DT.s3),
         Expanded(
           child: _MetricCard(
-            color: DT.metricOrange,
-            title: 'Magasság',
-            value: '176 cm',
-          ),
+              color: DT.metricOrange, title: 'Magasság', value: '— cm'),
         ),
       ],
     );
@@ -208,7 +191,6 @@ class _MetricCard extends StatelessWidget {
   final String title;
   final String value;
   final Color color;
-
   const _MetricCard(
       {required this.title, required this.value, required this.color});
 
@@ -216,7 +198,7 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(DT.s3),
-      constraints: const BoxConstraints(minHeight: 80),
+      constraints: const BoxConstraints(minHeight: 72),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -225,21 +207,117 @@ class _MetricCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: DT.s3,
-              color: DT.textSecondary,
-            ),
+          Text(title,
+              style: const TextStyle(
+                  fontSize: DT.s3, color: DT.textSecondary)),
+          const SizedBox(height: DT.s1),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: DT.s4,
+                  fontWeight: FontWeight.w700,
+                  color: DT.textPrimary)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Menu section ───────────────────────────────────────────────────────────
+
+class _MenuSection extends StatelessWidget {
+  final UserModel? user;
+  const _MenuSection({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final isTrainer = user?.isTrainer == true;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader('Fiók'),
+        _MenuItem(
+          icon: Icons.person_outline,
+          title: 'Profil szerkesztése',
+          onTap: () => context.push('/profile/edit'),
+        ),
+        _MenuItem(
+          icon: Icons.lock_outline,
+          title: 'Jelszó megváltoztatása',
+          onTap: () => context.push('/profile/change-password'),
+        ),
+        const SizedBox(height: DT.s4),
+        _SectionHeader(isTrainer ? 'Edző eszközök' : 'Sportoló eszközök'),
+        if (isTrainer) ...[
+          _MenuItem(
+            icon: Icons.group_outlined,
+            title: 'Sportolóim',
+            onTap: () => context.push('/roster'),
           ),
-          const SizedBox(height: DT.s2),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: DT.s4,
-              fontWeight: FontWeight.w700,
-              color: DT.textPrimary,
-            ),
+          _MenuItem(
+            icon: Icons.inbox_outlined,
+            title: 'Csatlakozási kérések',
+            onTap: () => context.push('/trainer-requests'),
+          ),
+          _MenuItem(
+            icon: Icons.assignment_outlined,
+            title: 'Felmérő szerkesztő',
+            onTap: () => context.push('/onboarding/form-builder'),
+          ),
+          _MenuItem(
+            icon: Icons.bar_chart,
+            title: 'Felmérő válaszok',
+            onTap: () => context.push('/onboarding/responses'),
+          ),
+        ] else ...[
+          _MenuItem(
+            icon: Icons.send_outlined,
+            title: 'Edzőhöz csatlakozás',
+            onTap: () => context.push('/trainer-requests'),
+          ),
+          _MenuItem(
+            icon: Icons.quiz_outlined,
+            title: 'Edzői felmérő',
+            onTap: () => context.push('/onboarding/survey'),
+          ),
+        ],
+        const SizedBox(height: DT.s4),
+        _SectionHeader('Egyéb'),
+        _MenuItem(
+          icon: Icons.notifications_outlined,
+          title: 'Értesítések',
+          onTap: () => context.push('/notifications'),
+        ),
+        _MenuItem(
+          icon: Icons.delete_outline,
+          title: 'Fiók törlése',
+          iconColor: DT.cardRed,
+          textColor: DT.cardRed,
+          onTap: () => _confirmDeleteAccount(context),
+        ),
+      ],
+    );
+  }
+
+  void _confirmDeleteAccount(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: DT.bg,
+        title: const Text('Fiók törlése',
+            style: TextStyle(color: DT.textPrimary)),
+        content: const Text(
+          'Biztosan törlöd a fiókodat? Ez a művelet nem vonható vissza.',
+          style: TextStyle(color: DT.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Mégse'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: DT.cardRed),
+            child: const Text('Törlés'),
           ),
         ],
       ),
@@ -247,53 +325,39 @@ class _MetricCard extends StatelessWidget {
   }
 }
 
-class _ActivityList extends StatelessWidget {
-  const _ActivityList();
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  const _SectionHeader(this.label);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _ActivityItem(
-          icon: Icons.directions_run,
-          title: 'Fizikai Edzés',
-          subtitle: '3 napja',
-          onTap: () {},
-        ),
-        _ActivityItem(
-          icon: Icons.assessment,
-          title: 'Statisztika',
-          subtitle: '163 edzés idén',
-          onTap: () {},
-        ),
-        _ActivityItem(
-          icon: Icons.route,
-          title: 'Fejlődés',
-          subtitle: 'Eddigi fejlődés',
-          onTap: () {},
-        ),
-        _ActivityItem(
-          icon: Icons.flash_on,
-          title: 'Eszközök',
-          subtitle: 'Eddig használt eszközök',
-          onTap: () {},
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: DT.s2),
+      child: Text(
+        label,
+        style: const TextStyle(
+            color: DT.textSecondary,
+            fontSize: DT.s3,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5),
+      ),
     );
   }
 }
 
-class _ActivityItem extends StatelessWidget {
+class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String subtitle;
   final VoidCallback onTap;
+  final Color iconColor;
+  final Color textColor;
 
-  const _ActivityItem({
+  const _MenuItem({
     required this.icon,
     required this.title,
-    required this.subtitle,
     required this.onTap,
+    this.iconColor = DT.iconLight,
+    this.textColor = DT.textPrimary,
   });
 
   @override
@@ -301,50 +365,85 @@ class _ActivityItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: DT.s4),
+        padding: const EdgeInsets.symmetric(vertical: DT.s3),
         decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: DT.borderLight, width: 1),
-          ),
+          border:
+              Border(bottom: BorderSide(color: DT.borderLight, width: 1)),
         ),
         child: Row(
           children: [
             Container(
-              height: 40,
-              width: 40,
+              height: 36,
+              width: 36,
               decoration: BoxDecoration(
-                color: DT.iconLight.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(18),
               ),
-              child: Icon(icon, color: DT.iconLight, size: 20),
+              child: Icon(icon, color: iconColor, size: 18),
             ),
-            const SizedBox(width: DT.s4),
+            const SizedBox(width: DT.s3),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: DT.s4,
-                      fontWeight: FontWeight.w500,
-                      color: DT.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
+              child: Text(title,
+                  style: TextStyle(
                       fontSize: DT.s3,
-                      color: DT.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+                      fontWeight: FontWeight.w500,
+                      color: textColor)),
             ),
-            const Icon(Icons.arrow_forward_ios, color: DT.textGrey, size: 14),
+            const Icon(Icons.arrow_forward_ios,
+                color: DT.textGrey, size: 14),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Logout ─────────────────────────────────────────────────────────────────
+
+class _LogoutButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _confirm(context),
+        icon: const Icon(Icons.logout, color: DT.cardRed),
+        label: const Text('Kijelentkezés',
+            style: TextStyle(color: DT.cardRed)),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: DT.cardRed),
+          padding: const EdgeInsets.symmetric(vertical: DT.s3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DT.rCardSmall),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirm(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: DT.bg,
+        title: const Text('Kijelentkezés',
+            style: TextStyle(color: DT.textPrimary)),
+        content: const Text('Biztosan ki szeretnél jelentkezni?',
+            style: TextStyle(color: DT.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Mégse'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AuthBloc>().add(LogoutRequested());
+            },
+            style: TextButton.styleFrom(foregroundColor: DT.cardRed),
+            child: const Text('Kijelentkezés'),
+          ),
+        ],
       ),
     );
   }

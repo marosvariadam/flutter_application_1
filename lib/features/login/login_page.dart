@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,7 +15,6 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _rememberMe = false;
   bool _obscurePassword = true;
 
   @override
@@ -25,14 +26,26 @@ class _LoginPageState extends State<LoginPage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // TODO: replace with actual auth call via BLoC
-      context.go('/home');
+      context.read<AuthBloc>().add(
+            LoginRequested(
+              _emailController.text.trim(),
+              _passwordController.text,
+            ),
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      child: Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 100.0, left: 24.0, right: 24.0),
@@ -107,62 +120,47 @@ class _LoginPageState extends State<LoginPage> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: DT.s4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _rememberMe,
-                                onChanged: (value) => setState(
-                                  () => _rememberMe = value ?? false,
-                                ),
-                              ),
-                              Text(
-                                'Emlékezz rám',
-                                style: TextStyle(
-                                  color: DT.textSecondary,
-                                  fontSize: DT.s3,
-                                ),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text('Elfelejtett jelszó?'),
-                          ),
-                        ],
-                      ),
                       const SizedBox(height: DT.s6),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: DT.metricBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(DT.rCardSmall),
+                      BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          final loading = state is AuthLoading;
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: loading ? null : _submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: DT.metricBlue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(DT.rCardSmall),
+                                ),
+                              ),
+                              child: loading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white))
+                                  : Text(
+                                      'Bejelentkezés',
+                                      style: TextStyle(
+                                        color: DT.textWhite,
+                                        fontSize: DT.s4,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                             ),
-                          ),
-                          child: Text(
-                            'Bejelentkezés',
-                            style: TextStyle(
-                              color: DT.textWhite,
-                              fontSize: DT.s4,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                       const SizedBox(height: DT.s5),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: OutlinedButton(
-                          onPressed: () {}, // TODO: navigate to registration
+                          onPressed: () => context.push('/register'),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: DT.metricBlue),
                             shape: RoundedRectangleBorder(
@@ -187,6 +185,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
