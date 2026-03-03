@@ -21,6 +21,21 @@ class ConversationModel {
     required this.messages,
   });
 
+  factory ConversationModel.fromJson(Map<String, dynamic> j) =>
+      ConversationModel(
+        id: j['partnerId'] as String? ?? j['id'] as String,
+        contactName:
+            j['partnerName'] as String? ?? j['contactName'] as String? ?? '',
+        contactAvatarUrl: j['partnerAvatarUrl'] as String? ?? '',
+        lastMessage: j['lastMessage'] as String? ?? '',
+        lastMessageTime: j['lastMessageAt'] != null
+            ? DateTime.parse(j['lastMessageAt'] as String)
+            : DateTime.now(),
+        unreadCount: j['unreadCount'] as int? ?? 0,
+        isOnline: false,
+        messages: const [],
+      );
+
   ConversationModel copyWith({List<MessageModel>? messages, int? unreadCount}) {
     return ConversationModel(
       id: id,
