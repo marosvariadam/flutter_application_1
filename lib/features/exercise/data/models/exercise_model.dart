@@ -3,48 +3,41 @@ class ExerciseModel {
   final String name;
   final String muscleGroup;
   final String? description;
-  final bool isCustom;
+  final String? equipment;
+  final String? createdByTrainerId;
 
   const ExerciseModel({
     required this.id,
     required this.name,
     required this.muscleGroup,
     this.description,
-    this.isCustom = false,
+    this.equipment,
+    this.createdByTrainerId,
   });
+
+  /// Custom exercises were created by a specific trainer.
+  bool get isCustom => createdByTrainerId != null;
 
   factory ExerciseModel.fromJson(Map<String, dynamic> j) => ExerciseModel(
         id: j['id'] as String,
         name: j['name'] as String,
-        muscleGroup: j['muscleGroup'] as String,
+        muscleGroup: j['muscleGroup'] as String? ?? '',
         description: j['description'] as String?,
-        isCustom: j['isCustom'] as bool? ?? false,
+        equipment: j['equipment'] as String?,
+        createdByTrainerId: j['createdByTrainerId'] as String?,
       );
 }
 
+/// Wraps a plain array from the backend so existing blocs don't need to change.
 class PaginatedExercises {
   final List<ExerciseModel> items;
-  final int total;
-  final int page;
-  final int pageSize;
+  final bool hasMore;
 
-  const PaginatedExercises({
-    required this.items,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-  });
+  const PaginatedExercises({required this.items, this.hasMore = false});
 
-  bool get hasMore => (page * pageSize) < total;
-
-  factory PaginatedExercises.fromJson(Map<String, dynamic> j) =>
-      PaginatedExercises(
-        items: (j['items'] as List)
-            .map((e) =>
-                ExerciseModel.fromJson(e as Map<String, dynamic>))
+  factory PaginatedExercises.fromList(List<dynamic> list) => PaginatedExercises(
+        items: list
+            .map((e) => ExerciseModel.fromJson(e as Map<String, dynamic>))
             .toList(),
-        total: j['total'] as int,
-        page: j['page'] as int,
-        pageSize: j['pageSize'] as int,
       );
 }

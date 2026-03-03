@@ -1,5 +1,6 @@
 import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/api/api_constants.dart';
+import 'package:flutter_application_1/core/storage/token_storage.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 
 class RosterRepository {
@@ -7,13 +8,23 @@ class RosterRepository {
   RosterRepository(this._client);
 
   Future<PaginatedAthletes> getAthletes({int page = 1, int pageSize = 20}) async {
+    final trainerId = await TokenStorage.getUserId();
     final res = await _client.dio.get(
-      ApiConstants.myAthletes,
-      queryParameters: {'page': page, 'pageSize': pageSize},
+      ApiConstants.trainerAthletes(trainerId ?? ''),
     );
-    return PaginatedAthletes.fromJson(res.data as Map<String, dynamic>);
+    // Backend returns plain array — wrap in PaginatedAthletes
+    final items = (res.data as List)
+        .map((e) => AthleteModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+    return PaginatedAthletes(
+      items: items,
+      total: items.length,
+      page: 1,
+      pageSize: items.length,
+    );
   }
 
+  /// Creates an athlete account via the public register endpoint.
   Future<AthleteModel> createAthlete({
     required String firstName,
     required String lastName,
@@ -21,12 +32,13 @@ class RosterRepository {
     required String password,
   }) async {
     final res = await _client.dio.post(
-      ApiConstants.createAthlete,
+      ApiConstants.register,
       data: {
         'firstName': firstName,
         'lastName': lastName,
         'email': email,
         'password': password,
+        'role': 'Athlete',
       },
     );
     return AthleteModel.fromJson(res.data as Map<String, dynamic>);
@@ -39,20 +51,16 @@ class RosterRepository {
     required String email,
   }) async {
     final res = await _client.dio.put(
-      ApiConstants.athlete(id),
+      ApiConstants.updateUser(id),
       data: {'firstName': firstName, 'lastName': lastName, 'email': email},
     );
     return AthleteModel.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<void> resetAthletePassword(String id, String newPassword) async {
-    await _client.dio.post(
-      ApiConstants.resetAthletePassword(id),
-      data: {'newPassword': newPassword},
-    );
+  Future<void> deleteAthlete(String id) async {
+    await _client.dio.delete(ApiConstants.deleteUser(id));
   }
 
-  Future<void> deleteAthlete(String id) async {
-    await _client.dio.delete(ApiConstants.athlete(id));
-  }
+  /// Not supported by current backend — no-op.
+  Future<void> resetAthletePassword(String id, String newPassword) async {}
 }

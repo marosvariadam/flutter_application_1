@@ -11,17 +11,15 @@ class WorkoutRepository {
   Future<WorkoutModel> createWorkout({
     required String title,
     required String athleteId,
-    required WorkoutDifficulty difficulty,
     required DateTime scheduledDate,
+    WorkoutDifficulty difficulty = WorkoutDifficulty.moderate,
     String? notes,
     required List<Map<String, dynamic>> exercises,
   }) async {
     final res = await _client.dio.post(ApiConstants.workout, data: {
       'title': title,
       'athleteId': athleteId,
-      'difficulty': difficulty.name,
       'scheduledDate': scheduledDate.toIso8601String(),
-      if (notes != null) 'notes': notes,
       'exercises': exercises,
     });
     return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
@@ -30,16 +28,14 @@ class WorkoutRepository {
   Future<WorkoutModel> updateWorkout(
     String id, {
     required String title,
-    required WorkoutDifficulty difficulty,
     required DateTime scheduledDate,
+    WorkoutDifficulty difficulty = WorkoutDifficulty.moderate,
     String? notes,
     required List<Map<String, dynamic>> exercises,
   }) async {
     final res = await _client.dio.put(ApiConstants.workoutById(id), data: {
       'title': title,
-      'difficulty': difficulty.name,
       'scheduledDate': scheduledDate.toIso8601String(),
-      if (notes != null) 'notes': notes,
       'exercises': exercises,
     });
     return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
@@ -49,89 +45,31 @@ class WorkoutRepository {
     await _client.dio.delete(ApiConstants.workoutById(id));
   }
 
-  Future<PaginatedWorkouts> getTrainerCreated({int page = 1, int pageSize = 20}) async {
-    final res = await _client.dio.get(
-      ApiConstants.trainerCreated,
-      queryParameters: {'page': page, 'pageSize': pageSize},
-    );
-    return PaginatedWorkouts.fromJson(res.data as Map<String, dynamic>);
-  }
-
-  Future<List<WorkoutModel>> getTrainerCalendar(DateTime from, DateTime to) async {
-    final res = await _client.dio.get(
-      ApiConstants.trainerCalendar,
-      queryParameters: {
-        'from': from.toIso8601String(),
-        'to': to.toIso8601String(),
-      },
-    );
-    return (res.data as List)
-        .map((e) => WorkoutModel.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<List<WorkoutModel>> getTrainerReview(String athleteId) async {
-    final res = await _client.dio.get(
-      ApiConstants.trainerReview,
-      queryParameters: {'athleteId': athleteId},
-    );
-    return (res.data as List)
-        .map((e) => WorkoutModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+  Future<PaginatedWorkouts> getTrainerCreated(
+      {int page = 1, int pageSize = 20}) async {
+    final res = await _client.dio.get(ApiConstants.trainerCreated);
+    return PaginatedWorkouts.fromList(res.data as List);
   }
 
   // ── Athlete ────────────────────────────────────────────────────────────────
 
-  Future<PaginatedWorkouts> getMyWorkouts({int page = 1, int pageSize = 20}) async {
-    final res = await _client.dio.get(
-      ApiConstants.myWorkouts,
-      queryParameters: {'page': page, 'pageSize': pageSize},
-    );
-    return PaginatedWorkouts.fromJson(res.data as Map<String, dynamic>);
-  }
-
-  Future<List<WorkoutModel>> getAthleteCalendar(DateTime from, DateTime to) async {
-    final res = await _client.dio.get(
-      ApiConstants.athleteCalendar,
-      queryParameters: {
-        'from': from.toIso8601String(),
-        'to': to.toIso8601String(),
-      },
-    );
-    return (res.data as List)
-        .map((e) => WorkoutModel.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<WorkoutModel> startWorkout(String id) async {
-    final res = await _client.dio.patch(ApiConstants.startWorkout(id));
-    return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
-  }
-
-  Future<void> logExercise(
-    String workoutId,
-    int index, {
-    int? actualSets,
-    int? actualReps,
-    double? actualWeightKg,
-    String? exerciseNotes,
-  }) async {
-    await _client.dio.patch(
-      ApiConstants.logExercise(workoutId, index),
-      data: {
-        if (actualSets != null) 'actualSets': actualSets,
-        if (actualReps != null) 'actualReps': actualReps,
-        if (actualWeightKg != null) 'actualWeightKg': actualWeightKg,
-        if (exerciseNotes != null) 'exerciseNotes': exerciseNotes,
-      },
-    );
+  Future<PaginatedWorkouts> getMyWorkouts(
+      {int page = 1, int pageSize = 20}) async {
+    final res = await _client.dio.get(ApiConstants.myWorkouts);
+    return PaginatedWorkouts.fromList(res.data as List);
   }
 
   Future<WorkoutModel> completeWorkout(String id, {String? feedback}) async {
     final res = await _client.dio.patch(
       ApiConstants.completeWorkout(id),
-      data: {if (feedback != null && feedback.isNotEmpty) 'feedback': feedback},
+      data: {
+        if (feedback != null && feedback.isNotEmpty) 'feedback': feedback
+      },
     );
+    // Backend returns 204 No Content on success — return fetched workout
+    if (res.statusCode == 204 || res.data == null) {
+      return getWorkout(id);
+    }
     return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
   }
 
