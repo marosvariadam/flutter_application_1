@@ -14,29 +14,30 @@ class AuthRepository {
       data: {'email': email, 'password': password},
     );
     final tokens = AuthTokens.fromJson(res.data as Map<String, dynamic>);
-    await TokenStorage.saveTokens(tokens.accessToken, tokens.refreshToken);
-    await TokenStorage.saveUserInfo(tokens.user.id, tokens.user.role);
+    // Backend has no refresh token — store the single JWT.
+    await TokenStorage.saveTokens(tokens.accessToken, '');
+    await TokenStorage.saveUserInfo(tokens.userId, tokens.role);
     return tokens;
   }
 
   Future<void> logout() async {
-    try {
-      await _client.dio.post(ApiConstants.logout);
-    } catch (_) {}
+    // Backend has no logout endpoint — just clear local storage.
     await TokenStorage.clearAll();
   }
 
+  /// Single register endpoint for both roles.
   Future<void> registerTrainer({
     required String firstName,
     required String lastName,
     required String email,
     required String password,
   }) async {
-    await _client.dio.post(ApiConstants.registerTrainer, data: {
+    await _client.dio.post(ApiConstants.register, data: {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
       'password': password,
+      'role': 'Trainer',
     });
   }
 
@@ -48,27 +49,21 @@ class AuthRepository {
     String? trainerEmail,
     String? introNote,
   }) async {
-    await _client.dio.post(ApiConstants.registerAthlete, data: {
+    await _client.dio.post(ApiConstants.register, data: {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
       'password': password,
-      if (trainerEmail != null) 'trainerEmail': trainerEmail,
-      if (introNote != null) 'introNote': introNote,
+      'role': 'Athlete',
     });
   }
 
-  /// Returns a minimal UserModel built from stored user info (no network call).
+  /// Returns a minimal UserModel built from stored credentials (no network call).
   Future<UserModel?> getCachedUser() async {
     final id = await TokenStorage.getUserId();
     final role = await TokenStorage.getUserRole();
     if (id == null || role == null) return null;
     return UserModel(
-      id: id,
-      firstName: '',
-      lastName: '',
-      email: '',
-      role: role,
-    );
+        id: id, firstName: '', lastName: '', email: '', role: role);
   }
 }

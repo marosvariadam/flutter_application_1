@@ -1,5 +1,6 @@
 import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/api/api_constants.dart';
+import 'package:flutter_application_1/core/storage/token_storage.dart';
 import 'package:flutter_application_1/features/user/data/models/user_model.dart';
 
 class UserRepository {
@@ -16,7 +17,8 @@ class UserRepository {
     required String lastName,
     required String email,
   }) async {
-    final res = await _client.dio.put(ApiConstants.me, data: {
+    final id = await TokenStorage.getUserId();
+    final res = await _client.dio.put(ApiConstants.updateUser(id ?? ''), data: {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
@@ -24,17 +26,17 @@ class UserRepository {
     return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
 
+  /// Not supported by current backend — throws if called.
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
   }) async {
-    await _client.dio.post(ApiConstants.changePassword, data: {
-      'currentPassword': currentPassword,
-      'newPassword': newPassword,
-    });
+    throw UnimplementedError(
+        'Change password is not yet supported by the backend.');
   }
 
   Future<void> deleteAccount() async {
-    await _client.dio.delete(ApiConstants.me);
+    final id = await TokenStorage.getUserId();
+    await _client.dio.delete(ApiConstants.deleteUser(id ?? ''));
   }
 }

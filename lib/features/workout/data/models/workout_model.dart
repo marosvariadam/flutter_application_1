@@ -59,12 +59,8 @@ class WorkoutExercise {
   final int targetSets;
   final int targetReps;
   final double? targetWeightKg;
-  final String? instructions;
-  // Logged by athlete
-  final int? actualSets;
-  final int? actualReps;
-  final double? actualWeightKg;
-  final String? exerciseNotes;
+  final String? instructions; // trainerNotes from backend
+  final String? exerciseNotes; // athleteNotes from backend
 
   const WorkoutExercise({
     required this.name,
@@ -72,30 +68,29 @@ class WorkoutExercise {
     required this.targetReps,
     this.targetWeightKg,
     this.instructions,
-    this.actualSets,
-    this.actualReps,
-    this.actualWeightKg,
     this.exerciseNotes,
   });
 
   factory WorkoutExercise.fromJson(Map<String, dynamic> j) => WorkoutExercise(
         name: j['name'] as String,
-        targetSets: j['targetSets'] as int,
-        targetReps: j['targetReps'] as int,
+        // Backend uses 'sets' + 'targetRepetitions'; fall back to camelCase variants
+        targetSets: j['sets'] as int? ?? j['targetSets'] as int? ?? 0,
+        targetReps: j['targetRepetitions'] as int? ??
+            j['targetReps'] as int? ??
+            0,
         targetWeightKg: (j['targetWeightKg'] as num?)?.toDouble(),
-        instructions: j['instructions'] as String?,
-        actualSets: j['actualSets'] as int?,
-        actualReps: j['actualReps'] as int?,
-        actualWeightKg: (j['actualWeightKg'] as num?)?.toDouble(),
-        exerciseNotes: j['exerciseNotes'] as String?,
+        instructions: j['trainerNotes'] as String? ??
+            j['instructions'] as String?,
+        exerciseNotes: j['athleteNotes'] as String? ??
+            j['exerciseNotes'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'targetSets': targetSets,
-        'targetReps': targetReps,
+        'sets': targetSets,
+        'targetRepetitions': targetReps,
         if (targetWeightKg != null) 'targetWeightKg': targetWeightKg,
-        if (instructions != null) 'instructions': instructions,
+        if (instructions != null) 'trainerNotes': instructions,
       };
 }
 
@@ -124,49 +119,62 @@ class WorkoutModel {
     required this.exercises,
   });
 
-  factory WorkoutModel.fromJson(Map<String, dynamic> j) => WorkoutModel(
-        id: j['id'] as String,
-        title: j['title'] as String,
-        athleteId: j['athleteId'] as String?,
-        athleteName: j['athleteName'] as String?,
-        difficulty: WorkoutDifficultyX.fromString(
-            j['difficulty'] as String? ?? 'easy'),
-        status:
-            WorkoutStatusX.fromString(j['status'] as String? ?? 'planned'),
-        scheduledDate:
-            DateTime.parse(j['scheduledDate'] as String),
-        notes: j['notes'] as String?,
-        athleteFeedback: j['athleteFeedback'] as String?,
-        exercises: (j['exercises'] as List? ?? [])
-            .map((e) =>
-                WorkoutExercise.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+  factory WorkoutModel.fromJson(Map<String, dynamic> j) {
+    // Backend uses isCompleted bool; richer status string if present
+    final isCompleted = j['isCompleted'] as bool? ?? false;
+    final statusStr = j['status'] as String?;
+    final status = statusStr != null
+        ? WorkoutStatusX.fromString(statusStr)
+        : (isCompleted ? WorkoutStatus.completed : WorkoutStatus.planned);
+
+    return WorkoutModel(
+      id: j['id'] as String,
+      title: j['title'] as String,
+      athleteId: j['athleteId'] as String?,
+      athleteName: j['athleteName'] as String?,
+      difficulty: WorkoutDifficultyX.fromString(
+          j['difficulty'] as String? ?? 'easy'),
+      status: status,
+      scheduledDate: DateTime.parse(j['scheduledDate'] as String),
+      notes: j['notes'] as String?,
+      athleteFeedback: j['athleteFeedback'] as String?,
+      exercises: (j['exercises'] as List? ?? [])
+          .map((e) => WorkoutExercise.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }
 
+/// Wraps a plain array response into a paginated structure so existing blocs
+/// work without changes. Backend currently returns plain arrays.
 class PaginatedWorkouts {
   final List<WorkoutModel> items;
-  final int total;
-  final int page;
-  final int pageSize;
+  final bool hasMore;
 
-  const PaginatedWorkouts({
-    required this.items,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-  });
+  const PaginatedWorkouts({required this.items, this.hasMore = false});
 
-  bool get hasMore => (page * pageSize) < total;
-
-  factory PaginatedWorkouts.fromJson(Map<String, dynamic> j) =>
-      PaginatedWorkouts(
-        items: (j['items'] as List)
-            .map((e) =>
-                WorkoutModel.fromJson(e as Map<String, dynamic>))
+  /// Use when the backend returns a plain JSON array.
+  factory PaginatedWorkouts.fromList(List<dynamic> list) => PaginatedWorkouts(
+        items: list
+            .map((e) => WorkoutModel.fromJson(e as Map<String, dynamic>))
             .toList(),
-        total: j['total'] as int,
-        page: j['page'] as int,
-        pageSize: j['pageSize'] as int,
       );
+
+  /// Use if the backend wraps into { items, total, page, pageSize }.
+  factory PaginatedWorkouts.fromJson(Map<String, dynamic> j) {
+    final rawItems = j['items'] as List?;
+    if (rawItems != null) {
+      final total = j['total'] as int? ?? 0;
+      final page = j['page'] as int? ?? 1;
+      final pageSize = j['pageSize'] as int? ?? rawItems.length;
+      return PaginatedWorkouts(
+        items: rawItems
+            .map((e) => WorkoutModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        hasMore: (page * pageSize) < total,
+      );
+    }
+    // Plain array response
+    return PaginatedWorkouts.fromList(j.values.first as List);
+  }
 }

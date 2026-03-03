@@ -18,37 +18,24 @@ class ExerciseRepository {
         if (search != null && search.isNotEmpty) 'search': search,
         if (muscleGroup != null && muscleGroup.isNotEmpty)
           'muscleGroup': muscleGroup,
-        'page': page,
-        'pageSize': pageSize,
       },
     );
-    return PaginatedExercises.fromJson(res.data as Map<String, dynamic>);
+    // Backend returns plain array
+    return PaginatedExercises.fromList(res.data as List);
   }
 
   Future<ExerciseModel> createExercise({
     required String name,
     required String muscleGroup,
     String? description,
+    String? equipment,
   }) async {
     final res = await _client.dio.post(ApiConstants.exercise, data: {
       'name': name,
       'muscleGroup': muscleGroup,
       if (description != null && description.isNotEmpty)
         'description': description,
-    });
-    return ExerciseModel.fromJson(res.data as Map<String, dynamic>);
-  }
-
-  Future<ExerciseModel> updateExercise(
-    String id, {
-    required String name,
-    required String muscleGroup,
-    String? description,
-  }) async {
-    final res = await _client.dio.put(ApiConstants.exerciseById(id), data: {
-      'name': name,
-      'muscleGroup': muscleGroup,
-      if (description != null) 'description': description,
+      if (equipment != null && equipment.isNotEmpty) 'equipment': equipment,
     });
     return ExerciseModel.fromJson(res.data as Map<String, dynamic>);
   }
