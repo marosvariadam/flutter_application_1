@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter_application_1/features/user/data/models/user_model.dart';
@@ -81,8 +82,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final tokens = await _authRepo.login(event.email, event.password);
       final user = await _userRepo.getUser(tokens.user.id);
       emit(AuthAuthenticated(user));
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionError ||
+          e.type == DioExceptionType.unknown) {
+        emit(AuthError('Nem sikerült csatlakozni a szerverhez. Ellenőrizd a hálózatot.'));
+      } else if (e.response?.statusCode == 401 ||
+          e.response?.statusCode == 400) {
+        emit(AuthError('Hibás email vagy jelszó.'));
+      } else {
+        emit(AuthError('Szerverhiba (${e.response?.statusCode}). Próbáld újra.'));
+      }
     } catch (e) {
-      emit(AuthError('Hibás email vagy jelszó.'));
+      emit(AuthError('Váratlan hiba: $e'));
     }
   }
 
