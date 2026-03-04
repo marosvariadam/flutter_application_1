@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
-import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
-import 'package:flutter_application_1/features/auth/presentation/register_page.dart';
-import 'package:flutter_application_1/features/exercise/presentation/exercise_catalogue_page.dart';
-import 'package:flutter_application_1/features/exercise/presentation/exercise_form_page.dart';
-import 'package:flutter_application_1/features/home/presentation/home_page.dart';
+import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
+import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
+import 'package:flutter_application_1/features/home/presantation/home_page.dart';
 import 'package:flutter_application_1/features/login/login_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/chat_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart';
@@ -15,18 +13,15 @@ import 'package:flutter_application_1/features/onboarding/presentation/trainer_f
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentation/session_page.dart';
-import 'package:flutter_application_1/features/trainer/presentation/create_edit_athlete_page.dart';
-import 'package:flutter_application_1/features/trainer/presentation/roster_page.dart';
-import 'package:flutter_application_1/features/trainer/presentation/trainer_requests_page.dart';
-import 'package:flutter_application_1/features/user/presentation/change_password_page.dart';
-import 'package:flutter_application_1/features/user/presentation/edit_profile_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_calendar_page.dart';
+import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_form_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_review_page.dart';
+import 'package:flutter_application_1/features/register/athlete_survey_page.dart';
+import 'package:flutter_application_1/features/register/register_page.dart';
+import 'package:go_router/go_router.dart';
 
-GoRouter buildRouter(AuthBloc authBloc) {
+enum Approute { home, session, messages, profile, login, register }
+
+GoRouter buildRouter() {
   return GoRouter(
     initialLocation: '/login',
     refreshListenable: _AuthBlocListenable(authBloc),
@@ -43,7 +38,7 @@ GoRouter buildRouter(AuthBloc authBloc) {
       return null;
     },
     routes: [
-      // ── Auth ───────────────────────────────────────────────────────────────
+      // ── Auth ────────────────────────────────────────────────────────────────
       GoRoute(
         path: '/login',
         pageBuilder: (_, __) =>
@@ -51,164 +46,47 @@ GoRouter buildRouter(AuthBloc authBloc) {
       ),
       GoRoute(
         path: '/register',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: RegisterPage()),
-      ),
-
-      // ── Notifications (full-screen) ─────────────────────────────────────────
-      GoRoute(
-        path: '/notifications',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: NotificationsPage()),
-      ),
-
-      // ── Messaging (full-screen, no bottom nav) ──────────────────────────────
-      GoRoute(
-        path: '/messages',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: MessagingPage()),
-        routes: [
-          GoRoute(
-            path: ':contactId',
-            pageBuilder: (_, state) => MaterialPage(
-              child: ChatPage(
-                contactId: state.pathParameters['contactId']!,
-              ),
-            ),
-          ),
-        ],
-      ),
-
-      // ── Profile management ──────────────────────────────────────────────────
-      GoRoute(
-        path: '/profile/edit',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: EditProfilePage()),
+        name: Approute.register.name,
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: RegisterPage()),
       ),
       GoRoute(
-        path: '/profile/change-password',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: ChangePasswordPage()),
-      ),
-
-      // ── Trainer roster ──────────────────────────────────────────────────────
-      GoRoute(
-        path: '/roster',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: RosterPage()),
-        routes: [
-          GoRoute(
-            path: 'new',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: CreateEditAthletePage()),
-          ),
-          GoRoute(
-            path: ':athleteId/edit',
-            pageBuilder: (_, state) => MaterialPage(
-              child: CreateEditAthletePage(
-                athleteId: state.pathParameters['athleteId'],
-              ),
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/trainer-requests',
-        pageBuilder: (_, state) {
-          final isTrainer =
-              state.uri.queryParameters['trainer'] == 'true';
-          return MaterialPage(
-            child: TrainerRequestsPage(isTrainer: isTrainer),
-          );
-        },
-      ),
-
-      // ── Workouts ────────────────────────────────────────────────────────────
-      GoRoute(
-        path: '/workout/new',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: WorkoutFormPage()),
-      ),
-      GoRoute(
-        path: '/workout/:id',
-        pageBuilder: (_, state) => MaterialPage(
-          child: WorkoutDetailPage(
-            workoutId: state.pathParameters['id']!,
-          ),
-        ),
-        routes: [
-          GoRoute(
-            path: 'edit',
-            pageBuilder: (_, state) => MaterialPage(
-              child: WorkoutFormPage(
-                workoutId: state.pathParameters['id'],
-              ),
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/workout-calendar',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: WorkoutCalendarPage()),
-      ),
-      GoRoute(
-        path: '/workout-review/:athleteId',
-        pageBuilder: (_, state) => MaterialPage(
-          child: WorkoutReviewPage(
-            athleteId: state.pathParameters['athleteId']!,
-          ),
-        ),
-      ),
-
-      // ── Exercises ───────────────────────────────────────────────────────────
-      GoRoute(
-        path: '/exercise-catalogue',
-        pageBuilder: (_, state) {
-          final selectionMode =
-              state.uri.queryParameters['select'] == 'true';
-          return MaterialPage(
-            child:
-                ExerciseCataloguePage(selectionMode: selectionMode),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/exercise/new',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: ExerciseFormPage()),
-      ),
-      GoRoute(
-        path: '/exercise/:id/edit',
-        pageBuilder: (_, state) => MaterialPage(
-          child: ExerciseFormPage(
-            exerciseId: state.pathParameters['id'],
-          ),
-        ),
-      ),
-
-      // ── Onboarding ──────────────────────────────────────────────────────────
-      GoRoute(
-        path: '/onboarding/form-builder',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: TrainerFormBuilderPage()),
-      ),
-      GoRoute(
-        path: '/onboarding/responses',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: TrainerResponsesPage()),
-      ),
-      GoRoute(
-        path: '/onboarding/survey',
-        pageBuilder: (_, __) =>
+        path: '/athlete-survey',
+        pageBuilder: (context, state) =>
             const MaterialPage(child: AthleteSurveyPage()),
       ),
 
-      // ── Bottom-nav shell ────────────────────────────────────────────────────
+      // ── Full-screen routes (outside shell) ──────────────────────────────────
+      GoRoute(
+        path: '/workout-detail',
+        pageBuilder: (context, state) {
+          final workout = state.extra as WorkoutModel;
+          return MaterialPage(child: WorkoutDetailPage(workout: workout));
+        },
+      ),
+      GoRoute(
+        path: '/athlete-detail/:id',
+        pageBuilder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return MaterialPage(child: AthleteDetailPage(athleteId: id));
+        },
+      ),
+      GoRoute(
+        path: '/workout-builder',
+        pageBuilder: (context, state) {
+          final athleteId = state.extra as String?;
+          return MaterialPage(
+            child: WorkoutBuilderPage(preselectedAthleteId: athleteId),
+          );
+        },
+      ),
+
+      // ── Main shell with bottom nav ───────────────────────────────────────────
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
             BottomNavScaffold(shell: shell),
         branches: [
+          // Tab 0 — Home (athlete) / Overview (coach)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -218,6 +96,7 @@ GoRouter buildRouter(AuthBloc authBloc) {
               ),
             ],
           ),
+          // Tab 1 — Sessions (athlete) / Athletes (coach)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -234,6 +113,27 @@ GoRouter buildRouter(AuthBloc authBloc) {
               ),
             ],
           ),
+          // Tab 2 — Messages
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/messages',
+                name: Approute.messages.name,
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: MessagingPage()),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    pageBuilder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return MaterialPage(child: ChatPage(contactId: id));
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Tab 3 — Profile
           StatefulShellBranch(
             routes: [
               GoRoute(

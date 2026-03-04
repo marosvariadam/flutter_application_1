@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
+import 'package:flutter_application_1/app/user_session.dart';
+import 'package:flutter_application_1/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +17,8 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final _authService = AuthService();
 
   @override
   void dispose() {
@@ -24,14 +27,35 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      context.read<AuthBloc>().add(
-            LoginRequested(
-              _emailController.text.trim(),
-              _passwordController.text,
-            ),
-          );
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final success = await _authService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        // Load the role stored by AuthService so UserSession is populated
+        await UserSession.instance.loadFromStorage();
+        if (!mounted) return;
+        context.go('/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hibás email vagy jelszó!')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hiba történt: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
