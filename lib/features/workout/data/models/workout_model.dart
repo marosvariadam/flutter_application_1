@@ -28,7 +28,32 @@ class WorkoutModel {
     required this.exercises,
   });
 
-  int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets.length);
+  // Colors assigned client-side by index (server has no color concept)
+  static const _colors = [
+    Color(0xFFBBD2FF), // blue
+    Color(0xFF4ECDC4), // teal
+    Color(0xFFFFC85D), // yellow
+    Color(0xFFFF6B35), // orange
+  ];
 
-  String get trainer => 'Coach'; // placeholder until real coach data is wired
+  factory WorkoutModel.fromJson(Map<String, dynamic> json, {int colorIndex = 0}) {
+    return WorkoutModel(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String?,
+      scheduledDate: DateTime.parse(json['scheduledDate'] as String),
+      athleteId: json['athleteId'] as String? ?? '',
+      coachId: json['coachId'] as String? ?? '',
+      difficulty: json['difficulty'] as String? ?? 'Közepes',
+      color: _colors[colorIndex % _colors.length],
+      estimatedDuration: json['estimatedDuration'] as String? ?? '—',
+      kcal: json['kcal'] as String? ?? '—',
+      exercises: (json['exercises'] as List?)
+              ?.map((e) => ExerciseModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets.length);
 }

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 
@@ -108,8 +110,19 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     }
   }
 
-  void _finish() {
-    // TODO: Send survey data to backend
+  Future<void> _finish() async {
+    const storage = FlutterSecureStorage();
+    await storage.write(
+      key: 'athlete_survey',
+      value: jsonEncode({
+        'goal': _selectedGoal,
+        'sportHistory': _sportHistoryController.text.trim(),
+        'injuries': _selectedInjuries.toList(),
+        'gymFrequency': _gymFrequency,
+        'equipment': _selectedEquipment.toList(),
+      }),
+    );
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Köszönjük! Profil sikeresen létrehozva.')),
     );

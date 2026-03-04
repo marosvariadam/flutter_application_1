@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'package:flutter_application_1/features/coach/data/coach_mock_data.dart';
 import 'package:flutter_application_1/features/coach/data/models/athlete_model.dart';
+import 'package:flutter_application_1/services/athlete_service.dart';
 import 'package:go_router/go_router.dart';
 
 class AthletesPage extends StatefulWidget {
   const AthletesPage({super.key});
-
   @override
   State<AthletesPage> createState() => _AthletesPageState();
 }
@@ -14,6 +13,19 @@ class AthletesPage extends StatefulWidget {
 class _AthletesPageState extends State<AthletesPage> {
   final _search = TextEditingController();
   String _query = '';
+  List<AthleteModel> _athletes = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAthletes();
+  }
+
+  Future<void> _loadAthletes() async {
+    final athletes = await AthleteService().getMyAthletes();
+    if (mounted) setState(() { _athletes = athletes; _isLoading = false; });
+  }
 
   @override
   void dispose() {
@@ -23,76 +35,66 @@ class _AthletesPageState extends State<AthletesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final all = CoachMockData.getAthletes();
     final filtered = _query.isEmpty
-        ? all
-        : all
-            .where(
-              (a) => a.fullName.toLowerCase().contains(_query.toLowerCase()),
-            )
-            .toList();
+        ? _athletes
+        : _athletes.where((a) => a.fullName.toLowerCase().contains(_query.toLowerCase())).toList();
 
     return Scaffold(
       backgroundColor: DT.bg,
       appBar: AppBar(
         backgroundColor: DT.bg,
         elevation: 0,
-        title: const Text(
-          'Atlétáim',
-          style: TextStyle(
-            color: DT.textPrimary,
-            fontSize: DT.s4,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: const Text('Atlétáim', style: TextStyle(color: DT.textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(DT.s5, 0, DT.s5, DT.s3),
-            child: Container(
-              decoration: BoxDecoration(
-                color: DT.gbWhite,
-                borderRadius: BorderRadius.circular(DT.rCardSmall),
-                boxShadow: const [
-                  BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2)),
-                ],
-              ),
-              child: TextField(
-                controller: _search,
-                onChanged: (v) => setState(() => _query = v),
-                decoration: const InputDecoration(
-                  hintText: 'Atléta keresése…',
-                  prefixIcon: Icon(Icons.search, color: DT.iconLight),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: DT.s4),
-                ),
-              ),
-            ),
-          ),
-          // List
-          Expanded(
-            child: filtered.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Nem található atléta.',
-                      style: TextStyle(color: DT.textSecondary, fontSize: DT.s4),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(DT.s5, 0, DT.s5, DT.s3),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: DT.gbWhite,
+                      borderRadius: BorderRadius.circular(DT.rCardSmall),
+                      boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2))],
                     ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(DT.s5, 0, DT.s5, DT.s8),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
-                    itemBuilder: (context, index) => _AthleteCard(
-                      athlete: filtered[index],
-                      onTap: () => context.push('/athlete-detail/${filtered[index].id}'),
+                    child: TextField(
+                      controller: _search,
+                      onChanged: (v) => setState(() => _query = v),
+                      decoration: const InputDecoration(
+                        hintText: 'Atléta keresése…',
+                        prefixIcon: Icon(Icons.search, color: DT.iconLight),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: DT.s4),
+                      ),
                     ),
                   ),
-          ),
-        ],
-      ),
+                ),
+                Expanded(
+                  child: filtered.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.people_outline, size: 64, color: DT.borderGrey),
+                              SizedBox(height: DT.s3),
+                              Text('Nem található adat', style: TextStyle(color: DT.textSecondary, fontSize: DT.s4)),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(DT.s5, 0, DT.s5, DT.s8),
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
+                          itemBuilder: (context, index) => _AthleteCard(
+                            athlete: filtered[index],
+                            onTap: () => context.push('/athlete-detail/${filtered[index].id}'),
+                          ),
+                        ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: DT.gbBlack,
@@ -101,8 +103,6 @@ class _AthletesPageState extends State<AthletesPage> {
     );
   }
 }
-
-// ─── Athlete Card ─────────────────────────────────────────────────────────────
 
 class _AthleteCard extends StatelessWidget {
   final AthleteModel athlete;
@@ -121,48 +121,22 @@ class _AthleteCard extends StatelessWidget {
           padding: const EdgeInsets.all(DT.s4),
           child: Row(
             children: [
-              // Initials avatar
               Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: DT.metricBlue.withOpacity(0.12),
-                ),
+                width: 52, height: 52,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: DT.metricBlue.withOpacity(0.12)),
                 child: Center(
-                  child: Text(
-                    athlete.initials,
-                    style: const TextStyle(
-                      fontSize: DT.s4,
-                      fontWeight: FontWeight.w700,
-                      color: DT.metricBlue,
-                    ),
-                  ),
+                  child: Text(athlete.initials, style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.metricBlue)),
                 ),
               ),
               const SizedBox(width: DT.s4),
-              // Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      athlete.fullName,
-                      style: const TextStyle(
-                        fontSize: DT.s4,
-                        fontWeight: FontWeight.w600,
-                        color: DT.textPrimary,
-                      ),
-                    ),
+                    Text(athlete.fullName, style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary)),
                     if (athlete.goal != null) ...[
                       const SizedBox(height: DT.s1),
-                      Text(
-                        'Cél: ${athlete.goal}',
-                        style: const TextStyle(
-                          fontSize: DT.s3,
-                          color: DT.textSecondary,
-                        ),
-                      ),
+                      Text('Cél: ${athlete.goal}', style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
                     ],
                     const SizedBox(height: DT.s2),
                     Row(
@@ -187,19 +161,12 @@ class _AthleteCard extends StatelessWidget {
 class _Tag extends StatelessWidget {
   final String label;
   const _Tag(this.label);
-
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: DT.s1),
-      decoration: BoxDecoration(
-        color: DT.bg,
-        borderRadius: BorderRadius.circular(DT.s1),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary),
-      ),
+      decoration: BoxDecoration(color: DT.bg, borderRadius: BorderRadius.circular(DT.s1)),
+      child: Text(label, style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
     );
   }
 }
