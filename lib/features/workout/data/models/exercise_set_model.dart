@@ -13,6 +13,16 @@ class ExerciseSetModel {
     this.repRangeMax,
   });
 
+  factory ExerciseSetModel.fromJson(Map<String, dynamic> json) {
+    return ExerciseSetModel(
+      setNumber: (json['setNumber'] as num).toInt(),
+      weight: (json['weight'] as num?)?.toDouble(),
+      reps: (json['reps'] as num?)?.toInt(),
+      repRangeMin: (json['repRangeMin'] as num?)?.toInt(),
+      repRangeMax: (json['repRangeMax'] as num?)?.toInt(),
+    );
+  }
+
   String get repDisplay {
     if (reps != null) return '$reps';
     if (repRangeMin != null && repRangeMax != null) return '$repRangeMin–$repRangeMax';

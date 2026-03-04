@@ -23,12 +23,21 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        
-        // Save Token 
+
+        // Save Token + identity
         await _storage.write(key: 'jwt_token', value: data['token']);
         await _storage.write(key: 'user_role', value: data['role']);
         await _storage.write(key: 'user_id', value: data['userId']);
-        
+        await _storage.write(key: 'user_email', value: email);
+        // Name may come from the JWT payload or a separate profile endpoint;
+        // store if the backend includes it in the login response.
+        if (data['firstName'] != null) {
+          await _storage.write(key: 'first_name', value: data['firstName'].toString());
+        }
+        if (data['lastName'] != null) {
+          await _storage.write(key: 'last_name', value: data['lastName'].toString());
+        }
+
         return true;
       } else {
         return false;
@@ -62,7 +71,14 @@ class AuthService {
       print("Server Response Code: ${response.statusCode}");
       print("Server Response Body: ${response.body}");
 
-      return response.statusCode == 201;
+      if (response.statusCode == 201) {
+        // Cache name + email so the profile page can show real data
+        await _storage.write(key: 'first_name', value: firstName);
+        await _storage.write(key: 'last_name', value: lastName);
+        await _storage.write(key: 'user_email', value: email);
+        return true;
+      }
+      return false;
     } catch (e) {
       throw Exception('Registration Error: $e');
     }

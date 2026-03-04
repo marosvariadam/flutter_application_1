@@ -16,4 +16,18 @@ class ExerciseModel {
     required this.category,
     required this.sets,
   });
+
+  factory ExerciseModel.fromJson(Map<String, dynamic> json) {
+    return ExerciseModel(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      imageUrl: json['imageUrl'] as String?,
+      category: json['category'] as String? ?? '',
+      sets: (json['sets'] as List?)
+              ?.map((s) => ExerciseSetModel.fromJson(s as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
 }
