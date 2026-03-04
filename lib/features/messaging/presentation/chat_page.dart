@@ -590,6 +590,54 @@ class _InputBar extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // Empty chat state
 // ─────────────────────────────────────────────────────────────
+class _AvatarFallback extends StatelessWidget {
+  final String name;
+  const _AvatarFallback(this.name);
+
+  static const _colors = [
+    DT.cardBlue,
+    DT.cardTeal,
+    DT.cardOrange,
+    DT.cardYellow,
+    DT.metricBlue,
+    DT.cardRed,
+  ];
+
+  Color get _color => _colors[name.codeUnitAt(0) % _colors.length];
+
+  String get _initials {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}';
+    return parts[0][0];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: _color.withValues(alpha: 0.3),
+      child: Center(
+        child: Text(
+          _initials.toUpperCase(),
+          style: TextStyle(
+            color: _color,
+            fontSize: DT.s4,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  final MessageModel message;
+  final bool showTimestamp;
+
+  const _MessageBubble(
+      {required this.message, required this.showTimestamp});
+
+  static final _timeFormat = DateFormat('HH:mm');
+  static final _dateFormat = DateFormat('MMM dd, HH:mm');
 
 class _EmptyChat extends StatelessWidget {
   final String name;

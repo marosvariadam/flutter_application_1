@@ -2,11 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/user_session.dart';
+import 'package:flutter_application_1/features/coach/presentation/athletes_page.dart';
 import 'package:flutter_application_1/features/session/bloc/session_bloc.dart';
 import 'package:flutter_application_1/features/session/data/models/session_model.dart';
 
+// Role-aware shell: coaches see their athlete roster, athletes see workout catalog.
 class SessionsPage extends StatelessWidget {
   const SessionsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (UserSession.instance.isCoach) return const AthletesPage();
+    return const _AthleteSessionsPage();
+  }
+}
+
+class _AthleteSessionsPage extends StatelessWidget {
+  const _AthleteSessionsPage();
 
   @override
   Widget build(BuildContext context) {

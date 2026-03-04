@@ -13,9 +13,7 @@ class BottomNavScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final isTrainer = authState is AuthAuthenticated &&
-        authState.user.isTrainer;
+    final isCoach = UserSession.instance.isCoach;
 
     return Scaffold(
       body: shell,
@@ -39,23 +37,27 @@ class BottomNavScaffold extends StatelessWidget {
             children: [
               _NavItem(
                 icon: Icons.home_outlined,
-                label: 'Kezdőlap',
+                label: isCoach ? 'Áttekintés' : 'Kezdőlap',
                 isSelected: shell.currentIndex == 0,
                 onTap: () => _onTap(0),
               ),
               _NavItem(
-                icon: isTrainer
-                    ? Icons.group_outlined
-                    : Icons.fitness_center_outlined,
-                label: isTrainer ? 'Sportolók' : 'Edzés',
+                icon: isCoach ? Icons.people_outline : Icons.fitness_center_outlined,
+                label: isCoach ? 'Atlétáim' : 'Edzés',
                 isSelected: shell.currentIndex == 1,
                 onTap: () => _onTap(1),
               ),
               _NavItem(
-                icon: Icons.person_outlined,
-                label: 'Profil',
+                icon: Icons.chat_bubble_outline,
+                label: 'Üzenetek',
                 isSelected: shell.currentIndex == 2,
                 onTap: () => _onTap(2),
+              ),
+              _NavItem(
+                icon: Icons.person_outline,
+                label: 'Profil',
+                isSelected: shell.currentIndex == 3,
+                onTap: () => _onTap(3),
               ),
             ],
           ),
@@ -80,10 +82,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        isSelected ? DT.gbBlack : Colors.white.withOpacity(0.5);
-    final labelColor =
-        isSelected ? DT.gbWhite : Colors.white.withOpacity(0.5);
+    final iconColor = isSelected ? DT.gbBlack : Colors.white.withOpacity(0.5);
+    final labelColor = isSelected ? DT.gbWhite : Colors.white.withOpacity(0.5);
 
     return InkWell(
       onTap: onTap,
@@ -91,8 +91,7 @@ class _NavItem extends StatelessWidget {
       splashColor: Colors.white.withOpacity(0.1),
       highlightColor: Colors.white.withOpacity(0.05),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: DT.s4, vertical: DT.s2),
+        padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -113,8 +112,7 @@ class _NavItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 color: labelColor,
-                fontWeight:
-                    isSelected ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
               child: Text(label),
             ),

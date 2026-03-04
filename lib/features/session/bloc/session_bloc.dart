@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/session/data/models/session_model.dart';
