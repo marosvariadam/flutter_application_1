@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'https://api.fitapp.example.com';
+  static const String baseUrl = 'http://10.0.2.2:5233';
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   /// POST { email, password } → { token, userId, role }
