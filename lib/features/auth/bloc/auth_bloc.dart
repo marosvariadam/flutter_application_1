@@ -85,12 +85,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionError ||
           e.type == DioExceptionType.unknown) {
-        emit(AuthError('Nem sikerült csatlakozni a szerverhez. Ellenőrizd a hálózatot.'));
-      } else if (e.response?.statusCode == 401 ||
-          e.response?.statusCode == 400) {
-        emit(AuthError('Hibás email vagy jelszó.'));
+        emit(AuthError('Kapcsolódási hiba: ${e.message}'));
       } else {
-        emit(AuthError('Szerverhiba (${e.response?.statusCode}). Próbáld újra.'));
+        final status = e.response?.statusCode;
+        final body = e.response?.data?.toString() ?? '(üres)';
+        emit(AuthError('HTTP $status: $body'));
       }
     } catch (e) {
       emit(AuthError('Váratlan hiba: $e'));
