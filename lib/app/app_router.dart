@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
+import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
 import 'package:flutter_application_1/features/home/presantation/home_page.dart';
 import 'package:flutter_application_1/features/login/login_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/chat_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart';
-import 'package:flutter_application_1/features/notifications/presentation/notifications_page.dart';
-import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
-import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
-import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentation/session_page.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
+import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
 import 'package:flutter_application_1/features/register/athlete_survey_page.dart';
 import 'package:flutter_application_1/features/register/register_page.dart';
-import 'package:go_router/go_router.dart';
 
 enum Approute { home, session, messages, profile, login, register }
 
-GoRouter buildRouter() {
+GoRouter buildRouter(AuthBloc authBloc) {
   return GoRouter(
     initialLocation: '/login',
     refreshListenable: _AuthBlocListenable(authBloc),
