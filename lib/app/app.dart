@@ -103,7 +103,7 @@ class _AppState extends State<App> {
           ),
           BlocProvider(create: (_) => MessagingBloc(repo: null)),
           BlocProvider(
-            create: (_) => ChatBloc(repo: null, hubService: _chatHub),
+            create: (_) => ChatBloc(repo: null, hub: _chatHub),
           ),
           BlocProvider(create: (_) => RosterBloc(_rosterRepo)),
           BlocProvider(

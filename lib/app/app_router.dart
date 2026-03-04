@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
+import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
@@ -26,7 +27,9 @@ GoRouter buildRouter(AuthBloc authBloc) {
       final authState = authBloc.state;
       if (authState is AuthInitial) return null;
 
-      final isAuthenticated = authState is AuthAuthenticated;
+      // Check both AuthBloc (old flow) and UserSession (new AuthService flow)
+      final isAuthenticated = authState is AuthAuthenticated ||
+          UserSession.instance.userId != null;
       final isPublic = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
