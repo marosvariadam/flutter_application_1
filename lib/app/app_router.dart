@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
@@ -6,6 +7,10 @@ import 'package:flutter_application_1/features/home/presantation/home_page.dart'
 import 'package:flutter_application_1/features/login/login_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/chat_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart';
+import 'package:flutter_application_1/features/notifications/presentation/notifications_page.dart';
+import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
+import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
+import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentation/session_page.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
@@ -19,12 +24,24 @@ enum Approute { home, session, messages, profile, login, register }
 GoRouter buildRouter() {
   return GoRouter(
     initialLocation: '/login',
+    refreshListenable: _AuthBlocListenable(authBloc),
+    redirect: (context, state) {
+      final authState = authBloc.state;
+      if (authState is AuthInitial) return null;
+
+      final isAuthenticated = authState is AuthAuthenticated;
+      final isPublic = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
+
+      if (!isAuthenticated && !isPublic) return '/login';
+      if (isAuthenticated && isPublic) return '/home';
+      return null;
+    },
     routes: [
       // ── Auth ────────────────────────────────────────────────────────────────
       GoRoute(
         path: '/login',
-        name: Approute.login.name,
-        pageBuilder: (context, state) =>
+        pageBuilder: (_, __) =>
             const NoTransitionPage(child: LoginPage()),
       ),
       GoRoute(
@@ -66,15 +83,15 @@ GoRouter buildRouter() {
 
       // ── Main shell with bottom nav ───────────────────────────────────────────
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => BottomNavScaffold(shell: shell),
+        builder: (context, state, shell) =>
+            BottomNavScaffold(shell: shell),
         branches: [
           // Tab 0 — Home (athlete) / Overview (coach)
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/home',
-                name: Approute.home.name,
-                pageBuilder: (context, state) =>
+                pageBuilder: (_, __) =>
                     const NoTransitionPage(child: HomePage()),
               ),
             ],
@@ -84,9 +101,15 @@ GoRouter buildRouter() {
             routes: [
               GoRoute(
                 path: '/session',
-                name: Approute.session.name,
-                pageBuilder: (context, state) =>
+                pageBuilder: (_, __) =>
                     const NoTransitionPage(child: SessionsPage()),
+                routes: [
+                  GoRoute(
+                    path: 'workouts',
+                    pageBuilder: (_, __) =>
+                        const NoTransitionPage(child: WorkoutsHubPage()),
+                  ),
+                ],
               ),
             ],
           ),
@@ -115,8 +138,7 @@ GoRouter buildRouter() {
             routes: [
               GoRoute(
                 path: '/profile',
-                name: Approute.profile.name,
-                pageBuilder: (context, state) =>
+                pageBuilder: (_, __) =>
                     const NoTransitionPage(child: ProfilesPage()),
               ),
             ],
@@ -125,4 +147,11 @@ GoRouter buildRouter() {
       ),
     ],
   );
+}
+
+/// Makes GoRouter re-evaluate redirect on every AuthBloc state change.
+class _AuthBlocListenable extends ChangeNotifier {
+  _AuthBlocListenable(AuthBloc bloc) {
+    bloc.stream.listen((_) => notifyListeners());
+  }
 }
