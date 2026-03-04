@@ -11,3 +11,9 @@ class SendMessage extends ChatEvent {
   final String text;
   SendMessage(this.text);
 }
+
+/// Fired when the SignalR hub pushes a new message.
+class MessageReceivedFromHub extends ChatEvent {
+  final Map<String, dynamic> data;
+  MessageReceivedFromHub(this.data);
+}

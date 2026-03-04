@@ -2,38 +2,70 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
 import 'package:flutter_application_1/features/messaging/data/models/message_model.dart';
 import 'package:flutter_application_1/features/messaging/bloc/messaging_bloc.dart';
+import 'package:flutter_application_1/features/messaging/data/repositories/message_repository.dart';
+import 'package:flutter_application_1/features/messaging/services/chat_hub_service.dart';
 
 part 'chat_event.dart';
 part 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  ChatBloc() : super(ChatInitial()) {
+  final MessageRepository? _repo;
+  final ChatHubService? _hub;
+
+  ChatBloc({MessageRepository? repo, ChatHubService? hub})
+      : _repo = repo,
+        _hub = hub,
+        super(ChatInitial()) {
     on<LoadChat>(_onLoadChat);
     on<SendMessage>(_onSendMessage);
+    on<MessageReceivedFromHub>(_onHubMessage);
+
+    _hub?.onMessageReceived = (data) {
+      try {
+        add(MessageReceivedFromHub(data));
+      } catch (_) {}
+    };
   }
 
-  Future<void> _onLoadChat(
-    LoadChat event,
-    Emitter<ChatState> emit,
-  ) async {
+  Future<void> _onLoadChat(LoadChat event, Emitter<ChatState> emit) async {
     emit(ChatLoading());
     try {
-      await Future.delayed(const Duration(milliseconds: 200));
-      final conversation = MessagingBloc.getById(event.contactId);
-      if (conversation == null) {
-        emit(ChatError('A beszélgetés nem található.'));
-        return;
+      if (_repo != null) {
+        final messages = await _repo!.getThread(event.contactId);
+        final conv = ConversationModel(
+          id: event.contactId,
+          contactName: event.contactId,
+          contactAvatarUrl: '',
+          lastMessage: messages.isNotEmpty ? messages.last.text : '',
+          lastMessageTime:
+              messages.isNotEmpty ? messages.last.timestamp : DateTime.now(),
+          unreadCount: 0,
+          isOnline: false,
+          messages: messages,
+        );
+        emit(ChatLoaded(conv));
+        await _repo!.markRead(event.contactId);
+      } else {
+        await Future.delayed(const Duration(milliseconds: 200));
+        final conversation = MessagingBloc.getById(event.contactId);
+        if (conversation == null) {
+          emit(ChatError('A beszélgetés nem található.'));
+          return;
+        }
+        emit(ChatLoaded(conversation));
       }
-      emit(ChatLoaded(conversation));
-    } catch (e) {
-      emit(ChatError('Nem sikerült betölteni a beszélgetést.'));
+    } catch (_) {
+      final conversation = MessagingBloc.getById(event.contactId);
+      if (conversation != null) {
+        emit(ChatLoaded(conversation));
+      } else {
+        emit(ChatError('Nem sikerült betölteni a beszélgetést.'));
+      }
     }
   }
 
   Future<void> _onSendMessage(
-    SendMessage event,
-    Emitter<ChatState> emit,
-  ) async {
+      SendMessage event, Emitter<ChatState> emit) async {
     final current = state;
     if (current is! ChatLoaded) return;
 
@@ -44,7 +76,29 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       isSentByMe: true,
     );
 
-    final updatedMessages = [...current.conversation.messages, newMessage];
-    emit(ChatLoaded(current.conversation.copyWith(messages: updatedMessages)));
+    final updated = [...current.conversation.messages, newMessage];
+    emit(ChatLoaded(current.conversation.copyWith(messages: updated)));
+    try {
+      await _repo?.sendMessage(current.conversation.id, event.text);
+    } catch (_) {}
+  }
+
+  void _onHubMessage(
+      MessageReceivedFromHub event, Emitter<ChatState> emit) {
+    final current = state;
+    if (current is! ChatLoaded) return;
+    try {
+      final msg = MessageModel(
+        id: event.data['id'] as String? ??
+            'hub_${DateTime.now().millisecondsSinceEpoch}',
+        text: event.data['content'] as String? ?? '',
+        timestamp: event.data['createdAt'] != null
+            ? DateTime.parse(event.data['createdAt'] as String)
+            : DateTime.now(),
+        isSentByMe: false,
+      );
+      final updated = [...current.conversation.messages, msg];
+      emit(ChatLoaded(current.conversation.copyWith(messages: updated)));
+    } catch (_) {}
   }
 }
