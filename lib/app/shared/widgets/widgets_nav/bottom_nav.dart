@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'package:flutter_application_1/app/user_session.dart';
+import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class BottomNavScaffold extends StatelessWidget {
