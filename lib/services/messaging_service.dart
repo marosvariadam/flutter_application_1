@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
-import 'package:flutter_application_1/features/messaging/data/models/message_model.dart';
 import 'package:flutter_application_1/services/api_client.dart';
 
 class MessagingService {
@@ -12,11 +10,8 @@ class MessagingService {
       final response = await _api.get('/messages/conversations');
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body) as List;
-        final myId = UserSession.instance.userId;
         return data
-            .map((j) => ConversationModel.fromJson(
-                j as Map<String, dynamic>,
-                myUserId: myId))
+            .map((j) => ConversationModel.fromJson(j as Map<String, dynamic>))
             .toList();
       }
       return [];
@@ -30,8 +25,7 @@ class MessagingService {
       final response = await _api.get('/messages/conversations/$id');
       if (response.statusCode == 200) {
         return ConversationModel.fromJson(
-            jsonDecode(response.body) as Map<String, dynamic>,
-            myUserId: UserSession.instance.userId);
+            jsonDecode(response.body) as Map<String, dynamic>);
       }
       return null;
     } catch (_) {
