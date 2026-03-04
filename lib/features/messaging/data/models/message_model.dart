@@ -11,16 +11,13 @@ class MessageModel {
     required this.isSentByMe,
   });
 
-  factory MessageModel.fromJson(Map<String, dynamic> json, {String? myUserId}) {
-    final senderId = json['senderId'] as String?;
-    final isSentByMe = senderId != null && myUserId != null
-        ? senderId == myUserId
-        : (json['isSentByMe'] as bool? ?? false);
-    return MessageModel(
-      id: json['id'] as String,
-      text: json['text'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      isSentByMe: isSentByMe,
-    );
-  }
+  factory MessageModel.fromJson(
+      Map<String, dynamic> j, String myUserId) =>
+      MessageModel(
+        id: j['id'] as String,
+        text: j['content'] as String? ?? j['text'] as String? ?? '',
+        timestamp: DateTime.parse(
+            j['createdAt'] as String? ?? j['timestamp'] as String),
+        isSentByMe: (j['senderId'] as String?) == myUserId,
+      );
 }

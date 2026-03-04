@@ -21,25 +21,20 @@ class ConversationModel {
     required this.messages,
   });
 
-  factory ConversationModel.fromJson(Map<String, dynamic> json,
-      {String? myUserId}) {
-    final msgs = (json['messages'] as List?)
-            ?.map((m) => MessageModel.fromJson(
-                m as Map<String, dynamic>,
-                myUserId: myUserId))
-            .toList() ??
-        [];
-    return ConversationModel(
-      id: json['id'] as String,
-      contactName: json['contactName'] as String,
-      contactAvatarUrl: json['contactAvatarUrl'] as String? ?? '',
-      lastMessage: json['lastMessage'] as String? ?? '',
-      lastMessageTime: DateTime.parse(json['lastMessageTime'] as String),
-      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
-      isOnline: json['isOnline'] as bool? ?? false,
-      messages: msgs,
-    );
-  }
+  factory ConversationModel.fromJson(Map<String, dynamic> j) =>
+      ConversationModel(
+        id: j['partnerId'] as String? ?? j['id'] as String,
+        contactName:
+            j['partnerName'] as String? ?? j['contactName'] as String? ?? '',
+        contactAvatarUrl: j['partnerAvatarUrl'] as String? ?? '',
+        lastMessage: j['lastMessage'] as String? ?? '',
+        lastMessageTime: j['lastMessageAt'] != null
+            ? DateTime.parse(j['lastMessageAt'] as String)
+            : DateTime.now(),
+        unreadCount: j['unreadCount'] as int? ?? 0,
+        isOnline: false,
+        messages: const [],
+      );
 
   ConversationModel copyWith({List<MessageModel>? messages, int? unreadCount}) {
     return ConversationModel(
