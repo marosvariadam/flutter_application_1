@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/user_session.dart';
@@ -61,15 +60,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 100.0, left: 24.0, right: 24.0),
@@ -145,39 +136,34 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                       const SizedBox(height: DT.s6),
-                      BlocBuilder<AuthBloc, AuthState>(
-                        builder: (context, state) {
-                          final loading = state is AuthLoading;
-                          return SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: loading ? null : _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: DT.metricBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(DT.rCardSmall),
-                                ),
-                              ),
-                              child: loading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white))
-                                  : Text(
-                                      'Bejelentkezés',
-                                      style: TextStyle(
-                                        color: DT.textWhite,
-                                        fontSize: DT.s4,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: DT.metricBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(DT.rCardSmall),
                             ),
-                          );
-                        },
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white))
+                              : Text(
+                                  'Bejelentkezés',
+                                  style: TextStyle(
+                                    color: DT.textWhite,
+                                    fontSize: DT.s4,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
                       ),
                       const SizedBox(height: DT.s5),
                       SizedBox(
@@ -209,7 +195,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-      ),
       ),
     );
   }
