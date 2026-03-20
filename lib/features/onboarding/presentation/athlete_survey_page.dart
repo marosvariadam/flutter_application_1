@@ -60,14 +60,14 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
         }
         if (state is OnboardingError && !_loaded) {
           return Scaffold(
-            backgroundColor: DT.bg,
+            backgroundColor: DT.of(context).bg,
             appBar: AppBar(
-              backgroundColor: DT.bg,
+              backgroundColor: DT.of(context).bg,
               elevation: 0,
-              leading: BackButton(color: DT.textPrimary),
-              title: const Text('Felmérő',
+              leading: BackButton(color: DT.of(context).textPrimary),
+              title: Text('Felmérő',
                   style: TextStyle(
-                      color: DT.textPrimary,
+                      color: DT.of(context).textPrimary,
                       fontWeight: FontWeight.w600)),
               centerTitle: true,
             ),
@@ -75,12 +75,12 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.assignment_outlined,
-                      size: 64, color: DT.iconLightGrey),
+                  Icon(Icons.assignment_outlined,
+                      size: 64, color: DT.of(context).iconLightGrey),
                   const SizedBox(height: DT.s4),
                   Text(state.message,
-                      style: const TextStyle(
-                          color: DT.textSecondary, fontSize: DT.s4),
+                      style: TextStyle(
+                          color: DT.of(context).textSecondary, fontSize: DT.s4),
                       textAlign: TextAlign.center),
                 ],
               ),
@@ -102,7 +102,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
 
         if (_submitted) {
           return Scaffold(
-            backgroundColor: DT.bg,
+            backgroundColor: DT.of(context).bg,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(DT.s6),
@@ -120,18 +120,18 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                           color: Colors.white, size: 40),
                     ),
                     const SizedBox(height: DT.s5),
-                    const Text(
+                    Text(
                       'Felmérő elküldve!',
                       style: TextStyle(
-                          color: DT.textPrimary,
+                          color: DT.of(context).textPrimary,
                           fontSize: DT.s5,
                           fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: DT.s3),
-                    const Text(
+                    Text(
                       'Köszönjük, hogy kitöltötted az edzői felmérőt. Hamarosan felvesszük veled a kapcsolatot.',
                       style: TextStyle(
-                          color: DT.textSecondary, fontSize: DT.s3),
+                          color: DT.of(context).textSecondary, fontSize: DT.s3),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: DT.s6),
@@ -147,15 +147,15 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
         }
 
         return Scaffold(
-          backgroundColor: DT.bg,
+          backgroundColor: DT.of(context).bg,
           appBar: AppBar(
-            backgroundColor: DT.bg,
+            backgroundColor: DT.of(context).bg,
             elevation: 0,
-            leading: BackButton(color: DT.textPrimary),
+            leading: BackButton(color: DT.of(context).textPrimary),
             title: Text(
               form!.title,
-              style: const TextStyle(
-                  color: DT.textPrimary, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: DT.of(context).textPrimary, fontWeight: FontWeight.w600),
             ),
             centerTitle: true,
           ),
@@ -167,8 +167,8 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                   padding: const EdgeInsets.only(bottom: DT.s5),
                   child: Text(
                     form.description!,
-                    style: const TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3),
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3),
                   ),
                 ),
               ...form.questions.asMap().entries.map((e) {
@@ -246,8 +246,8 @@ class _QuestionWidget extends StatelessWidget {
         children: [
           Text(
             '${index + 1}. ${question.text}',
-            style: const TextStyle(
-                color: DT.textPrimary,
+            style: TextStyle(
+                color: DT.of(context).textPrimary,
                 fontWeight: FontWeight.w600,
                 fontSize: DT.s3),
           ),
@@ -285,12 +285,12 @@ class _TextAnswer extends StatelessWidget {
       controller: ctrl,
       maxLines: 3,
       onChanged: onChanged,
-      style: const TextStyle(color: DT.textPrimary),
+      style: TextStyle(color: DT.of(context).textPrimary),
       decoration: InputDecoration(
         hintText: 'Írd be a válaszod...',
-        hintStyle: const TextStyle(color: DT.textSecondary),
+        hintStyle: TextStyle(color: DT.of(context).textSecondary),
         filled: true,
-        fillColor: DT.bg,
+        fillColor: DT.of(context).bg,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           borderSide: BorderSide.none,
@@ -319,7 +319,7 @@ class _MultipleChoiceAnswer extends StatelessWidget {
               groupValue: current,
               onChanged: (v) => onChanged(v ?? o),
               title: Text(o,
-                  style: const TextStyle(color: DT.textPrimary, fontSize: DT.s3)),
+                  style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s3)),
               activeColor: DT.metricBlue,
               contentPadding: EdgeInsets.zero,
               dense: true,
@@ -350,16 +350,16 @@ class _ScaleAnswer extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isSelected ? DT.metricBlue : DT.bg,
+              color: isSelected ? DT.metricBlue : DT.of(context).bg,
               borderRadius: BorderRadius.circular(DT.rCardSmall),
               border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.borderGrey),
+                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey),
             ),
             child: Center(
               child: Text(
                 value.toString(),
                 style: TextStyle(
-                  color: isSelected ? Colors.white : DT.textPrimary,
+                  color: isSelected ? Colors.white : DT.of(context).textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),

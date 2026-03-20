@@ -31,9 +31,9 @@ class _CoachHomePageState extends State<CoachHomePage> {
     final now = DateTime.now();
     final monday = now.subtract(Duration(days: now.weekday - 1));
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
         toolbarHeight: 80,
         title: Row(
@@ -49,8 +49,8 @@ class _CoachHomePageState extends State<CoachHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Szia, Edző!', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary)),
-                  Text(DateFormat('yyyy.MM.dd').format(now), style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+                  Text('Szia, Edző!', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary)),
+                  Text(DateFormat('yyyy.MM.dd').format(now), style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
                 ],
               ),
             ),
@@ -69,16 +69,16 @@ class _CoachHomePageState extends State<CoachHomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Atlétáim', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+                      Text('Atlétáim', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
                       TextButton(onPressed: () => context.go('/session'), child: const Text('Összes')),
                     ],
                   ),
                   const SizedBox(height: DT.s3),
                   if (_athletes.isEmpty)
-                    const Center(
+                    Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: DT.s5),
-                        child: Text('Nem található adat', style: TextStyle(color: DT.textSecondary, fontSize: DT.s4)),
+                        padding: const EdgeInsets.symmetric(vertical: DT.s5),
+                        child: Text('Nem található adat', style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
                       ),
                     )
                   else
@@ -96,7 +96,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
                     ),
                   const SizedBox(height: DT.s5),
                   if (_athletes.isNotEmpty) ...[
-                    const Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+                    Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
                     const SizedBox(height: DT.s3),
                     ..._athletes.map((a) => _AthleteWeekRow(athlete: a, weekStart: monday)),
                   ],
@@ -146,10 +146,10 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: DT.textPrimary),
+          Icon(icon, size: 20, color: DT.of(context).textPrimary),
           const SizedBox(height: DT.s2),
-          Text(value, style: const TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.textPrimary)),
-          Text(label, style: const TextStyle(fontSize: 10, color: DT.textSecondary)),
+          Text(value, style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+          Text(label, style: TextStyle(fontSize: 10, color: DT.of(context).textSecondary)),
         ],
       ),
     );
@@ -170,7 +170,7 @@ class _AthleteChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: DT.gbWhite,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
-          boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 10, offset: Offset(0, 2))],
+          boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 10, offset: const Offset(0, 2))],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -181,8 +181,8 @@ class _AthleteChip extends StatelessWidget {
               child: Center(child: Text(athlete.initials, style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.metricBlue))),
             ),
             const SizedBox(height: DT.s2),
-            Text(athlete.firstName, style: const TextStyle(fontSize: DT.s3, fontWeight: FontWeight.w600, color: DT.textPrimary), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
-            Text('${athlete.streakDays} nap 🔥', style: const TextStyle(fontSize: 10, color: DT.textSecondary)),
+            Text(athlete.firstName, style: TextStyle(fontSize: DT.s3, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis),
+            Text('${athlete.streakDays} nap 🔥', style: TextStyle(fontSize: 10, color: DT.of(context).textSecondary)),
           ],
         ),
       ),
@@ -203,7 +203,7 @@ class _AthleteWeekRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.gbWhite,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
-        boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
@@ -217,15 +217,15 @@ class _AthleteWeekRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(athlete.fullName, style: const TextStyle(fontWeight: FontWeight.w600, color: DT.textPrimary, fontSize: DT.s3)),
+                Text(athlete.fullName, style: TextStyle(fontWeight: FontWeight.w600, color: DT.of(context).textPrimary, fontSize: DT.s3)),
                 const SizedBox(height: DT.s2),
                 Row(
                   children: List.generate(7, (i) {
                     return Container(
                       margin: const EdgeInsets.only(right: DT.s1),
                       width: 26, height: 26,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: DT.bg),
-                      child: Center(child: Text(_dayLabels[i], style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: DT.textSecondary))),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: DT.of(context).bg),
+                      child: Center(child: Text(_dayLabels[i], style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: DT.of(context).textSecondary))),
                     );
                   }),
                 ),
@@ -234,7 +234,7 @@ class _AthleteWeekRow extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () => context.push('/athlete-detail/${athlete.id}'),
-            child: const Icon(Icons.arrow_forward_ios, size: 14, color: DT.textGrey),
+            child: Icon(Icons.arrow_forward_ios, size: 14, color: DT.of(context).textGrey),
           ),
         ],
       ),

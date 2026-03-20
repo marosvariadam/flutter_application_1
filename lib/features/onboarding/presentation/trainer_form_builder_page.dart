@@ -110,14 +110,14 @@ class _TrainerFormBuilderPageState extends State<TrainerFormBuilderPage> {
         }
 
         return Scaffold(
-          backgroundColor: DT.bg,
+          backgroundColor: DT.of(context).bg,
           appBar: AppBar(
-            backgroundColor: DT.bg,
+            backgroundColor: DT.of(context).bg,
             elevation: 0,
-            leading: BackButton(color: DT.textPrimary),
-            title: const Text('Felmérő szerkesztő',
+            leading: BackButton(color: DT.of(context).textPrimary),
+            title: Text('Felmérő szerkesztő',
                 style: TextStyle(
-                    color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                    color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
             centerTitle: true,
             actions: [
               if (state is OnboardingLoading)
@@ -186,8 +186,8 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         text,
-        style: const TextStyle(
-            color: DT.textSecondary,
+        style: TextStyle(
+            color: DT.of(context).textSecondary,
             fontSize: DT.s3,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5),
@@ -204,10 +204,10 @@ class _Field extends StatelessWidget {
   Widget build(BuildContext context) => TextField(
         controller: controller,
         maxLines: maxLines,
-        style: const TextStyle(color: DT.textPrimary),
+        style: TextStyle(color: DT.of(context).textPrimary),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: DT.textSecondary),
+          labelStyle: TextStyle(color: DT.of(context).textSecondary),
           filled: true,
           fillColor: DT.gbWhite,
           border: OutlineInputBorder(
@@ -280,8 +280,8 @@ class _QuestionCard extends StatelessWidget {
           Row(
             children: [
               Text('${index + 1}. kérdés',
-                  style: const TextStyle(
-                      color: DT.textSecondary, fontSize: DT.s3)),
+                  style: TextStyle(
+                      color: DT.of(context).textSecondary, fontSize: DT.s3)),
               const Spacer(),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: DT.cardRed),
@@ -294,12 +294,12 @@ class _QuestionCard extends StatelessWidget {
           const SizedBox(height: DT.s2),
           TextField(
             controller: draft.textCtrl,
-            style: const TextStyle(color: DT.textPrimary),
+            style: TextStyle(color: DT.of(context).textPrimary),
             decoration: InputDecoration(
               hintText: 'Kérdés szövege',
-              hintStyle: const TextStyle(color: DT.textSecondary),
+              hintStyle: TextStyle(color: DT.of(context).textSecondary),
               filled: true,
-              fillColor: DT.bg,
+              fillColor: DT.of(context).bg,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
                 borderSide: BorderSide.none,
@@ -309,8 +309,8 @@ class _QuestionCard extends StatelessWidget {
           const SizedBox(height: DT.s3),
           Row(
             children: [
-              const Text('Típus:',
-                  style: TextStyle(color: DT.textSecondary, fontSize: DT.s3)),
+              Text('Típus:',
+                  style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3)),
               const SizedBox(width: DT.s2),
               _TypeChip(
                 label: 'Szöveg',
@@ -342,8 +342,8 @@ class _QuestionCard extends StatelessWidget {
           ),
           if (draft.type == QuestionType.multipleChoice) ...[
             const SizedBox(height: DT.s3),
-            const Text('Lehetőségek:',
-                style: TextStyle(color: DT.textSecondary, fontSize: DT.s3)),
+            Text('Lehetőségek:',
+                style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3)),
             const SizedBox(height: DT.s2),
             ...draft.optionCtrls.asMap().entries.map(
               (e) => Padding(
@@ -353,13 +353,13 @@ class _QuestionCard extends StatelessWidget {
                     Expanded(
                       child: TextField(
                         controller: e.value,
-                        style: const TextStyle(color: DT.textPrimary),
+                        style: TextStyle(color: DT.of(context).textPrimary),
                         decoration: InputDecoration(
                           hintText: '${e.key + 1}. lehetőség',
                           hintStyle:
-                              const TextStyle(color: DT.textSecondary),
+                              TextStyle(color: DT.of(context).textSecondary),
                           filled: true,
-                          fillColor: DT.bg,
+                          fillColor: DT.of(context).bg,
                           isDense: true,
                           border: OutlineInputBorder(
                             borderRadius:
@@ -371,8 +371,8 @@ class _QuestionCard extends StatelessWidget {
                     ),
                     if (draft.optionCtrls.length > 2)
                       IconButton(
-                        icon: const Icon(Icons.remove_circle_outline,
-                            color: DT.textSecondary, size: 18),
+                        icon: Icon(Icons.remove_circle_outline,
+                            color: DT.of(context).textSecondary, size: 18),
                         onPressed: () {
                           draft.optionCtrls.removeAt(e.key);
                           onChanged();
@@ -397,8 +397,8 @@ class _QuestionCard extends StatelessWidget {
           ],
           if (draft.type == QuestionType.scale) ...[
             const SizedBox(height: DT.s2),
-            const Text('1–10 skálán kell értékelni.',
-                style: TextStyle(color: DT.textSecondary, fontSize: DT.s3)),
+            Text('1–10 skálán kell értékelni.',
+                style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3)),
           ],
         ],
       ),
@@ -421,15 +421,15 @@ class _TypeChip extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: DT.s2, vertical: DT.s1),
         decoration: BoxDecoration(
-          color: selected ? DT.metricBlue : DT.bg,
+          color: selected ? DT.metricBlue : DT.of(context).bg,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           border:
-              Border.all(color: selected ? DT.metricBlue : DT.borderGrey),
+              Border.all(color: selected ? DT.metricBlue : DT.of(context).borderGrey),
         ),
         child: Text(
           label,
           style: TextStyle(
-              color: selected ? Colors.white : DT.textSecondary,
+              color: selected ? Colors.white : DT.of(context).textSecondary,
               fontSize: 11,
               fontWeight: FontWeight.w500),
         ),

@@ -104,9 +104,9 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.search_off, size: 56, color: DT.borderGrey),
+            Icon(Icons.search_off, size: 56, color: DT.of(context).borderGrey),
             const SizedBox(height: DT.s3),
-            Text(message, style: const TextStyle(color: DT.textSecondary, fontSize: DT.s4)),
+            Text(message, style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
           ],
         ),
       ),
@@ -131,9 +131,9 @@ class _AthleteHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(athlete.fullName, style: const TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.textPrimary)),
-              if (athlete.goal != null) ...[const SizedBox(height: DT.s1), Text('Cél: ${athlete.goal}', style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary))],
-              if (athlete.lastWorkoutDate != null) ...[const SizedBox(height: DT.s1), Text('Utolsó edzés: ${athlete.lastWorkoutDate}', style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary))],
+              Text(athlete.fullName, style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+              if (athlete.goal != null) ...[const SizedBox(height: DT.s1), Text('Cél: ${athlete.goal}', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary))],
+              if (athlete.lastWorkoutDate != null) ...[const SizedBox(height: DT.s1), Text('Utolsó edzés: ${athlete.lastWorkoutDate}', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary))],
             ],
           ),
         ),
@@ -172,8 +172,8 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: const TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.textPrimary)),
-          Text(label, style: const TextStyle(fontSize: 11, color: DT.textSecondary)),
+          Text(value, style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+          Text(label, style: TextStyle(fontSize: 11, color: DT.of(context).textSecondary)),
         ],
       ),
     );
@@ -195,7 +195,7 @@ class _WorkoutRow extends StatelessWidget {
           color: DT.gbWhite,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           border: Border(left: BorderSide(color: workout.color, width: 3)),
-          boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2))],
+          boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
@@ -203,11 +203,11 @@ class _WorkoutRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(DateFormat('yyyy.MM.dd').format(workout.scheduledDate), style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+                  Text(DateFormat('yyyy.MM.dd').format(workout.scheduledDate), style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
                   const SizedBox(height: DT.s1),
-                  Text(workout.title, style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary)),
+                  Text(workout.title, style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary)),
                   const SizedBox(height: DT.s1),
-                  Text('${workout.exercises.length} gyakorlat \u2022 ${workout.estimatedDuration}', style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+                  Text('${workout.exercises.length} gyakorlat \u2022 ${workout.estimatedDuration}', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
                 ],
               ),
             ),
@@ -223,7 +223,7 @@ class _WorkoutRow extends StatelessWidget {
                   child: Text(isPast ? 'Elvégezve' : 'Tervezett', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isPast ? DT.difficultyLight : DT.metricBlue)),
                 ),
                 const SizedBox(height: DT.s2),
-                const Icon(Icons.arrow_forward_ios, size: 12, color: DT.textGrey),
+                Icon(Icons.arrow_forward_ios, size: 12, color: DT.of(context).textGrey),
               ],
             ),
           ],

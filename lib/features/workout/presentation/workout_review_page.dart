@@ -43,14 +43,14 @@ class _WorkoutReviewPageState extends State<WorkoutReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Befejezett edzések',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Befejezett edzések',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: _loading
@@ -64,8 +64,8 @@ class _WorkoutReviewPageState extends State<WorkoutReviewPage> {
                           size: 48, color: DT.cardRed),
                       const SizedBox(height: DT.s4),
                       Text(_error!,
-                          style: const TextStyle(
-                              color: DT.textSecondary)),
+                          style: TextStyle(
+                              color: DT.of(context).textSecondary)),
                       const SizedBox(height: DT.s4),
                       ElevatedButton(
                           onPressed: _load, child: const Text('Újra')),
@@ -73,10 +73,10 @@ class _WorkoutReviewPageState extends State<WorkoutReviewPage> {
                   ),
                 )
               : _workouts.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text('Még nincs befejezett edzés.',
                           style: TextStyle(
-                              color: DT.textSecondary,
+                              color: DT.of(context).textSecondary,
                               fontSize: DT.s4)),
                     )
                   : ListView.separated(
@@ -115,16 +115,16 @@ class _ReviewCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(workout.title,
-                        style: const TextStyle(
-                            color: DT.textPrimary,
+                        style: TextStyle(
+                            color: DT.of(context).textPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: DT.s4)),
                   ),
                   Text(
                     DateFormat('yyyy.MM.dd')
                         .format(workout.scheduledDate),
-                    style: const TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3),
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3),
                   ),
                 ],
               ),
@@ -145,8 +145,8 @@ class _ReviewCard extends StatelessWidget {
                       const SizedBox(width: DT.s2),
                       Expanded(
                         child: Text(workout.athleteFeedback!,
-                            style: const TextStyle(
-                                color: DT.textPrimary,
+                            style: TextStyle(
+                                color: DT.of(context).textPrimary,
                                 fontSize: DT.s3)),
                       ),
                     ],
@@ -154,15 +154,15 @@ class _ReviewCard extends StatelessWidget {
                 ),
               ] else ...[
                 const SizedBox(height: DT.s2),
-                const Text('Nincs visszajelzés',
+                Text('Nincs visszajelzés',
                     style: TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3)),
+                        color: DT.of(context).textSecondary, fontSize: DT.s3)),
               ],
               const SizedBox(height: DT.s2),
               Text(
                 '${workout.exercises.length} gyakorlat',
-                style: const TextStyle(
-                    color: DT.textSecondary, fontSize: DT.s3),
+                style: TextStyle(
+                    color: DT.of(context).textSecondary, fontSize: DT.s3),
               ),
             ],
           ),

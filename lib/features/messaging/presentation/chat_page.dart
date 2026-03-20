@@ -99,8 +99,8 @@ class _ChatViewState extends State<_ChatView> {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new,
-                    color: DT.textPrimary, size: 20),
+                icon: Icon(Icons.arrow_back_ios_new,
+                    color: DT.of(context).textPrimary, size: 20),
                 onPressed: () => context.pop(),
               ),
               backgroundColor: DT.gbWhite,
@@ -108,7 +108,7 @@ class _ChatViewState extends State<_ChatView> {
             ),
             body: Center(
               child: Text(state.message,
-                  style: const TextStyle(color: DT.textSecondary)),
+                  style: TextStyle(color: DT.of(context).textSecondary)),
             ),
           );
         }
@@ -125,7 +125,7 @@ class _ChatViewState extends State<_ChatView> {
   Widget _buildScaffold(
       BuildContext context, ConversationModel conversation) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: _ChatAppBar(conversation: conversation),
       body: Column(
         children: [
@@ -206,8 +206,8 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       titleSpacing: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new,
-            color: DT.textPrimary, size: 20),
+        icon: Icon(Icons.arrow_back_ios_new,
+            color: DT.of(context).textPrimary, size: 20),
         onPressed: () => context.pop(),
       ),
       title: GestureDetector(
@@ -243,8 +243,8 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 Text(
                   conversation.contactName,
-                  style: const TextStyle(
-                    color: DT.textPrimary,
+                  style: TextStyle(
+                    color: DT.of(context).textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -254,7 +254,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   style: TextStyle(
                     color: conversation.isOnline
                         ? Colors.green
-                        : DT.textSecondary,
+                        : DT.of(context).textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
@@ -362,9 +362,9 @@ class _MessageRow extends StatelessWidget {
                   _today
                       ? _hm.format(message.timestamp)
                       : _full.format(message.timestamp),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11,
-                      color: DT.textSecondary,
+                      color: DT.of(context).textSecondary,
                       fontWeight: FontWeight.w500),
                 ),
               ),
@@ -404,7 +404,7 @@ class _MessageRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: message.isSentByMe
                       ? DT.metricBlue
-                      : DT.challengeCardGradientStart,
+                      : DT.of(context).challengeCardGradientStart,
                   borderRadius: _radius(),
                   boxShadow: [
                     BoxShadow(
@@ -424,7 +424,7 @@ class _MessageRow extends StatelessWidget {
                       style: TextStyle(
                         color: message.isSentByMe
                             ? Colors.white
-                            : DT.textPrimary,
+                            : DT.of(context).textPrimary,
                         fontSize: 15,
                         height: 1.35,
                       ),
@@ -436,7 +436,7 @@ class _MessageRow extends StatelessWidget {
                         fontSize: 10,
                         color: message.isSentByMe
                             ? Colors.white.withOpacity(0.6)
-                            : DT.textSecondary,
+                            : DT.of(context).textSecondary,
                       ),
                     ),
                   ],
@@ -448,15 +448,15 @@ class _MessageRow extends StatelessWidget {
 
         // ── "Kézbesítve" under last sent message ─────────
         if (showDelivered)
-          const Padding(
-            padding: EdgeInsets.only(top: 4, right: DT.s3, bottom: 2),
+          Padding(
+            padding: const EdgeInsets.only(top: 4, right: DT.s3, bottom: 2),
             child: Align(
               alignment: Alignment.centerRight,
               child: Text(
                 'Kézbesítve',
                 style: TextStyle(
                     fontSize: 11,
-                    color: DT.textSecondary,
+                    color: DT.of(context).textSecondary,
                     fontWeight: FontWeight.w400),
               ),
             ),
@@ -488,8 +488,8 @@ class _InputBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: DT.gbWhite,
-        border: const Border(
-            top: BorderSide(color: DT.borderLight, width: 0.8)),
+        border: Border(
+            top: BorderSide(color: DT.of(context).borderLight, width: 0.8)),
       ),
       padding: EdgeInsets.only(
         left: DT.s3,
@@ -520,19 +520,19 @@ class _InputBar extends StatelessWidget {
               constraints: const BoxConstraints(maxHeight: 120),
               child: Container(
                 decoration: BoxDecoration(
-                  color: DT.bg,
+                  color: DT.of(context).bg,
                   borderRadius: BorderRadius.circular(22),
                 ),
                 child: TextField(
                   controller: controller,
                   textCapitalization: TextCapitalization.sentences,
                   maxLines: null,
-                  style: const TextStyle(
-                      fontSize: 15, color: DT.textPrimary),
-                  decoration: const InputDecoration(
+                  style: TextStyle(
+                      fontSize: 15, color: DT.of(context).textPrimary),
+                  decoration: InputDecoration(
                     hintText: 'Aa',
                     hintStyle: TextStyle(
-                        color: DT.textSecondary, fontSize: 15),
+                        color: DT.of(context).textSecondary, fontSize: 15),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
                         horizontal: 14, vertical: 10),
@@ -604,17 +604,17 @@ class _EmptyChat extends StatelessWidget {
           const SizedBox(height: DT.s4),
           Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: DT.textPrimary,
+              color: DT.of(context).textPrimary,
             ),
           ),
           const SizedBox(height: DT.s2),
-          const Text(
+          Text(
             'Küldj egy üzenetet a beszélgetés indításához!',
             style:
-                TextStyle(color: DT.textSecondary, fontSize: 13),
+                TextStyle(color: DT.of(context).textSecondary, fontSize: 13),
             textAlign: TextAlign.center,
           ),
         ],
