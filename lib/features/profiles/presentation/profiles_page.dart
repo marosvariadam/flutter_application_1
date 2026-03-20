@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_1/app/bloc/theme_cubit.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/shared/widgets/notification_bell.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
@@ -287,6 +288,7 @@ class _MenuSection extends StatelessWidget {
           title: 'Értesítések',
           onTap: () => context.push('/notifications'),
         ),
+        _DarkModeToggle(),
         _MenuItem(
           icon: Icons.delete_outline,
           title: 'Fiók törlése',
@@ -321,6 +323,61 @@ class _MenuSection extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Dark mode toggle ────────────────────────────────────────────────────────
+
+class _DarkModeToggle extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, mode) {
+        final isDark = mode == ThemeMode.dark;
+        return InkWell(
+          onTap: () => context.read<ThemeCubit>().toggle(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: DT.s3),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: DT.borderLight, width: 1)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    color: DT.iconLight.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(
+                    isDark ? Icons.dark_mode : Icons.light_mode,
+                    color: DT.iconLight,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: DT.s3),
+                Expanded(
+                  child: Text(
+                    isDark ? 'Sötét mód' : 'Világos mód',
+                    style: const TextStyle(
+                      fontSize: DT.s3,
+                      fontWeight: FontWeight.w500,
+                      color: DT.textPrimary,
+                    ),
+                  ),
+                ),
+                Switch(
+                  value: isDark,
+                  onChanged: (_) => context.read<ThemeCubit>().toggle(),
+                  activeColor: DT.metricBlue,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

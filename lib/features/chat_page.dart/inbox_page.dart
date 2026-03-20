@@ -43,14 +43,14 @@ class _InboxPageState extends State<InboxPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Üzenetek',
           style: TextStyle(
-            color: DT.textPrimary,
+            color: DT.of(context).textPrimary,
             fontSize: DT.s6,
             fontWeight: FontWeight.w700,
           ),
@@ -98,7 +98,7 @@ class _InboxPageState extends State<InboxPage> {
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           boxShadow: [
             BoxShadow(
-              color: DT.shadowLight,
+              color: DT.of(context).shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -125,7 +125,7 @@ class _InboxPageState extends State<InboxPage> {
                       Text(
                         'Felhasználó', // real names later
                         style: TextStyle(
-                          color: DT.textPrimary,
+                          color: DT.of(context).textPrimary,
                           fontSize: DT.s4,
                           fontWeight: unreadCount > 0 ? FontWeight.w700 : FontWeight.w600,
                         ),
@@ -133,7 +133,7 @@ class _InboxPageState extends State<InboxPage> {
                       Text(
                         timeString,
                         style: TextStyle(
-                          color: unreadCount > 0 ? DT.metricBlue : DT.textSecondary,
+                          color: unreadCount > 0 ? DT.metricBlue : DT.of(context).textSecondary,
                           fontSize: DT.s3,
                           fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
                         ),
@@ -149,7 +149,7 @@ class _InboxPageState extends State<InboxPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: unreadCount > 0 ? DT.textPrimary : DT.textSecondary,
+                            color: unreadCount > 0 ? DT.of(context).textPrimary : DT.of(context).textSecondary,
                             fontSize: DT.s3 + 1, 
                             fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                           ),
@@ -188,12 +188,12 @@ class _InboxPageState extends State<InboxPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline, size: 64, color: DT.textSecondary.withOpacity(0.5)),
+          Icon(Icons.chat_bubble_outline, size: 64, color: DT.of(context).textSecondary.withOpacity(0.5)),
           const SizedBox(height: DT.s4),
           Text(
             'Nincsenek üzeneteid',
             style: TextStyle(
-              color: DT.textSecondary,
+              color: DT.of(context).textSecondary,
               fontSize: DT.s4,
             ),
           ),

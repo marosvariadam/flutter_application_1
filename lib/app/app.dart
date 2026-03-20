@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/app_router.dart';
+import 'package:flutter_application_1/app/bloc/theme_cubit.dart';
 import 'package:flutter_application_1/app/design/theme.dart';
 import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/storage/token_storage.dart';
@@ -33,6 +34,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  late final ThemeCubit _themeCubit;
   late final AuthBloc _authBloc;
   late final ApiClient _apiClient;
   late final NotificationHubService _notifHub;
@@ -50,6 +52,8 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+
+    _themeCubit = ThemeCubit()..load();
 
     _notifHub = NotificationHubService();
     _chatHub = ChatHubService();
@@ -73,6 +77,7 @@ class _AppState extends State<App> {
 
   @override
   void dispose() {
+    _themeCubit.close();
     _authBloc.close();
     _notifHub.disconnect();
     _chatHub.disconnect();
@@ -94,6 +99,7 @@ class _AppState extends State<App> {
       ],
       child: MultiBlocProvider(
         providers: [
+          BlocProvider.value(value: _themeCubit),
           BlocProvider.value(value: _authBloc),
           BlocProvider(
             create: (_) => NotificationBloc(
@@ -154,10 +160,14 @@ class _RouterWrapperState extends State<_RouterWrapper> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (_, __) => _router.refresh(),
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        theme: buildTheme(),
-        routerConfig: _router,
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) => MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          theme: buildTheme(),
+          darkTheme: buildDarkTheme(),
+          themeMode: themeMode,
+          routerConfig: _router,
+        ),
       ),
     );
   }
