@@ -29,19 +29,19 @@ class _RegisterPageState extends State<RegisterPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Regisztráció',
-            style: TextStyle(color: DT.textPrimary, fontWeight: FontWeight.w600)),
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Regisztráció',
+            style: TextStyle(color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabs,
           indicatorColor: DT.metricBlue,
           labelColor: DT.metricBlue,
-          unselectedLabelColor: DT.textSecondary,
+          unselectedLabelColor: DT.of(context).textSecondary,
           tabs: const [
             Tab(text: 'Edző'),
             Tab(text: 'Sportoló'),
@@ -236,9 +236,9 @@ class _AthleteRegisterFormState extends State<_AthleteRegisterForm> {
                 onToggle: () =>
                     setState(() => _obscure = !_obscure)),
             const SizedBox(height: DT.s5),
-            const Text('Edző csatlakozás (opcionális)',
+            Text('Edző csatlakozás (opcionális)',
                 style: TextStyle(
-                    color: DT.textSecondary,
+                    color: DT.of(context).textSecondary,
                     fontSize: DT.s3,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: DT.s3),

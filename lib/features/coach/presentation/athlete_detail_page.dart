@@ -42,27 +42,27 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(backgroundColor: DT.bg, elevation: 0, leading: IconButton(icon: const Icon(Icons.arrow_back, color: DT.textPrimary), onPressed: () => Navigator.of(context).pop())),
+        appBar: AppBar(backgroundColor: DT.of(context).bg, elevation: 0, leading: IconButton(icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary), onPressed: () => Navigator.of(context).pop())),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_athlete == null) {
       return Scaffold(
-        appBar: AppBar(backgroundColor: DT.bg, elevation: 0, leading: IconButton(icon: const Icon(Icons.arrow_back, color: DT.textPrimary), onPressed: () => Navigator.of(context).pop())),
+        appBar: AppBar(backgroundColor: DT.of(context).bg, elevation: 0, leading: IconButton(icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary), onPressed: () => Navigator.of(context).pop())),
         body: const Center(child: _EmptyState('Atléta nem található.')),
       );
     }
 
     final athlete = _athlete!;
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: DT.textPrimary), onPressed: () => Navigator.of(context).pop()),
-        title: Text(athlete.fullName, style: const TextStyle(color: DT.textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
-        actions: [IconButton(icon: const Icon(Icons.more_vert, color: DT.textPrimary), onPressed: () {})],
+        leading: IconButton(icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary), onPressed: () => Navigator.of(context).pop()),
+        title: Text(athlete.fullName, style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
+        actions: [IconButton(icon: Icon(Icons.more_vert, color: DT.of(context).textPrimary), onPressed: () {})],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(DT.s5),
@@ -73,7 +73,7 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
             const SizedBox(height: DT.s5),
             _StatsRow(athlete: athlete),
             const SizedBox(height: DT.s5),
-            const Text('Ütemezett edzések', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+            Text('Ütemezett edzések', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
             const SizedBox(height: DT.s3),
             if (_workouts.isEmpty)
               const _EmptyState()

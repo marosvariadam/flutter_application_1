@@ -92,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       TextFormField(
                         controller: _emailController,
+                        autofocus: true,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           labelText: 'Email cím',
