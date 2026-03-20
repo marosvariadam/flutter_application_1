@@ -132,20 +132,20 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
         leading: _currentPage > 0
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: DT.textPrimary),
+                icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary),
                 onPressed: _back,
               )
             : null,
         title: Text(
           '${_currentPage + 1} / $_totalPages',
-          style: const TextStyle(
-            color: DT.textPrimary,
+          style: TextStyle(
+            color: DT.of(context).textPrimary,
             fontSize: DT.s4,
             fontWeight: FontWeight.w600,
           ),
@@ -157,7 +157,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
           LinearProgressIndicator(
             value: (_currentPage + 1) / _totalPages,
             minHeight: 4,
-            backgroundColor: DT.borderLight,
+            backgroundColor: DT.of(context).borderLight,
             valueColor: const AlwaysStoppedAnimation<Color>(DT.metricBlue),
           ),
           Expanded(
@@ -215,8 +215,8 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
           const SizedBox(height: DT.s4),
           Text(
             title,
-            style: const TextStyle(
-              color: DT.textPrimary,
+            style: TextStyle(
+              color: DT.of(context).textPrimary,
               fontSize: DT.s8,
               fontWeight: FontWeight.w700,
             ),
@@ -224,8 +224,8 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
           const SizedBox(height: DT.s2),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: DT.textSecondary,
+            style: TextStyle(
+              color: DT.of(context).textSecondary,
               fontSize: DT.s4,
             ),
           ),
@@ -257,7 +257,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                     ? DT.metricBlue.withOpacity(0.08)
                     : Colors.white,
                 border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.borderGrey,
+                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey,
                   width: 2,
                 ),
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -268,14 +268,14 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                     isSelected
                         ? Icons.radio_button_checked
                         : Icons.radio_button_unchecked,
-                    color: isSelected ? DT.metricBlue : DT.iconLight,
+                    color: isSelected ? DT.metricBlue : DT.of(context).iconLight,
                   ),
                   const SizedBox(width: DT.s3),
                   Text(
                     goal,
                     style: TextStyle(
                       color:
-                          isSelected ? DT.metricBlue : DT.textPrimary,
+                          isSelected ? DT.metricBlue : DT.of(context).textPrimary,
                       fontSize: DT.s4,
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.w400,
@@ -301,16 +301,16 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
         maxLines: 6,
         decoration: InputDecoration(
           hintText: 'Pl. Foci – 8 év, úszás – 3 év, futás alkalmanként...',
-          hintStyle: const TextStyle(color: DT.textGrey),
+          hintStyle: TextStyle(color: DT.of(context).textGrey),
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
-            borderSide: const BorderSide(color: DT.borderGrey),
+            borderSide: BorderSide(color: DT.of(context).borderGrey),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
-            borderSide: const BorderSide(color: DT.borderGrey),
+            borderSide: BorderSide(color: DT.of(context).borderGrey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -358,7 +358,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                     ? DT.metricBlue.withOpacity(0.08)
                     : Colors.white,
                 border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.borderGrey,
+                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey,
                   width: 2,
                 ),
                 borderRadius: BorderRadius.circular(DT.rChip),
@@ -367,7 +367,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                 injury,
                 style: TextStyle(
                   color:
-                      isSelected ? DT.metricBlue : DT.textPrimary,
+                      isSelected ? DT.metricBlue : DT.of(context).textPrimary,
                   fontWeight:
                       isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
@@ -402,10 +402,10 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                 ),
               ),
               const SizedBox(width: DT.s2),
-              const Text(
+              Text(
                 'x / hét',
                 style: TextStyle(
-                  color: DT.textSecondary,
+                  color: DT.of(context).textSecondary,
                   fontSize: DT.s5,
                 ),
               ),
@@ -415,7 +415,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
           SliderTheme(
             data: SliderThemeData(
               activeTrackColor: DT.metricBlue,
-              inactiveTrackColor: DT.borderGrey,
+              inactiveTrackColor: DT.of(context).borderGrey,
               thumbColor: DT.metricBlue,
               overlayColor: DT.metricBlue.withOpacity(0.1),
               trackHeight: 6,
@@ -429,14 +429,14 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                   setState(() => _gymFrequency = val.round()),
             ),
           ),
-          const Padding(
+          Padding(
             padding:
-                EdgeInsets.symmetric(horizontal: DT.s2),
+                const EdgeInsets.symmetric(horizontal: DT.s2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('1x', style: TextStyle(color: DT.textSecondary)),
-                Text('7x', style: TextStyle(color: DT.textSecondary)),
+                Text('1x', style: TextStyle(color: DT.of(context).textSecondary)),
+                Text('7x', style: TextStyle(color: DT.of(context).textSecondary)),
               ],
             ),
           ),
@@ -475,7 +475,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                     ? DT.metricBlue.withOpacity(0.08)
                     : Colors.white,
                 border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.borderGrey,
+                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey,
                   width: 2,
                 ),
                 borderRadius: BorderRadius.circular(DT.rChip),
@@ -484,7 +484,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                 equipment,
                 style: TextStyle(
                   color:
-                      isSelected ? DT.metricBlue : DT.textPrimary,
+                      isSelected ? DT.metricBlue : DT.of(context).textPrimary,
                   fontWeight:
                       isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),

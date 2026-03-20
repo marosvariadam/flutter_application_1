@@ -40,11 +40,11 @@ class _AthletesPageState extends State<AthletesPage> {
         : _athletes.where((a) => a.fullName.toLowerCase().contains(_query.toLowerCase())).toList();
 
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        title: const Text('Atlétáim', style: TextStyle(color: DT.textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
+        title: Text('Atlétáim', style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: _isLoading
@@ -57,16 +57,16 @@ class _AthletesPageState extends State<AthletesPage> {
                     decoration: BoxDecoration(
                       color: DT.gbWhite,
                       borderRadius: BorderRadius.circular(DT.rCardSmall),
-                      boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2))],
+                      boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
                     ),
                     child: TextField(
                       controller: _search,
                       onChanged: (v) => setState(() => _query = v),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Atléta keresése…',
-                        prefixIcon: Icon(Icons.search, color: DT.iconLight),
+                        prefixIcon: Icon(Icons.search, color: DT.of(context).iconLight),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: DT.s4),
+                        contentPadding: const EdgeInsets.symmetric(vertical: DT.s4),
                       ),
                     ),
                   ),
@@ -76,10 +76,10 @@ class _AthletesPageState extends State<AthletesPage> {
                       ? Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.people_outline, size: 64, color: DT.borderGrey),
-                              SizedBox(height: DT.s3),
-                              Text('Nem található adat', style: TextStyle(color: DT.textSecondary, fontSize: DT.s4)),
+                            children: [
+                              Icon(Icons.people_outline, size: 64, color: DT.of(context).borderGrey),
+                              const SizedBox(height: DT.s3),
+                              Text('Nem található adat', style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
                             ],
                           ),
                         )
@@ -133,10 +133,10 @@ class _AthleteCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(athlete.fullName, style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary)),
+                    Text(athlete.fullName, style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary)),
                     if (athlete.goal != null) ...[
                       const SizedBox(height: DT.s1),
-                      Text('Cél: ${athlete.goal}', style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+                      Text('Cél: ${athlete.goal}', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
                     ],
                     const SizedBox(height: DT.s2),
                     Row(
@@ -149,7 +149,7 @@ class _AthleteCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: DT.textGrey, size: 14),
+              Icon(Icons.arrow_forward_ios, color: DT.of(context).textGrey, size: 14),
             ],
           ),
         ),
@@ -165,8 +165,8 @@ class _Tag extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: DT.s1),
-      decoration: BoxDecoration(color: DT.bg, borderRadius: BorderRadius.circular(DT.s1)),
-      child: Text(label, style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+      decoration: BoxDecoration(color: DT.of(context).bg, borderRadius: BorderRadius.circular(DT.s1)),
+      child: Text(label, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
     );
   }
 }

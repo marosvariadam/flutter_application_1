@@ -26,14 +26,14 @@ class _AthleteSessionsPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => SessionBloc()..add(LoadSessions()),
       child: Scaffold(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         appBar: AppBar(
-          backgroundColor: DT.bg,
+          backgroundColor: DT.of(context).bg,
           elevation: 0,
-          title: const Text(
+          title: Text(
             'Edzés',
             style: TextStyle(
-              color: DT.textPrimary,
+              color: DT.of(context).textPrimary,
               fontSize: DT.s4,
               fontWeight: FontWeight.w600,
             ),
@@ -56,8 +56,8 @@ class _AthleteSessionsPage extends StatelessWidget {
                     const SizedBox(height: DT.s4),
                     Text(
                       state.message,
-                      style: const TextStyle(
-                        color: DT.textSecondary,
+                      style: TextStyle(
+                        color: DT.of(context).textSecondary,
                         fontSize: DT.s4,
                       ),
                       textAlign: TextAlign.center,
@@ -78,14 +78,14 @@ class _AthleteSessionsPage extends StatelessWidget {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Icon(Icons.fitness_center_outlined,
-                          size: 64, color: DT.iconLightGrey),
-                      SizedBox(height: DT.s4),
+                          size: 64, color: DT.of(context).iconLightGrey),
+                      const SizedBox(height: DT.s4),
                       Text(
                         'Jelenleg nincs elérhető edzés.',
                         style:
-                            TextStyle(color: DT.textSecondary, fontSize: DT.s4),
+                            TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4),
                       ),
                     ],
                   ),
@@ -160,8 +160,8 @@ class _SessionCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               session.title,
-                              style: const TextStyle(
-                                color: DT.textPrimary,
+                              style: TextStyle(
+                                color: DT.of(context).textPrimary,
                                 fontSize: DT.s4,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -189,8 +189,8 @@ class _SessionCard extends StatelessWidget {
                       const SizedBox(height: DT.s1),
                       Text(
                         'Edző: ${session.trainer}',
-                        style: const TextStyle(
-                          color: DT.textSecondary,
+                        style: TextStyle(
+                          color: DT.of(context).textSecondary,
                           fontSize: DT.s3,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -198,8 +198,8 @@ class _SessionCard extends StatelessWidget {
                       const SizedBox(height: DT.s1),
                       Text(
                         session.description,
-                        style: const TextStyle(
-                          color: DT.textSecondary,
+                        style: TextStyle(
+                          color: DT.of(context).textSecondary,
                           fontSize: DT.s3,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -258,12 +258,12 @@ class _InfoChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: DT.s4, color: DT.iconLight),
+        Icon(icon, size: DT.s4, color: DT.of(context).iconLight),
         const SizedBox(width: DT.s1),
         Text(
           text,
-          style: const TextStyle(
-            color: DT.textSecondary,
+          style: TextStyle(
+            color: DT.of(context).textSecondary,
             fontSize: DT.s3,
             fontWeight: FontWeight.w500,
           ),

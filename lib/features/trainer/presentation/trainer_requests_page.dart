@@ -37,15 +37,15 @@ class _RequestsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
+        leading: BackButton(color: DT.of(context).textPrimary),
         title: Text(
             isTrainer ? 'Csatlakozási kérések' : 'Az én kéréseim',
-            style: const TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+            style: TextStyle(
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: BlocConsumer<TrainerRequestBloc, TrainerRequestState>(
@@ -65,15 +65,15 @@ class _RequestsView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.inbox_outlined,
-                        size: 64, color: DT.iconLightGrey),
+                    Icon(Icons.inbox_outlined,
+                        size: 64, color: DT.of(context).iconLightGrey),
                     const SizedBox(height: DT.s4),
                     Text(
                         isTrainer
                             ? 'Nincs függőben lévő kérés.'
                             : 'Még nem küldtél kérést.',
-                        style: const TextStyle(
-                            color: DT.textSecondary, fontSize: DT.s4)),
+                        style: TextStyle(
+                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
                   ],
                 ),
               );
@@ -131,21 +131,21 @@ class _IncomingRequestCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(request.athleteFullName,
-                          style: const TextStyle(
-                              color: DT.textPrimary,
+                          style: TextStyle(
+                              color: DT.of(context).textPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: DT.s4)),
                       Text(request.athleteEmail,
-                          style: const TextStyle(
-                              color: DT.textSecondary,
+                          style: TextStyle(
+                              color: DT.of(context).textSecondary,
                               fontSize: DT.s3)),
                     ],
                   ),
                 ),
                 Text(
                   DateFormat('yyyy.MM.dd').format(request.createdAt),
-                  style: const TextStyle(
-                      color: DT.textSecondary, fontSize: DT.s3),
+                  style: TextStyle(
+                      color: DT.of(context).textSecondary, fontSize: DT.s3),
                 ),
               ],
             ),
@@ -154,12 +154,12 @@ class _IncomingRequestCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(DT.s3),
                 decoration: BoxDecoration(
-                  color: DT.bg,
+                  color: DT.of(context).bg,
                   borderRadius: BorderRadius.circular(DT.rCardSmall),
                 ),
                 child: Text(request.note!,
-                    style: const TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3)),
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3)),
               ),
             ],
             const SizedBox(height: DT.s3),
@@ -222,17 +222,17 @@ class _OutgoingRequestCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Kérés küldve',
+                  Text('Kérés küldve',
                       style: TextStyle(
-                          color: DT.textPrimary,
+                          color: DT.of(context).textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: DT.s4)),
                   const SizedBox(height: 2),
                   Text(
                     DateFormat('yyyy.MM.dd HH:mm')
                         .format(request.createdAt),
-                    style: const TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3),
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3),
                   ),
                 ],
               ),

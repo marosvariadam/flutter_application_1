@@ -11,14 +11,14 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Értesítések',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Értesítések',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
@@ -56,8 +56,8 @@ class NotificationsPage extends StatelessWidget {
                       size: 48, color: DT.cardRed),
                   const SizedBox(height: DT.s4),
                   Text(state.message,
-                      style: const TextStyle(
-                          color: DT.textSecondary)),
+                      style: TextStyle(
+                          color: DT.of(context).textSecondary)),
                   const SizedBox(height: DT.s4),
                   ElevatedButton(
                     onPressed: () => context
@@ -71,16 +71,16 @@ class NotificationsPage extends StatelessWidget {
           }
           if (state is NotificationsLoaded) {
             if (state.notifications.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.notifications_none_outlined,
-                        size: 64, color: DT.iconLightGrey),
-                    SizedBox(height: DT.s4),
+                        size: 64, color: DT.of(context).iconLightGrey),
+                    const SizedBox(height: DT.s4),
                     Text('Nincs értesítés.',
                         style: TextStyle(
-                            color: DT.textSecondary, fontSize: DT.s4)),
+                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
                   ],
                 ),
               );
@@ -134,7 +134,7 @@ class _NotificationTile extends StatelessWidget {
                   children: [
                     Text(notification.message,
                         style: TextStyle(
-                            color: DT.textPrimary,
+                            color: DT.of(context).textPrimary,
                             fontSize: DT.s3,
                             fontWeight: notification.isRead
                                 ? FontWeight.normal
@@ -142,8 +142,8 @@ class _NotificationTile extends StatelessWidget {
                     const SizedBox(height: DT.s1),
                     Text(
                       _formatTime(notification.createdAt),
-                      style: const TextStyle(
-                          color: DT.textSecondary,
+                      style: TextStyle(
+                          color: DT.of(context).textSecondary,
                           fontSize: 11),
                     ),
                   ],
@@ -189,7 +189,7 @@ class _NotificationIcon extends StatelessWidget {
         (Icons.assignment_outlined, DT.metricBlue),
       'workoutassigned' =>
         (Icons.fitness_center, DT.cardOrange),
-      _ => (Icons.notifications, DT.iconLight),
+      _ => (Icons.notifications, DT.of(context).iconLight),
     };
     return Container(
       width: 36,

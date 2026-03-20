@@ -54,21 +54,21 @@ class WorkoutDetailView extends StatelessWidget {
         if (state is WorkoutDetailLoaded) {
           final w = state.workout;
           return Scaffold(
-            backgroundColor: DT.bg,
+            backgroundColor: DT.of(context).bg,
             appBar: AppBar(
-              backgroundColor: DT.bg,
+              backgroundColor: DT.of(context).bg,
               elevation: 0,
-              leading: BackButton(color: DT.textPrimary),
+              leading: BackButton(color: DT.of(context).textPrimary),
               title: Text(w.title,
-                  style: const TextStyle(
-                      color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                  style: TextStyle(
+                      color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
               centerTitle: true,
               actions: [
                 if (isTrainer &&
                     w.status == WorkoutStatus.planned)
                   IconButton(
-                    icon: const Icon(Icons.edit_outlined,
-                        color: DT.textPrimary),
+                    icon: Icon(Icons.edit_outlined,
+                        color: DT.of(context).textPrimary),
                     onPressed: () =>
                         context.push('/workout/${w.id}/edit'),
                   ),
@@ -87,9 +87,9 @@ class WorkoutDetailView extends StatelessWidget {
                 children: [
                   _WorkoutHeader(workout: w),
                   const SizedBox(height: DT.s5),
-                  const Text('Gyakorlatok',
+                  Text('Gyakorlatok',
                       style: TextStyle(
-                          color: DT.textPrimary,
+                          color: DT.of(context).textPrimary,
                           fontSize: DT.s4,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: DT.s3),
@@ -117,8 +117,8 @@ class WorkoutDetailView extends StatelessWidget {
                       size: 48, color: DT.cardRed),
                   const SizedBox(height: DT.s4),
                   Text(state.message,
-                      style: const TextStyle(
-                          color: DT.textSecondary)),
+                      style: TextStyle(
+                          color: DT.of(context).textSecondary)),
                   const SizedBox(height: DT.s4),
                   ElevatedButton(
                       onPressed: () => context
@@ -190,32 +190,32 @@ class _WorkoutHeader extends StatelessWidget {
           ]),
           const SizedBox(height: DT.s3),
           Row(children: [
-            const Icon(Icons.calendar_today_outlined,
-                size: 16, color: DT.iconLight),
+            Icon(Icons.calendar_today_outlined,
+                size: 16, color: DT.of(context).iconLight),
             const SizedBox(width: DT.s2),
             Text(
               DateFormat('yyyy. MMMM d., EEEE', 'hu')
                   .format(workout.scheduledDate),
-              style: const TextStyle(
-                  color: DT.textSecondary, fontSize: DT.s3),
+              style: TextStyle(
+                  color: DT.of(context).textSecondary, fontSize: DT.s3),
             ),
           ]),
           if (workout.athleteName != null) ...[
             const SizedBox(height: DT.s2),
             Row(children: [
-              const Icon(Icons.person_outline,
-                  size: 16, color: DT.iconLight),
+              Icon(Icons.person_outline,
+                  size: 16, color: DT.of(context).iconLight),
               const SizedBox(width: DT.s2),
               Text('Sportoló: ${workout.athleteName}',
-                  style: const TextStyle(
-                      color: DT.textSecondary, fontSize: DT.s3)),
+                  style: TextStyle(
+                      color: DT.of(context).textSecondary, fontSize: DT.s3)),
             ]),
           ],
           if (workout.notes != null && workout.notes!.isNotEmpty) ...[
             const SizedBox(height: DT.s3),
             Text(workout.notes!,
-                style: const TextStyle(
-                    color: DT.textSecondary, fontSize: DT.s3)),
+                style: TextStyle(
+                    color: DT.of(context).textSecondary, fontSize: DT.s3)),
           ],
           if (workout.athleteFeedback != null &&
               workout.athleteFeedback!.isNotEmpty) ...[
@@ -229,15 +229,15 @@ class _WorkoutHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Sportoló visszajelzése:',
+                  Text('Sportoló visszajelzése:',
                       style: TextStyle(
-                          color: DT.textSecondary,
+                          color: DT.of(context).textSecondary,
                           fontSize: DT.s3,
                           fontWeight: FontWeight.w600)),
                   const SizedBox(height: DT.s1),
                   Text(workout.athleteFeedback!,
-                      style: const TextStyle(
-                          color: DT.textPrimary, fontSize: DT.s3)),
+                      style: TextStyle(
+                          color: DT.of(context).textPrimary, fontSize: DT.s3)),
                 ],
               ),
             ),
@@ -371,15 +371,15 @@ class _ExerciseCardState extends State<_ExerciseCard> {
           ListTile(
             onTap: () => setState(() => _expanded = !_expanded),
             title: Text(e.name,
-                style: const TextStyle(
-                    color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                style: TextStyle(
+                    color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
             subtitle: Text(
                 '${e.sets} sorozat × ${e.targetReps} ism. @ ${e.targetWeightKg} kg',
-                style: const TextStyle(
-                    color: DT.textSecondary, fontSize: DT.s3)),
+                style: TextStyle(
+                    color: DT.of(context).textSecondary, fontSize: DT.s3)),
             trailing: Icon(
                 _expanded ? Icons.expand_less : Icons.expand_more,
-                color: DT.iconLight),
+                color: DT.of(context).iconLight),
           ),
           if (_expanded) ...[
             if (e.instructions != null && e.instructions!.isNotEmpty)
@@ -387,8 +387,8 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                 padding: const EdgeInsets.fromLTRB(
                     DT.s4, 0, DT.s4, DT.s3),
                 child: Text(e.instructions!,
-                    style: const TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3)),
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3)),
               ),
             if (canLog) ...[
               Padding(

@@ -18,7 +18,7 @@ class BottomNavScaffold extends StatelessWidget {
       body: shell,
       bottomNavigationBar: Container(
         height: 100,
-        decoration: const BoxDecoration(color: DT.bg),
+        decoration: BoxDecoration(color: DT.of(context).bg),
         child: Container(
           decoration: BoxDecoration(
             color: DT.bottomNavBG,
@@ -100,7 +100,7 @@ class _NavItem extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: isSelected ? DT.bg : Colors.transparent,
+                color: isSelected ? DT.of(context).bg : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: iconColor, size: DT.s6),

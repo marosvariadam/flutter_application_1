@@ -109,12 +109,12 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.close, color: DT.textPrimary), onPressed: () => Navigator.of(context).pop()),
-        title: const Text('Edzés összeállítása', style: TextStyle(color: DT.textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
+        leading: IconButton(icon: Icon(Icons.close, color: DT.of(context).textPrimary), onPressed: () => Navigator.of(context).pop()),
+        title: Text('Edzés összeállítása', style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s4, fontWeight: FontWeight.w600)),
         actions: [TextButton(onPressed: _save, child: const Text('Mentés', style: TextStyle(color: DT.metricBlue, fontWeight: FontWeight.w700, fontSize: DT.s4)))],
       ),
       body: _isLoading
@@ -127,7 +127,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                   decoration: BoxDecoration(color: DT.gbWhite, borderRadius: BorderRadius.circular(DT.rCardSmall)),
                   child: TextField(
                     controller: _titleController,
-                    style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary),
+                    style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary),
                     decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s3)),
                   ),
                 ),
@@ -137,7 +137,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                 const SizedBox(height: DT.s4),
                 _SectionLabel('Atléta'),
                 if (_athletes.isEmpty)
-                  const Padding(padding: EdgeInsets.all(DT.s3), child: Text('Nem található adat', style: TextStyle(color: DT.textSecondary)))
+                  Padding(padding: const EdgeInsets.all(DT.s3), child: Text('Nem található adat', style: TextStyle(color: DT.of(context).textSecondary)))
                 else
                   _AthleteSelector(athletes: _athletes, selectedId: _selectedAthleteId, onChanged: (id) => setState(() => _selectedAthleteId = id)),
                 const SizedBox(height: DT.s4),
@@ -151,9 +151,9 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                       children: [
                         const Icon(Icons.calendar_today, color: DT.metricBlue, size: 20),
                         const SizedBox(width: DT.s3),
-                        Text(DateFormat('yyyy.MM.dd').format(_date), style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary)),
+                        Text(DateFormat('yyyy.MM.dd').format(_date), style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary)),
                         const Spacer(),
-                        const Icon(Icons.arrow_forward_ios, size: 14, color: DT.textGrey),
+                        Icon(Icons.arrow_forward_ios, size: 14, color: DT.of(context).textGrey),
                       ],
                     ),
                   ),
@@ -162,8 +162,8 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Gyakorlatok', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
-                    Text('${_exercises.length} db', style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+                    Text('Gyakorlatok', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+                    Text('${_exercises.length} db', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
                   ],
                 ),
                 const SizedBox(height: DT.s3),
@@ -183,7 +183,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                   onTap: _showExercisePicker,
                   child: Container(
                     padding: const EdgeInsets.all(DT.s4),
-                    decoration: BoxDecoration(color: DT.gbWhite, borderRadius: BorderRadius.circular(DT.rCardSmall), border: Border.all(color: DT.borderGrey, width: 1.5)),
+                    decoration: BoxDecoration(color: DT.gbWhite, borderRadius: BorderRadius.circular(DT.rCardSmall), border: Border.all(color: DT.of(context).borderGrey, width: 1.5)),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -208,7 +208,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: DT.s2),
-      child: Text(text, style: const TextStyle(fontSize: DT.s3, fontWeight: FontWeight.w600, color: DT.textSecondary)),
+      child: Text(text, style: TextStyle(fontSize: DT.s3, fontWeight: FontWeight.w600, color: DT.of(context).textSecondary)),
     );
   }
 }
@@ -232,9 +232,9 @@ class _DifficultySelector extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected ? opt.$2 : DT.gbWhite,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
-                border: Border.all(color: isSelected ? opt.$2 : DT.borderGrey, width: 2),
+                border: Border.all(color: isSelected ? opt.$2 : DT.of(context).borderGrey, width: 2),
               ),
-              child: Text(opt.$1, textAlign: TextAlign.center, style: TextStyle(fontSize: DT.s3, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : DT.textSecondary)),
+              child: Text(opt.$1, textAlign: TextAlign.center, style: TextStyle(fontSize: DT.s3, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : DT.of(context).textSecondary)),
             ),
           ),
         );
@@ -256,7 +256,7 @@ class _AthleteSelector extends StatelessWidget {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: selectedId,
-          hint: const Text('Válassz atléta…', style: TextStyle(color: DT.textSecondary)),
+          hint: Text('Válassz atléta…', style: TextStyle(color: DT.of(context).textSecondary)),
           isExpanded: true,
           items: athletes.map((a) => DropdownMenuItem(value: a.id, child: Text(a.fullName))).toList(),
           onChanged: onChanged,
@@ -293,7 +293,7 @@ class _ExerciseBuilderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: DT.s4),
-      decoration: BoxDecoration(color: DT.gbWhite, borderRadius: BorderRadius.circular(DT.rCardSmall), boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2))]),
+      decoration: BoxDecoration(color: DT.gbWhite, borderRadius: BorderRadius.circular(DT.rCardSmall), boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 8, offset: const Offset(0, 2))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -302,8 +302,8 @@ class _ExerciseBuilderCard extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(exercise.name, style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
-                  Text(exercise.category, style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary)),
+                  Text(exercise.name, style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+                  Text(exercise.category, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary)),
                 ])),
                 IconButton(icon: const Icon(Icons.delete_outline, color: DT.cardRed), onPressed: onRemove),
               ],
@@ -311,13 +311,13 @@ class _ExerciseBuilderCard extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s2),
-            color: DT.bg,
-            child: const Row(
+            color: DT.of(context).bg,
+            child: Row(
               children: [
-                SizedBox(width: 36, child: Text('Set', style: TextStyle(fontSize: DT.s3, color: DT.textSecondary, fontWeight: FontWeight.w600))),
-                Expanded(child: Text('Súly (kg)', textAlign: TextAlign.center, style: TextStyle(fontSize: DT.s3, color: DT.textSecondary, fontWeight: FontWeight.w600))),
-                Expanded(child: Text('Ismétlés', textAlign: TextAlign.center, style: TextStyle(fontSize: DT.s3, color: DT.textSecondary, fontWeight: FontWeight.w600))),
-                SizedBox(width: 36),
+                SizedBox(width: 36, child: Text('Set', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary, fontWeight: FontWeight.w600))),
+                Expanded(child: Text('Súly (kg)', textAlign: TextAlign.center, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary, fontWeight: FontWeight.w600))),
+                Expanded(child: Text('Ismétlés', textAlign: TextAlign.center, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary, fontWeight: FontWeight.w600))),
+                const SizedBox(width: 36),
               ],
             ),
           ),
@@ -336,7 +336,7 @@ class _ExerciseBuilderCard extends StatelessWidget {
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: DT.s3),
-              decoration: const BoxDecoration(border: Border(top: BorderSide(color: DT.borderLight))),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: DT.of(context).borderLight))),
               child: const Center(child: Text('+ Sorozat hozzáadása', style: TextStyle(color: DT.metricBlue, fontWeight: FontWeight.w600, fontSize: DT.s3))),
             ),
           ),
@@ -359,10 +359,10 @@ class _SetInputRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s1),
-      decoration: const BoxDecoration(border: Border(top: BorderSide(color: DT.borderLight))),
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: DT.of(context).borderLight))),
       child: Row(
         children: [
-          SizedBox(width: 36, child: Text('$setNumber', style: const TextStyle(fontWeight: FontWeight.w600, color: DT.textPrimary, fontSize: DT.s3))),
+          SizedBox(width: 36, child: Text('$setNumber', style: TextStyle(fontWeight: FontWeight.w600, color: DT.of(context).textPrimary, fontSize: DT.s3))),
           Expanded(child: _NumInput(value: set.weight?.toString() ?? '', hint: '0', onChanged: (v) => onWeightChanged(double.tryParse(v)), isDecimal: true)),
           Expanded(child: _NumInput(value: set.reps?.toString() ?? '', hint: '0', onChanged: (v) => onRepsChanged(int.tryParse(v)), isDecimal: false)),
           SizedBox(
@@ -391,8 +391,8 @@ class _NumInput extends StatelessWidget {
         initialValue: value,
         keyboardType: TextInputType.numberWithOptions(decimal: isDecimal),
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary),
-        decoration: InputDecoration(hintText: hint, hintStyle: const TextStyle(color: DT.textGrey), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: DT.s2)),
+        style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary),
+        decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: DT.of(context).textGrey), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: DT.s2)),
         onChanged: onChanged,
       ),
     );
@@ -421,8 +421,8 @@ class _ExercisePickerState extends State<_ExercisePicker> {
           padding: const EdgeInsets.all(DT.s4),
           child: Row(
             children: [
-              const Expanded(child: Text('Gyakorlat választása', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary))),
-              GestureDetector(onTap: () => Navigator.of(context).pop(), child: const Icon(Icons.close, color: DT.iconLight)),
+              Expanded(child: Text('Gyakorlat választása', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary))),
+              GestureDetector(onTap: () => Navigator.of(context).pop(), child: Icon(Icons.close, color: DT.of(context).iconLight)),
             ],
           ),
         ),
@@ -434,26 +434,26 @@ class _ExercisePickerState extends State<_ExercisePicker> {
               hintText: 'Keresés…',
               prefixIcon: const Icon(Icons.search),
               filled: true,
-              fillColor: DT.bg,
+              fillColor: DT.of(context).bg,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(DT.rCardSmall), borderSide: BorderSide.none),
               contentPadding: const EdgeInsets.symmetric(vertical: DT.s3),
             ),
           ),
         ),
         if (filtered.isEmpty)
-          const Expanded(child: Center(child: Text('Nem található adat', style: TextStyle(color: DT.textSecondary, fontSize: DT.s4))))
+          Expanded(child: Center(child: Text('Nem található adat', style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4))))
         else
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.fromLTRB(DT.s4, 0, DT.s4, DT.s5),
               itemCount: filtered.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, color: DT.borderLight),
+              separatorBuilder: (_, __) => Divider(height: 1, color: DT.of(context).borderLight),
               itemBuilder: (context, index) {
                 final ex = filtered[index];
                 return ListTile(
                   onTap: () => widget.onSelect(ex),
-                  title: Text(ex['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w500, color: DT.textPrimary)),
-                  subtitle: Text(ex['category'] ?? '', style: const TextStyle(color: DT.textSecondary)),
+                  title: Text(ex['name'] ?? '', style: TextStyle(fontWeight: FontWeight.w500, color: DT.of(context).textPrimary)),
+                  subtitle: Text(ex['category'] ?? '', style: TextStyle(color: DT.of(context).textSecondary)),
                   trailing: const Icon(Icons.add_circle, color: DT.metricBlue),
                   contentPadding: EdgeInsets.zero,
                 );

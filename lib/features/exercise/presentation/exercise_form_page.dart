@@ -96,17 +96,17 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
+        leading: BackButton(color: DT.of(context).textPrimary),
         title: Text(
             widget.exerciseId != null
                 ? 'Gyakorlat szerkesztése'
                 : 'Új gyakorlat',
-            style: const TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+            style: TextStyle(
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -127,9 +127,9 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
                     v == null || v.trim().isEmpty ? 'Kötelező' : null,
               ),
               const SizedBox(height: DT.s4),
-              const Text('Izomcsoport',
+              Text('Izomcsoport',
                   style: TextStyle(
-                      color: DT.textSecondary,
+                      color: DT.of(context).textSecondary,
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: DT.s2),
               DropdownButtonFormField<String>(

@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 'Üdvözlünk vissza!',
                 style: TextStyle(
-                  color: DT.textPrimary,
+                  color: DT.of(context).textPrimary,
                   fontSize: DT.s8,
                   fontWeight: FontWeight.w700,
                 ),
@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 'Jelentkezz be a folytatáshoz',
                 style: TextStyle(
-                  color: DT.textSecondary,
+                  color: DT.of(context).textSecondary,
                   fontSize: DT.s4,
                   fontWeight: FontWeight.w400,
                 ),
@@ -92,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       TextFormField(
                         controller: _emailController,
+                        autofocus: true,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           labelText: 'Email cím',

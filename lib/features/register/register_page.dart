@@ -86,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: DT.textPrimary),
+          icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary),
           onPressed: () => context.pop(),
         ),
       ),
@@ -100,7 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Text(
                 'Fiók létrehozása',
                 style: TextStyle(
-                  color: DT.textPrimary,
+                  color: DT.of(context).textPrimary,
                   fontSize: DT.s8,
                   fontWeight: FontWeight.w700,
                 ),
@@ -109,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Text(
                 'Töltsd ki az adataidat a regisztrációhoz',
                 style: TextStyle(
-                  color: DT.textSecondary,
+                  color: DT.of(context).textSecondary,
                   fontSize: DT.s4,
                   fontWeight: FontWeight.w400,
                 ),
@@ -167,7 +167,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Text(
                 'Válassz szerepkört:',
                 style: TextStyle(
-                    color: DT.textSecondary, fontWeight: FontWeight.w600),
+                    color: DT.of(context).textSecondary, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: DT.s2),
               Row(
@@ -188,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Text(
                   'Edző neve',
                   style: TextStyle(
-                      color: DT.textSecondary, fontWeight: FontWeight.w600),
+                      color: DT.of(context).textSecondary, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: DT.s2),
                 TextFormField(
@@ -203,7 +203,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Text(
                   'Add meg annak az edzőnek a nevét, akihez csatlakozni szeretnél.',
                   style: TextStyle(
-                    color: DT.textSecondary,
+                    color: DT.of(context).textSecondary,
                     fontSize: DT.s3,
                   ),
                 ),
