@@ -59,19 +59,19 @@ class _CatalogueViewState extends State<_CatalogueView> {
         (context.read<AuthBloc>().state as AuthAuthenticated).user.isTrainer;
 
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Gyakorlat katalógus',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Gyakorlat katalógus',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
         actions: [
           if (isTrainer && !widget.selectionMode)
             IconButton(
-              icon: const Icon(Icons.add, color: DT.textPrimary),
+              icon: Icon(Icons.add, color: DT.of(context).textPrimary),
               onPressed: () =>
                   context.push('/exercise/new').then((_) {
                 context
@@ -152,8 +152,8 @@ class _CatalogueViewState extends State<_CatalogueView> {
                             size: 48, color: DT.cardRed),
                         const SizedBox(height: DT.s4),
                         Text(state.message,
-                            style: const TextStyle(
-                                color: DT.textSecondary)),
+                            style: TextStyle(
+                                color: DT.of(context).textSecondary)),
                         const SizedBox(height: DT.s4),
                         ElevatedButton(
                             onPressed: () => context
@@ -166,10 +166,10 @@ class _CatalogueViewState extends State<_CatalogueView> {
                 }
                 if (state is ExercisesLoaded) {
                   if (state.exercises.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Text('Nincs találat.',
                           style: TextStyle(
-                              color: DT.textSecondary,
+                              color: DT.of(context).textSecondary,
                               fontSize: DT.s4)),
                     );
                   }
@@ -257,14 +257,14 @@ class _ExerciseTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(exercise.name,
-                        style: const TextStyle(
-                            color: DT.textPrimary,
+                        style: TextStyle(
+                            color: DT.of(context).textPrimary,
                             fontWeight: FontWeight.w600)),
                     const SizedBox(height: 2),
                     Row(children: [
                       Text(exercise.muscleGroup,
-                          style: const TextStyle(
-                              color: DT.textSecondary,
+                          style: TextStyle(
+                              color: DT.of(context).textSecondary,
                               fontSize: DT.s3)),
                       if (exercise.isCustom) ...[
                         const SizedBox(width: DT.s2),
@@ -276,9 +276,9 @@ class _ExerciseTile extends StatelessWidget {
                             borderRadius:
                                 BorderRadius.circular(DT.rChip),
                           ),
-                          child: const Text('Egyéni',
+                          child: Text('Egyéni',
                               style: TextStyle(
-                                  color: DT.textPrimary,
+                                  color: DT.of(context).textPrimary,
                                   fontSize: 10)),
                         ),
                       ],
@@ -308,8 +308,8 @@ class _ExerciseTile extends StatelessWidget {
                   ],
                 ),
               if (selectionMode)
-                const Icon(Icons.chevron_right,
-                    color: DT.iconLight),
+                Icon(Icons.chevron_right,
+                    color: DT.of(context).iconLight),
             ],
           ),
         ),

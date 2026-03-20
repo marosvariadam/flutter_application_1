@@ -47,18 +47,18 @@ class _AthleteWorkoutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        title: const Text('Edzések',
+        title: Text('Edzések',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_month_outlined,
-                color: DT.textPrimary),
+            icon: Icon(Icons.calendar_month_outlined,
+                color: DT.of(context).textPrimary),
             onPressed: () => context.push('/workout/calendar'),
           ),
         ],
@@ -77,16 +77,16 @@ class _AthleteWorkoutView extends StatelessWidget {
           }
           if (state is WorkoutsLoaded) {
             if (state.workouts.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.fitness_center_outlined,
-                        size: 64, color: DT.iconLightGrey),
-                    SizedBox(height: DT.s4),
+                        size: 64, color: DT.of(context).iconLightGrey),
+                    const SizedBox(height: DT.s4),
                     Text('Jelenleg nincs elérhető edzés.',
                         style: TextStyle(
-                            color: DT.textSecondary, fontSize: DT.s4)),
+                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
                   ],
                 ),
               );
@@ -169,8 +169,8 @@ class WorkoutCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(workout.title,
-                                style: const TextStyle(
-                                    color: DT.textPrimary,
+                                style: TextStyle(
+                                    color: DT.of(context).textPrimary,
                                     fontSize: DT.s4,
                                     fontWeight: FontWeight.w600)),
                           ),
@@ -183,15 +183,15 @@ class WorkoutCard extends StatelessWidget {
                       const SizedBox(height: DT.s1),
                       if (workout.trainerName != null)
                         Text('Edző: ${workout.trainerName}',
-                            style: const TextStyle(
-                                color: DT.textSecondary,
+                            style: TextStyle(
+                                color: DT.of(context).textSecondary,
                                 fontSize: DT.s3)),
                       const SizedBox(height: DT.s1),
                       Text(
                         DateFormat('yyyy. MMM d.', 'hu')
                             .format(workout.scheduledDate),
-                        style: const TextStyle(
-                            color: DT.textSecondary, fontSize: DT.s3),
+                        style: TextStyle(
+                            color: DT.of(context).textSecondary, fontSize: DT.s3),
                       ),
                       const SizedBox(height: DT.s2),
                       _Badge(
@@ -283,7 +283,7 @@ class _ErrorView extends StatelessWidget {
           const SizedBox(height: DT.s4),
           Text(message,
               style:
-                  const TextStyle(color: DT.textSecondary, fontSize: DT.s4)),
+                  TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
           const SizedBox(height: DT.s4),
           ElevatedButton(onPressed: onRetry, child: const Text('Újra')),
         ],

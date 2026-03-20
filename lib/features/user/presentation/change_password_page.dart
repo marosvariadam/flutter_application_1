@@ -57,14 +57,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Jelszó módosítása',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Jelszó módosítása',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(

@@ -16,9 +16,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
         toolbarHeight: 80,
         title: Row(
@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
                 height: 48,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: DT.bg, width: 2),
+                  border: Border.all(color: DT.of(context).bg, width: 2),
                   boxShadow: const [
                     BoxShadow(
                       color: DT.shadowMedium,
@@ -46,8 +46,8 @@ class _HomePageState extends State<HomePage> {
                     'src',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: DT.iconLightGrey.withOpacity(0.3),
-                      child: const Icon(Icons.person, color: DT.iconLight),
+                      color: DT.of(context).iconLightGrey.withOpacity(0.3),
+                      child: Icon(Icons.person, color: DT.of(context).iconLight),
                     ),
                   ),
                 ),
@@ -59,19 +59,19 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Szia!',
                     style: TextStyle(
                       fontSize: DT.s4,
                       fontWeight: FontWeight.w600,
-                      color: DT.textPrimary,
+                      color: DT.of(context).textPrimary,
                     ),
                   ),
                   Text(
                     DateFormat('dd.MM.yyyy').format(DateTime.now()),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: DT.s3,
-                      color: DT.textSecondary,
+                      color: DT.of(context).textSecondary,
                     ),
                   ),
                 ],
@@ -84,15 +84,15 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                 color: DT.gbWhite,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: DT.shadowLight,
+                    color: DT.of(context).shadowLight,
                     blurRadius: 10,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: const Icon(Icons.search, color: DT.iconLight),
+              child: Icon(Icons.search, color: DT.of(context).iconLight),
             ),
           ],
         ),
@@ -107,12 +107,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: DT.s5),
 
             // Weekly date picker
-            const Text(
+            Text(
               'Ezen a héten',
               style: TextStyle(
                 fontSize: DT.s4,
                 fontWeight: FontWeight.w700,
-                color: DT.textPrimary,
+                color: DT.of(context).textPrimary,
               ),
             ),
             const SizedBox(height: DT.s3),
@@ -123,12 +123,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: DT.s5),
 
             // Plan cards section
-            const Text(
+            Text(
               'Edzéstervem',
               style: TextStyle(
                 fontSize: DT.s4,
                 fontWeight: FontWeight.w700,
-                color: DT.textPrimary,
+                color: DT.of(context).textPrimary,
               ),
             ),
             const SizedBox(height: DT.s3),
@@ -189,31 +189,31 @@ class _DailyChallengeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.gbWhite,
         borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: DT.shadowLight,
+            color: DT.of(context).shadowLight,
             blurRadius: 20,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Napi kihívás',
             style: TextStyle(
               fontSize: DT.s5,
               fontWeight: FontWeight.w700,
-              color: DT.textPrimary,
+              color: DT.of(context).textPrimary,
             ),
           ),
           const SizedBox(height: DT.s2),
-          const Text(
+          Text(
             'Csinálj meg mindent 9:00 előtt',
             style: TextStyle(
               fontSize: DT.s4,
-              color: DT.textSecondary,
+              color: DT.of(context).textSecondary,
             ),
           ),
           const SizedBox(height: DT.s3),
@@ -242,15 +242,15 @@ class _DailyChallengeCard extends StatelessWidget {
                   height: 32,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: DT.bg,
+                    color: DT.of(context).bg,
                     border: Border.all(color: DT.gbWhite, width: 2),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       '+12',
                       style: TextStyle(
                         fontSize: 9,
-                        color: DT.textSecondary,
+                        color: DT.of(context).textSecondary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -305,8 +305,8 @@ class _userChip extends StatelessWidget {
           imageURL,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
-            color: DT.iconLightGrey.withOpacity(0.3),
-            child: const Icon(Icons.person, size: DT.s4, color: DT.iconLight),
+            color: DT.of(context).iconLightGrey.withOpacity(0.3),
+            child: Icon(Icons.person, size: DT.s4, color: DT.of(context).iconLight),
           ),
         ),
       ),
@@ -346,11 +346,11 @@ class _WeeklyListComponent extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected ? DT.gbBlack : DT.gbWhite,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: DT.shadowLight,
+                    color: DT.of(context).shadowLight,
                     blurRadius: 8,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -361,7 +361,7 @@ class _WeeklyListComponent extends StatelessWidget {
                     DateFormat('E').format(date),
                     style: TextStyle(
                       fontSize: DT.s3,
-                      color: isSelected ? DT.gbWhite : DT.textSecondary,
+                      color: isSelected ? DT.gbWhite : DT.of(context).textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -370,7 +370,7 @@ class _WeeklyListComponent extends StatelessWidget {
                     DateFormat('d').format(date),
                     style: TextStyle(
                       fontSize: DT.s4,
-                      color: isSelected ? DT.gbWhite : DT.textPrimary,
+                      color: isSelected ? DT.gbWhite : DT.of(context).textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -422,11 +422,11 @@ class _PlanCard extends StatelessWidget {
           padding: const EdgeInsets.all(DT.s4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: DT.shadowLight,
+                color: DT.of(context).shadowLight,
                 blurRadius: 10,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -442,37 +442,37 @@ class _PlanCard extends StatelessWidget {
                 ),
                 child: Text(
                   difficulty,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: DT.s3,
                     fontWeight: FontWeight.w500,
-                    color: DT.textPrimary,
+                    color: DT.of(context).textPrimary,
                   ),
                 ),
               ),
               const SizedBox(height: DT.s3),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: DT.s3,
                   fontWeight: FontWeight.w700,
-                  color: DT.textPrimary,
+                  color: DT.of(context).textPrimary,
                 ),
               ),
               const SizedBox(height: DT.s1),
               Text(
                 date,
-                style: const TextStyle(
-                    fontSize: DT.s3, color: DT.textSecondary),
+                style: TextStyle(
+                    fontSize: DT.s3, color: DT.of(context).textSecondary),
               ),
               Text(
                 time,
-                style: const TextStyle(
-                    fontSize: DT.s3, color: DT.textSecondary),
+                style: TextStyle(
+                    fontSize: DT.s3, color: DT.of(context).textSecondary),
               ),
               Text(
                 room,
-                style: const TextStyle(
-                    fontSize: DT.s3, color: DT.textSecondary),
+                style: TextStyle(
+                    fontSize: DT.s3, color: DT.of(context).textSecondary),
               ),
               const Spacer(),
               if (isLeft) ...[
@@ -486,15 +486,15 @@ class _PlanCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Edző:',
                           style: TextStyle(
-                              fontSize: DT.s2, color: DT.textSecondary),
+                              fontSize: DT.s2, color: DT.of(context).textSecondary),
                         ),
                         Text(
                           trainer,
-                          style: const TextStyle(
-                              fontSize: DT.s3, color: DT.textPrimary),
+                          style: TextStyle(
+                              fontSize: DT.s3, color: DT.of(context).textPrimary),
                         ),
                       ],
                     ),
@@ -510,9 +510,9 @@ class _PlanCard extends StatelessWidget {
                       color: DT.gbWhite.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(DT.s2),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.extension,
-                      color: DT.textPrimary,
+                      color: DT.of(context).textPrimary,
                       size: DT.s5,
                     ),
                   ),
@@ -532,12 +532,12 @@ class _SocialMediaCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Közösség',
           style: TextStyle(
             fontSize: DT.s4,
             fontWeight: FontWeight.w700,
-            color: DT.textPrimary,
+            color: DT.of(context).textPrimary,
           ),
         ),
         const SizedBox(height: DT.s3),
@@ -547,11 +547,11 @@ class _SocialMediaCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: DT.gbWhite,
             borderRadius: BorderRadius.circular(DT.rCard),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: DT.shadowLight,
+                color: DT.of(context).shadowLight,
                 blurRadius: 16,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -615,7 +615,7 @@ class _SocialIconItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: DT.s3,
-                color: DT.textSecondary,
+                color: DT.of(context).textSecondary,
                 fontWeight: FontWeight.w500,
               ),
             ),

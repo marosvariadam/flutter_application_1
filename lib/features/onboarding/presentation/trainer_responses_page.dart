@@ -11,14 +11,14 @@ class TrainerResponsesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Felmérő válaszok',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Felmérő válaszok',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: BlocBuilder<OnboardingBloc, OnboardingState>(
@@ -40,7 +40,7 @@ class TrainerResponsesPage extends StatelessWidget {
                   const SizedBox(height: DT.s4),
                   Text(state.message,
                       style:
-                          const TextStyle(color: DT.textSecondary)),
+                          TextStyle(color: DT.of(context).textSecondary)),
                   const SizedBox(height: DT.s4),
                   ElevatedButton(
                     onPressed: () => context
@@ -54,16 +54,16 @@ class TrainerResponsesPage extends StatelessWidget {
           }
           if (state is OnboardingResponsesLoaded) {
             if (state.responses.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.assignment_outlined,
-                        size: 64, color: DT.iconLightGrey),
-                    SizedBox(height: DT.s4),
+                        size: 64, color: DT.of(context).iconLightGrey),
+                    const SizedBox(height: DT.s4),
                     Text('Még nincs beérkezett válasz.',
                         style: TextStyle(
-                            color: DT.textSecondary, fontSize: DT.s4)),
+                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
                   ],
                 ),
               );
@@ -118,21 +118,21 @@ class _ResponseCard extends StatelessWidget {
                   children: [
                     Text(
                       response.athleteName ?? response.athleteId,
-                      style: const TextStyle(
-                          color: DT.textPrimary,
+                      style: TextStyle(
+                          color: DT.of(context).textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: DT.s3),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${response.answers.length} válasz · ${DateFormat('yyyy.MM.dd').format(response.submittedAt)}',
-                      style: const TextStyle(
-                          color: DT.textSecondary, fontSize: 11),
+                      style: TextStyle(
+                          color: DT.of(context).textSecondary, fontSize: 11),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: DT.textGrey),
+              Icon(Icons.chevron_right, color: DT.of(context).textGrey),
             ],
           ),
         ),
@@ -144,7 +144,7 @@ class _ResponseCard extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -163,21 +163,21 @@ class _ResponseCard extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: DT.s4),
                 decoration: BoxDecoration(
-                  color: DT.borderGrey,
+                  color: DT.of(context).borderGrey,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             Text(
               response.athleteName ?? 'Sportoló',
-              style: const TextStyle(
-                  color: DT.textPrimary,
+              style: TextStyle(
+                  color: DT.of(context).textPrimary,
                   fontSize: DT.s5,
                   fontWeight: FontWeight.w700),
             ),
             Text(
               'Beküldve: ${DateFormat('yyyy.MM.dd HH:mm').format(response.submittedAt)}',
-              style: const TextStyle(color: DT.textSecondary, fontSize: DT.s3),
+              style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3),
             ),
             const SizedBox(height: DT.s5),
             ...response.answers.asMap().entries.map((e) => Padding(
@@ -186,13 +186,13 @@ class _ResponseCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${e.key + 1}. kérdés',
-                          style: const TextStyle(
-                              color: DT.textSecondary, fontSize: 11)),
+                          style: TextStyle(
+                              color: DT.of(context).textSecondary, fontSize: 11)),
                       const SizedBox(height: 2),
                       Text(e.value.answer,
-                          style: const TextStyle(
-                              color: DT.textPrimary, fontSize: DT.s3)),
-                      const Divider(color: DT.borderLight, height: DT.s5),
+                          style: TextStyle(
+                              color: DT.of(context).textPrimary, fontSize: DT.s3)),
+                      Divider(color: DT.of(context).borderLight, height: DT.s5),
                     ],
                   ),
                 )),

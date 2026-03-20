@@ -55,9 +55,9 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
         toolbarHeight: 80,
         title: Row(
@@ -70,7 +70,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 height: 48,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: DT.bg, width: 2),
+                  border: Border.all(color: DT.of(context).bg, width: 2),
                   boxShadow: const [BoxShadow(color: DT.shadowMedium, blurRadius: 10, offset: Offset(0, 2))],
                 ),
                 child: ClipOval(
@@ -88,11 +88,11 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 children: [
                   Text(
                     'Szia, ${UserSession.instance.firstName ?? ''}!',
-                    style: const TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary),
+                    style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary),
                   ),
                   Text(
                     DateFormat('yyyy.MM.dd').format(DateTime.now()),
-                    style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary),
+                    style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary),
                   ),
                 ],
               ),
@@ -102,9 +102,9 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
               decoration: BoxDecoration(
                 color: DT.gbWhite,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
-                boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 10, offset: Offset(0, 2))],
+                boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 10, offset: const Offset(0, 2))],
               ),
-              child: const Icon(Icons.search, color: DT.iconLight),
+              child: Icon(Icons.search, color: DT.of(context).iconLight),
             ),
           ],
         ),
@@ -118,7 +118,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 children: [
                   _DailyChallengeCard(),
                   const SizedBox(height: DT.s5),
-                  const Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+                  Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
                   const SizedBox(height: DT.s3),
                   _WeeklyStrip(
                     selected: _selected,
@@ -126,7 +126,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                     onDateSelected: (date) => setState(() => _selected = date),
                   ),
                   const SizedBox(height: DT.s5),
-                  const Text('Edzéstervem', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+                  Text('Edzéstervem', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
                   const SizedBox(height: DT.s3),
                   _workout != null
                       ? _WorkoutCard(workout: _workout!, onTap: () => context.push('/workout-detail', extra: _workout))
@@ -169,14 +169,14 @@ class _WeeklyStrip extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected ? DT.gbBlack : DT.gbWhite,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
-                boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 8, offset: Offset(0, 2))],
+                boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(DateFormat('E').format(date), style: TextStyle(fontSize: DT.s3, color: isSelected ? DT.gbWhite : DT.textSecondary, fontWeight: FontWeight.w500)),
+                  Text(DateFormat('E').format(date), style: TextStyle(fontSize: DT.s3, color: isSelected ? DT.gbWhite : DT.of(context).textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
-                  Text(DateFormat('d').format(date), style: TextStyle(fontSize: DT.s4, color: isSelected ? DT.gbWhite : DT.textPrimary, fontWeight: FontWeight.w600)),
+                  Text(DateFormat('d').format(date), style: TextStyle(fontSize: DT.s4, color: isSelected ? DT.gbWhite : DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -235,14 +235,14 @@ class _WorkoutCard extends StatelessWidget {
                     child: Text(workout.difficulty, style: const TextStyle(color: Colors.white, fontSize: DT.s3, fontWeight: FontWeight.w600)),
                   ),
                   const Spacer(),
-                  const Icon(Icons.arrow_forward_ios, size: 14, color: DT.textSecondary),
+                  Icon(Icons.arrow_forward_ios, size: 14, color: DT.of(context).textSecondary),
                 ],
               ),
               const SizedBox(height: DT.s3),
-              Text(workout.title, style: const TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+              Text(workout.title, style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
               if (workout.description != null) ...[
                 const SizedBox(height: DT.s1),
-                Text(workout.description!, style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(workout.description!, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
               const SizedBox(height: DT.s4),
               Wrap(
@@ -271,9 +271,9 @@ class _InfoChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: DT.iconLight),
+        Icon(icon, size: 14, color: DT.of(context).iconLight),
         const SizedBox(width: DT.s1),
-        Text(label, style: const TextStyle(color: DT.textSecondary, fontSize: DT.s3)),
+        Text(label, style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3)),
       ],
     );
   }
@@ -289,15 +289,15 @@ class _RestDayCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.gbWhite,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
-        boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 10, offset: Offset(0, 2))],
+        boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 10, offset: const Offset(0, 2))],
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.self_improvement, size: 48, color: DT.iconLightGrey),
-          SizedBox(height: DT.s3),
-          Text('Pihenőnap', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.textPrimary)),
-          SizedBox(height: DT.s1),
-          Text('Erre a napra nincs ütemezett edzés.', style: TextStyle(fontSize: DT.s3, color: DT.textSecondary), textAlign: TextAlign.center),
+          Icon(Icons.self_improvement, size: 48, color: DT.of(context).iconLightGrey),
+          const SizedBox(height: DT.s3),
+          Text('Pihenőnap', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600, color: DT.of(context).textPrimary)),
+          const SizedBox(height: DT.s1),
+          Text('Erre a napra nincs ütemezett edzés.', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -312,14 +312,14 @@ class _DailyChallengeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.gbWhite,
         borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 20, offset: Offset(0, 4))],
+        boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 20, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Napi kihívás', style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+          Text('Napi kihívás', style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
           const SizedBox(height: DT.s2),
-          const Text('Csináld meg az edzést 9:00 előtt', style: TextStyle(fontSize: DT.s4, color: DT.textSecondary)),
+          Text('Csináld meg az edzést 9:00 előtt', style: TextStyle(fontSize: DT.s4, color: DT.of(context).textSecondary)),
           const SizedBox(height: DT.s3),
           Row(
             children: [
@@ -330,8 +330,8 @@ class _DailyChallengeCard extends StatelessWidget {
                 offset: const Offset(-DT.s6, 0),
                 child: Container(
                   width: 32, height: 32,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: DT.bg, border: Border.all(color: DT.gbWhite, width: 2)),
-                  child: const Center(child: Text('+12', style: TextStyle(fontSize: 9, color: DT.textSecondary, fontWeight: FontWeight.w600))),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: DT.of(context).bg, border: Border.all(color: DT.gbWhite, width: 2)),
+                  child: Center(child: Text('+12', style: TextStyle(fontSize: 9, color: DT.of(context).textSecondary, fontWeight: FontWeight.w600))),
                 ),
               ),
             ],
@@ -373,14 +373,14 @@ class _SocialCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Közösség', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.textPrimary)),
+        Text('Közösség', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
         const SizedBox(height: DT.s3),
         Container(
           padding: const EdgeInsets.symmetric(vertical: DT.s4, horizontal: DT.s5),
           decoration: BoxDecoration(
             color: DT.gbWhite,
             borderRadius: BorderRadius.circular(DT.rCard),
-            boxShadow: const [BoxShadow(color: DT.shadowLight, blurRadius: 16, offset: Offset(0, 4))],
+            boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 16, offset: const Offset(0, 4))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -418,7 +418,7 @@ class _SocialItem extends StatelessWidget {
               child: Icon(icon, color: color, size: DT.s5),
             ),
             const SizedBox(height: DT.s1),
-            Text(label, style: const TextStyle(fontSize: DT.s3, color: DT.textSecondary, fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary, fontWeight: FontWeight.w500)),
           ],
         ),
       ),

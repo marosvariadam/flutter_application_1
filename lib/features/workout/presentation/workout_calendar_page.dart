@@ -75,14 +75,14 @@ class _WorkoutCalendarPageState extends State<WorkoutCalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Naptár',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Naptár',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: Column(
@@ -136,8 +136,8 @@ class _CalendarHeader extends StatelessWidget {
               icon: const Icon(Icons.chevron_left)),
           Text(
             DateFormat('yyyy. MMMM', 'hu').format(month),
-            style: const TextStyle(
-                color: DT.textPrimary,
+            style: TextStyle(
+                color: DT.of(context).textPrimary,
                 fontSize: DT.s4,
                 fontWeight: FontWeight.w700),
           ),
@@ -180,8 +180,8 @@ class _CalendarGrid extends StatelessWidget {
                 .map((d) => Expanded(
                       child: Center(
                         child: Text(d,
-                            style: const TextStyle(
-                                color: DT.textSecondary,
+                            style: TextStyle(
+                                color: DT.of(context).textSecondary,
                                 fontSize: DT.s3,
                                 fontWeight: FontWeight.w600)),
                       ),
@@ -234,7 +234,7 @@ class _CalendarGrid extends StatelessWidget {
                         style: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : DT.textPrimary,
+                              : DT.of(context).textPrimary,
                           fontWeight: isToday
                               ? FontWeight.w700
                               : FontWeight.normal,
@@ -280,8 +280,8 @@ class _DayWorkoutList extends StatelessWidget {
       return Center(
         child: Text(
           'Nincs edzés ${day.month}. ${day.day}.-én.',
-          style: const TextStyle(
-              color: DT.textSecondary, fontSize: DT.s4),
+          style: TextStyle(
+              color: DT.of(context).textSecondary, fontSize: DT.s4),
         ),
       );
     }
@@ -303,8 +303,8 @@ class _DayWorkoutList extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(w.title,
-                        style: const TextStyle(
-                            color: DT.textPrimary,
+                        style: TextStyle(
+                            color: DT.of(context).textPrimary,
                             fontWeight: FontWeight.w600)),
                   ),
                   Container(

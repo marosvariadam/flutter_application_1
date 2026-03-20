@@ -160,15 +160,15 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
+        leading: BackButton(color: DT.of(context).textPrimary),
         title: Text(
             widget.workoutId != null ? 'Edzés szerkesztése' : 'Új edzés',
-            style: const TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+            style: TextStyle(
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: _loading
@@ -200,9 +200,9 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                       ),
                     ),
                     const SizedBox(height: DT.s4),
-                    const Text('Nehézség',
+                    Text('Nehézség',
                         style: TextStyle(
-                            color: DT.textSecondary,
+                            color: DT.of(context).textSecondary,
                             fontWeight: FontWeight.w600)),
                     const SizedBox(height: DT.s2),
                     Wrap(
@@ -223,17 +223,17 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                       leading: const Icon(Icons.calendar_today_outlined),
                       title: Text(
                         '${_scheduledDate.year}. ${_scheduledDate.month}. ${_scheduledDate.day}.',
-                        style: const TextStyle(color: DT.textPrimary),
+                        style: TextStyle(color: DT.of(context).textPrimary),
                       ),
-                      subtitle: const Text('Tervezett dátum',
+                      subtitle: Text('Tervezett dátum',
                           style: TextStyle(
-                              color: DT.textSecondary, fontSize: DT.s3)),
+                              color: DT.of(context).textSecondary, fontSize: DT.s3)),
                     ),
                     const SizedBox(height: DT.s4),
                     if (widget.workoutId == null) ...[
-                      const Text('Sportoló',
+                      Text('Sportoló',
                           style: TextStyle(
-                              color: DT.textSecondary,
+                              color: DT.of(context).textSecondary,
                               fontWeight: FontWeight.w600)),
                       const SizedBox(height: DT.s2),
                       DropdownButtonFormField<String>(
@@ -262,9 +262,9 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Gyakorlatok',
+                        Text('Gyakorlatok',
                             style: TextStyle(
-                                color: DT.textPrimary,
+                                color: DT.of(context).textPrimary,
                                 fontSize: DT.s4,
                                 fontWeight: FontWeight.w700)),
                         TextButton.icon(
@@ -353,11 +353,11 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Gyakorlat hozzáadása',
+            Text('Gyakorlat hozzáadása',
                 style: TextStyle(
                     fontSize: DT.s5,
                     fontWeight: FontWeight.w700,
-                    color: DT.textPrimary)),
+                    color: DT.of(context).textPrimary)),
             const SizedBox(height: DT.s4),
             Row(
               children: [
@@ -506,14 +506,14 @@ class _ExerciseFormCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(entry.name,
-                    style: const TextStyle(
-                        color: DT.textPrimary,
+                    style: TextStyle(
+                        color: DT.of(context).textPrimary,
                         fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
                 Text(
                     '${entry.sets} × ${entry.targetReps} ism. @ ${entry.targetWeightKg} kg',
-                    style: const TextStyle(
-                        color: DT.textSecondary, fontSize: DT.s3)),
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3)),
               ],
             ),
           ),

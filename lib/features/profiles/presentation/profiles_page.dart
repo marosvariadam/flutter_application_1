@@ -16,14 +16,14 @@ class ProfilesPage extends StatelessWidget {
       builder: (context, authState) {
         final user = authState is AuthAuthenticated ? authState.user : null;
         return Scaffold(
-          backgroundColor: DT.bg,
+          backgroundColor: DT.of(context).bg,
           appBar: AppBar(
-            backgroundColor: DT.bg,
+            backgroundColor: DT.of(context).bg,
             elevation: 0,
-            title: const Text(
+            title: Text(
               'Profil',
               style: TextStyle(
-                color: DT.textPrimary,
+                color: DT.of(context).textPrimary,
                 fontSize: DT.s4,
                 fontWeight: FontWeight.w600,
               ),
@@ -77,7 +77,7 @@ class _UserProfileSection extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: DT.metricBlue.withOpacity(0.15),
-            border: Border.all(color: DT.borderGrey, width: 2),
+            border: Border.all(color: DT.of(context).borderGrey, width: 2),
           ),
           child: Center(
             child: Text(
@@ -95,14 +95,14 @@ class _UserProfileSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(name,
-                  style: const TextStyle(
-                      color: DT.textPrimary,
+                  style: TextStyle(
+                      color: DT.of(context).textPrimary,
                       fontSize: DT.s5,
                       fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
               Text(email,
-                  style: const TextStyle(
-                      color: DT.textSecondary, fontSize: DT.s3)),
+                  style: TextStyle(
+                      color: DT.of(context).textSecondary, fontSize: DT.s3)),
               const SizedBox(height: DT.s2),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -145,7 +145,7 @@ class _ProfileActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: DT.iconLight.withOpacity(0.1),
+      color: DT.of(context).iconLight.withOpacity(0.1),
       borderRadius: BorderRadius.circular(DT.s2),
       child: InkWell(
         onTap: onTap,
@@ -153,7 +153,7 @@ class _ProfileActionButton extends StatelessWidget {
         child: SizedBox(
           width: 40,
           height: 40,
-          child: Center(child: Icon(icon, color: DT.iconLight, size: DT.s4)),
+          child: Center(child: Icon(icon, color: DT.of(context).iconLight, size: DT.s4)),
         ),
       ),
     );
@@ -209,14 +209,14 @@ class _MetricCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(title,
-              style: const TextStyle(
-                  fontSize: DT.s3, color: DT.textSecondary)),
+              style: TextStyle(
+                  fontSize: DT.s3, color: DT.of(context).textSecondary)),
           const SizedBox(height: DT.s1),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: DT.s4,
                   fontWeight: FontWeight.w700,
-                  color: DT.textPrimary)),
+                  color: DT.of(context).textPrimary)),
         ],
       ),
     );
@@ -304,12 +304,12 @@ class _MenuSection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: DT.bg,
-        title: const Text('Fiók törlése',
-            style: TextStyle(color: DT.textPrimary)),
-        content: const Text(
+        backgroundColor: DT.of(context).bg,
+        title: Text('Fiók törlése',
+            style: TextStyle(color: DT.of(context).textPrimary)),
+        content: Text(
           'Biztosan törlöd a fiókodat? Ez a művelet nem vonható vissza.',
-          style: TextStyle(color: DT.textSecondary),
+          style: TextStyle(color: DT.of(context).textSecondary),
         ),
         actions: [
           TextButton(
@@ -339,8 +339,8 @@ class _DarkModeToggle extends StatelessWidget {
           onTap: () => context.read<ThemeCubit>().toggle(),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: DT.s3),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: DT.borderLight, width: 1)),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: DT.of(context).borderLight, width: 1)),
             ),
             child: Row(
               children: [
@@ -348,12 +348,12 @@ class _DarkModeToggle extends StatelessWidget {
                   height: 36,
                   width: 36,
                   decoration: BoxDecoration(
-                    color: DT.iconLight.withOpacity(0.1),
+                    color: DT.of(context).iconLight.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Icon(
                     isDark ? Icons.dark_mode : Icons.light_mode,
-                    color: DT.iconLight,
+                    color: DT.of(context).iconLight,
                     size: 18,
                   ),
                 ),
@@ -361,10 +361,10 @@ class _DarkModeToggle extends StatelessWidget {
                 Expanded(
                   child: Text(
                     isDark ? 'Sötét mód' : 'Világos mód',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: DT.s3,
                       fontWeight: FontWeight.w500,
-                      color: DT.textPrimary,
+                      color: DT.of(context).textPrimary,
                     ),
                   ),
                 ),
@@ -392,8 +392,8 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: DT.s2),
       child: Text(
         label,
-        style: const TextStyle(
-            color: DT.textSecondary,
+        style: TextStyle(
+            color: DT.of(context).textSecondary,
             fontSize: DT.s3,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5),
@@ -423,9 +423,9 @@ class _MenuItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: DT.s3),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border:
-              Border(bottom: BorderSide(color: DT.borderLight, width: 1)),
+              Border(bottom: BorderSide(color: DT.of(context).borderLight, width: 1)),
         ),
         child: Row(
           children: [
@@ -446,8 +446,8 @@ class _MenuItem extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: textColor)),
             ),
-            const Icon(Icons.arrow_forward_ios,
-                color: DT.textGrey, size: 14),
+            Icon(Icons.arrow_forward_ios,
+                color: DT.of(context).textGrey, size: 14),
           ],
         ),
       ),
@@ -482,11 +482,11 @@ class _LogoutButton extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: DT.bg,
-        title: const Text('Kijelentkezés',
-            style: TextStyle(color: DT.textPrimary)),
-        content: const Text('Biztosan ki szeretnél jelentkezni?',
-            style: TextStyle(color: DT.textSecondary)),
+        backgroundColor: DT.of(context).bg,
+        title: Text('Kijelentkezés',
+            style: TextStyle(color: DT.of(context).textPrimary)),
+        content: Text('Biztosan ki szeretnél jelentkezni?',
+            style: TextStyle(color: DT.of(context).textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

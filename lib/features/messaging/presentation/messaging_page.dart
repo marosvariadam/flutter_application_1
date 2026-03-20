@@ -102,14 +102,14 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new,
-            color: DT.textPrimary, size: 20),
+        icon: Icon(Icons.arrow_back_ios_new,
+            color: DT.of(context).textPrimary, size: 20),
         onPressed: onBack,
       ),
-      title: const Text(
+      title: Text(
         'Üzenetek',
         style: TextStyle(
-          color: DT.textPrimary,
+          color: DT.of(context).textPrimary,
           fontSize: 22,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.4,
@@ -144,24 +144,24 @@ class _SearchBar extends StatelessWidget {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: DT.bg,
+        color: DT.of(context).bg,
         borderRadius: BorderRadius.circular(22),
       ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: const TextStyle(fontSize: 15, color: DT.textPrimary),
+        style: TextStyle(fontSize: 15, color: DT.of(context).textPrimary),
         decoration: InputDecoration(
           hintText: 'Keresés',
           hintStyle:
-              const TextStyle(color: DT.textSecondary, fontSize: 15),
+              TextStyle(color: DT.of(context).textSecondary, fontSize: 15),
           prefixIcon:
-              const Icon(Icons.search, color: DT.iconLight, size: 20),
+              Icon(Icons.search, color: DT.of(context).iconLight, size: 20),
           suffixIcon: controller.text.isNotEmpty
               ? GestureDetector(
                   onTap: onClear,
-                  child: const Icon(Icons.cancel,
-                      color: DT.iconLight, size: 18),
+                  child: Icon(Icons.cancel,
+                      color: DT.of(context).iconLight, size: 18),
                 )
               : null,
           border: InputBorder.none,
@@ -196,15 +196,15 @@ class _ConversationList extends StatelessWidget {
     final online = all.where((c) => c.isOnline).toList();
 
     if (filtered.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: DT.iconLightGrey),
-            SizedBox(height: DT.s4),
+            Icon(Icons.search_off, size: 64, color: DT.of(context).iconLightGrey),
+            const SizedBox(height: DT.s4),
             Text('Nincs találat.',
                 style:
-                    TextStyle(color: DT.textSecondary, fontSize: 15)),
+                    TextStyle(color: DT.of(context).textSecondary, fontSize: 15)),
           ],
         ),
       );
@@ -223,15 +223,15 @@ class _ConversationList extends StatelessWidget {
 
         // Section label
         if (query.isEmpty)
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(DT.s4, DT.s3, DT.s4, DT.s2),
+              padding: const EdgeInsets.fromLTRB(DT.s4, DT.s3, DT.s4, DT.s2),
               child: Text(
                 'ÜZENETEK',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: DT.textSecondary,
+                  color: DT.of(context).textSecondary,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -270,14 +270,14 @@ class _ActiveNowStrip extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(DT.s4, DT.s3, DT.s4, DT.s2),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(DT.s4, DT.s3, DT.s4, DT.s2),
           child: Text(
             'AKTÍV MOST',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: DT.textSecondary,
+              color: DT.of(context).textSecondary,
               letterSpacing: 0.8,
             ),
           ),
@@ -318,9 +318,9 @@ class _ActiveNowStrip extends StatelessWidget {
                       const SizedBox(height: 5),
                       Text(
                         c.contactName.split(' ').first,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12,
-                            color: DT.textSecondary,
+                            color: DT.of(context).textSecondary,
                             fontWeight: FontWeight.w500),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -333,7 +333,7 @@ class _ActiveNowStrip extends StatelessWidget {
             },
           ),
         ),
-        const Divider(color: DT.borderLight, height: 1, thickness: 0.8),
+        Divider(color: DT.of(context).borderLight, height: 1, thickness: 0.8),
       ],
     );
   }
@@ -368,7 +368,7 @@ class _ConversationTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         splashColor: DT.metricBlue.withOpacity(0.06),
-        highlightColor: DT.bg,
+        highlightColor: DT.of(context).bg,
         child: Padding(
           padding: const EdgeInsets.symmetric(
               horizontal: DT.s4, vertical: 10),
@@ -414,7 +414,7 @@ class _ConversationTile extends StatelessWidget {
                               fontWeight: _unread
                                   ? FontWeight.w700
                                   : FontWeight.w500,
-                              color: DT.textPrimary,
+                              color: DT.of(context).textPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -427,7 +427,7 @@ class _ConversationTile extends StatelessWidget {
                             fontSize: 12,
                             color: _unread
                                 ? DT.metricBlue
-                                : DT.textSecondary,
+                                : DT.of(context).textSecondary,
                             fontWeight: _unread
                                 ? FontWeight.w600
                                 : FontWeight.w400,
@@ -444,8 +444,8 @@ class _ConversationTile extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 13,
                               color: _unread
-                                  ? DT.textPrimary
-                                  : DT.textSecondary,
+                                  ? DT.of(context).textPrimary
+                                  : DT.of(context).textSecondary,
                               fontWeight: _unread
                                   ? FontWeight.w600
                                   : FontWeight.w400,
@@ -508,8 +508,8 @@ class _ErrorView extends StatelessWidget {
               size: 48, color: DT.cardRed),
           const SizedBox(height: DT.s4),
           Text(message,
-              style: const TextStyle(
-                  color: DT.textSecondary, fontSize: 15)),
+              style: TextStyle(
+                  color: DT.of(context).textSecondary, fontSize: 15)),
           const SizedBox(height: DT.s4),
           ElevatedButton(
             onPressed: onRetry,
@@ -543,11 +543,11 @@ class _CircleBtn extends StatelessWidget {
       child: Container(
         width: 36,
         height: 36,
-        decoration: const BoxDecoration(
-          color: DT.bg,
+        decoration: BoxDecoration(
+          color: DT.of(context).bg,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: DT.textPrimary, size: 20),
+        child: Icon(icon, color: DT.of(context).textPrimary, size: 20),
       ),
     );
   }

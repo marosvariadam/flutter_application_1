@@ -25,19 +25,19 @@ class _RosterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.bg,
+      backgroundColor: DT.of(context).bg,
       appBar: AppBar(
-        backgroundColor: DT.bg,
+        backgroundColor: DT.of(context).bg,
         elevation: 0,
-        leading: BackButton(color: DT.textPrimary),
-        title: const Text('Sportolók',
+        leading: BackButton(color: DT.of(context).textPrimary),
+        title: Text('Sportolók',
             style: TextStyle(
-                color: DT.textPrimary, fontWeight: FontWeight.w600)),
+                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_add_outlined,
-                color: DT.textPrimary),
+            icon: Icon(Icons.person_add_outlined,
+                color: DT.of(context).textPrimary),
             onPressed: () =>
                 context.push('/athletes/create').then((_) {
               context.read<RosterBloc>().add(LoadRoster());
@@ -132,14 +132,14 @@ class _AthleteCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(athlete.fullName,
-                        style: const TextStyle(
-                            color: DT.textPrimary,
+                        style: TextStyle(
+                            color: DT.of(context).textPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: DT.s4)),
                     const SizedBox(height: 2),
                     Text(athlete.email,
-                        style: const TextStyle(
-                            color: DT.textSecondary,
+                        style: TextStyle(
+                            color: DT.of(context).textSecondary,
                             fontSize: DT.s3)),
                   ],
                 ),
@@ -241,12 +241,12 @@ class _EmptyView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.people_outline,
-              size: 64, color: DT.iconLightGrey),
+          Icon(Icons.people_outline,
+              size: 64, color: DT.of(context).iconLightGrey),
           const SizedBox(height: DT.s4),
-          const Text('Még nincs sportoló a csapatodban.',
+          Text('Még nincs sportoló a csapatodban.',
               style:
-                  TextStyle(color: DT.textSecondary, fontSize: DT.s4)),
+                  TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
           const SizedBox(height: DT.s4),
           ElevatedButton.icon(
             onPressed: () => context.push('/athletes/create'),
@@ -275,8 +275,8 @@ class _ErrorView extends StatelessWidget {
           const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
           const SizedBox(height: DT.s4),
           Text(message,
-              style: const TextStyle(
-                  color: DT.textSecondary, fontSize: DT.s4)),
+              style: TextStyle(
+                  color: DT.of(context).textSecondary, fontSize: DT.s4)),
           const SizedBox(height: DT.s4),
           ElevatedButton(
               onPressed: onRetry, child: const Text('Újra')),
