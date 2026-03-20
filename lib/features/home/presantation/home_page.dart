@@ -201,10 +201,11 @@ class _WorkoutCard extends StatelessWidget {
   final VoidCallback onTap;
   const _WorkoutCard({required this.workout, required this.onTap});
 
-  static Color _diffColor(String d) {
-    switch (d.toLowerCase()) {
-      case 'könnyű': return DT.difficultyLight;
-      case 'nehéz': return DT.difficultyHard;
+  static Color _diffColor(WorkoutDifficulty d) {
+    switch (d) {
+      case WorkoutDifficulty.easy: return DT.difficultyLight;
+      case WorkoutDifficulty.hard: return DT.difficultyHard;
+      case WorkoutDifficulty.intense: return DT.difficultyHard;
       default: return DT.difficultyMedium;
     }
   }
@@ -232,7 +233,7 @@ class _WorkoutCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: DT.s1),
                     decoration: BoxDecoration(color: diffColor, borderRadius: BorderRadius.circular(DT.s1)),
-                    child: Text(workout.difficulty, style: const TextStyle(color: Colors.white, fontSize: DT.s3, fontWeight: FontWeight.w600)),
+                    child: Text(workout.difficulty.label, style: const TextStyle(color: Colors.white, fontSize: DT.s3, fontWeight: FontWeight.w600)),
                   ),
                   const Spacer(),
                   Icon(Icons.arrow_forward_ios, size: 14, color: DT.of(context).textSecondary),

@@ -40,6 +40,23 @@ class ExerciseRepository {
     return ExerciseModel.fromJson(res.data as Map<String, dynamic>);
   }
 
+  Future<ExerciseModel> updateExercise(
+    String id, {
+    required String name,
+    required String muscleGroup,
+    String? description,
+    String? equipment,
+  }) async {
+    final res = await _client.dio.put(ApiConstants.exerciseById(id), data: {
+      'name': name,
+      'muscleGroup': muscleGroup,
+      if (description != null && description.isNotEmpty)
+        'description': description,
+      if (equipment != null && equipment.isNotEmpty) 'equipment': equipment,
+    });
+    return ExerciseModel.fromJson(res.data as Map<String, dynamic>);
+  }
+
   Future<void> deleteExercise(String id) async {
     await _client.dio.delete(ApiConstants.exerciseById(id));
   }

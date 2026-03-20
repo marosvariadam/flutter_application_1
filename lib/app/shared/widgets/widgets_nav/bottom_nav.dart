@@ -13,19 +13,21 @@ class BottomNavScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCoach = UserSession.instance.isCoach;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       body: shell,
       bottomNavigationBar: Container(
-        height: 100,
-        decoration: BoxDecoration(color: DT.of(context).bg),
+        color: DT.of(context).bg,
+        padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset : DT.s2),
         child: Container(
+          height: 64,
           decoration: BoxDecoration(
             color: DT.bottomNavBG,
             borderRadius: BorderRadius.circular(20),
           ),
           margin: const EdgeInsets.only(
-            bottom: DT.s8,
+            bottom: DT.s2,
             top: DT.s2,
             left: DT.s6,
             right: DT.s6,
@@ -81,29 +83,29 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = isSelected ? DT.gbBlack : Colors.white.withOpacity(0.5);
-    final labelColor = isSelected ? DT.gbWhite : Colors.white.withOpacity(0.5);
+    final iconColor = isSelected ? DT.gbBlack : Colors.white.withValues(alpha: 0.5);
+    final labelColor = isSelected ? DT.gbWhite : Colors.white.withValues(alpha: 0.5);
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(DT.rCard),
-      splashColor: Colors.white.withOpacity(0.1),
-      highlightColor: Colors.white.withOpacity(0.05),
+      splashColor: Colors.white.withValues(alpha: 0.1),
+      highlightColor: Colors.white.withValues(alpha: 0.05),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s2),
+        padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s1),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 40,
-              height: 40,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
                 color: isSelected ? DT.of(context).bg : Colors.transparent,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: DT.s6),
+              child: Icon(icon, color: iconColor, size: DT.s5),
             ),
             const SizedBox(height: 2),
             AnimatedDefaultTextStyle(

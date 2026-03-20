@@ -20,6 +20,8 @@ class WorkoutRepository {
       'title': title,
       'athleteId': athleteId,
       'scheduledDate': scheduledDate.toIso8601String(),
+      'difficulty': difficulty.name,
+      if (notes != null && notes.isNotEmpty) 'notes': notes,
       'exercises': exercises,
     });
     return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
@@ -71,6 +73,79 @@ class WorkoutRepository {
       return getWorkout(id);
     }
     return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  Future<WorkoutModel> startWorkout(String id) async {
+    final res = await _client.dio.patch(ApiConstants.startWorkout(id));
+    if (res.statusCode == 204 || res.data == null) {
+      return getWorkout(id);
+    }
+    return WorkoutModel.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  Future<void> logExercise(
+    String workoutId,
+    int index, {
+    int? actualSets,
+    int? actualReps,
+    double? actualWeightKg,
+    String? exerciseNotes,
+  }) async {
+    await _client.dio.patch(
+      ApiConstants.logExercise(workoutId, index),
+      data: {
+        if (actualSets != null) 'actualSets': actualSets,
+        if (actualReps != null) 'actualReps': actualReps,
+        if (actualWeightKg != null) 'actualWeightKg': actualWeightKg,
+        if (exerciseNotes != null) 'exerciseNotes': exerciseNotes,
+      },
+    );
+  }
+
+  Future<List<WorkoutModel>> getTrainerReview(String athleteId) async {
+    final res = await _client.dio.get(ApiConstants.trainerReview(athleteId));
+    final list = res.data as List;
+    return list
+        .asMap()
+        .entries
+        .map((e) => WorkoutModel.fromJson(
+            e.value as Map<String, dynamic>,
+            colorIndex: e.key))
+        .toList();
+  }
+
+  Future<List<WorkoutModel>> getTrainerCalendar(
+      DateTime from, DateTime to) async {
+    final res = await _client.dio.get(ApiConstants.trainerCalendar,
+        queryParameters: {
+          'from': from.toIso8601String(),
+          'to': to.toIso8601String(),
+        });
+    final list = res.data as List;
+    return list
+        .asMap()
+        .entries
+        .map((e) => WorkoutModel.fromJson(
+            e.value as Map<String, dynamic>,
+            colorIndex: e.key))
+        .toList();
+  }
+
+  Future<List<WorkoutModel>> getAthleteCalendar(
+      DateTime from, DateTime to) async {
+    final res = await _client.dio.get(ApiConstants.athleteCalendar,
+        queryParameters: {
+          'from': from.toIso8601String(),
+          'to': to.toIso8601String(),
+        });
+    final list = res.data as List;
+    return list
+        .asMap()
+        .entries
+        .map((e) => WorkoutModel.fromJson(
+            e.value as Map<String, dynamic>,
+            colorIndex: e.key))
+        .toList();
   }
 
   // ── Shared ─────────────────────────────────────────────────────────────────

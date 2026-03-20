@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'exercise_model.dart';
 
 enum WorkoutStatus {
   planned,
@@ -75,10 +74,13 @@ class WorkoutModel {
   final WorkoutDifficulty difficulty;
   final WorkoutStatus status;
   final String? trainerName;
+  final String? notes;
+  final String? athleteName;
+  final String? athleteFeedback;
   final Color color;
   final String estimatedDuration;
   final String kcal;
-  final List<ExerciseModel> exercises;
+  final List<WorkoutExercise> exercises;
 
   WorkoutModel({
     required this.id,
@@ -90,6 +92,9 @@ class WorkoutModel {
     required this.difficulty,
     this.status = WorkoutStatus.planned,
     this.trainerName,
+    this.notes,
+    this.athleteName,
+    this.athleteFeedback,
     required this.color,
     required this.estimatedDuration,
     required this.kcal,
@@ -105,6 +110,7 @@ class WorkoutModel {
   ];
 
   factory WorkoutModel.fromJson(Map<String, dynamic> json, {int colorIndex = 0}) {
+    final exerciseList = json['exercises'] as List? ?? [];
     return WorkoutModel(
       id: json['id'] as String,
       title: json['title'] as String,
@@ -115,17 +121,23 @@ class WorkoutModel {
       difficulty: WorkoutDifficulty.fromJson(json['difficulty'] as String?),
       status: WorkoutStatus.fromJson(json['status'] as String?),
       trainerName: json['trainerName'] as String? ?? json['coachName'] as String?,
+      notes: json['notes'] as String?,
+      athleteName: json['athleteName'] as String?,
+      athleteFeedback: json['athleteFeedback'] as String?,
       color: _colors[colorIndex % _colors.length],
       estimatedDuration: json['estimatedDuration'] as String? ?? '—',
       kcal: json['kcal'] as String? ?? '—',
-      exercises: (json['exercises'] as List?)
-              ?.map((e) => ExerciseModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      exercises: exerciseList
+          .asMap()
+          .entries
+          .map((e) => WorkoutExercise.fromJson(
+              e.value as Map<String, dynamic>,
+              index: e.key))
+          .toList(),
     );
   }
 
-  int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets.length);
+  int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets);
 }
 
 /// Returned by paginated list endpoints.
@@ -142,5 +154,53 @@ class PaginatedWorkouts {
         .map((e) => WorkoutModel.fromJson(e.value as Map<String, dynamic>, colorIndex: e.key))
         .toList();
     return PaginatedWorkouts(items: items, hasMore: false, page: page);
+  }
+}
+
+/// An exercise entry within a workout, including target and actual values.
+class WorkoutExercise {
+  final String exerciseId;
+  final String name;
+  final int index;
+  final int sets;
+  final int targetReps;
+  final double targetWeightKg;
+  final String? instructions;
+  final String? equipmentType; // 'Szabadsúly' | 'Gép' | 'Testsúly'
+  final int? actualSets;
+  final int? actualReps;
+  final double? actualWeightKg;
+  final String? exerciseNotes;
+
+  const WorkoutExercise({
+    required this.exerciseId,
+    required this.name,
+    required this.index,
+    required this.sets,
+    required this.targetReps,
+    required this.targetWeightKg,
+    this.instructions,
+    this.equipmentType,
+    this.actualSets,
+    this.actualReps,
+    this.actualWeightKg,
+    this.exerciseNotes,
+  });
+
+  factory WorkoutExercise.fromJson(Map<String, dynamic> json, {int index = 0}) {
+    return WorkoutExercise(
+      exerciseId: json['exerciseId'] as String? ?? json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      index: (json['index'] as num?)?.toInt() ?? index,
+      sets: (json['sets'] as num?)?.toInt() ?? 0,
+      targetReps: (json['targetReps'] as num?)?.toInt() ?? 0,
+      targetWeightKg: (json['targetWeightKg'] as num?)?.toDouble() ?? 0,
+      instructions: json['instructions'] as String?,
+      equipmentType: json['equipmentType'] as String?,
+      actualSets: (json['actualSets'] as num?)?.toInt(),
+      actualReps: (json['actualReps'] as num?)?.toInt(),
+      actualWeightKg: (json['actualWeightKg'] as num?)?.toDouble(),
+      exerciseNotes: json['exerciseNotes'] as String?,
+    );
   }
 }

@@ -11,6 +11,7 @@ class ApiConstants {
   static String userById(String id) => '/api/user/$id';
   static String updateUser(String id) => '/api/user/$id';
   static String deleteUser(String id) => '/api/user/$id';
+  static const String changePassword = '/api/user/change-password';
 
   // ── Trainer's athletes ───────────────────────────────────────────────────────
   static String trainerAthletes(String trainerId) =>
@@ -22,6 +23,13 @@ class ApiConstants {
   static const String trainerCreated = '/api/workout/trainer/created';
   static const String myWorkouts = '/api/workout/my-workouts';
   static String completeWorkout(String id) => '/api/workout/$id/complete';
+  static String startWorkout(String id) => '/api/workout/$id/start';
+  static String logExercise(String workoutId, int index) =>
+      '/api/workout/$workoutId/exercise/$index';
+  static String trainerReview(String athleteId) =>
+      '/api/workout/trainer/review/$athleteId';
+  static const String trainerCalendar = '/api/workout/trainer/calendar';
+  static const String athleteCalendar = '/api/workout/my-workouts/calendar';
 
   // ── Exercises ───────────────────────────────────────────────────────────────
   static const String exercise = '/api/exercise';
@@ -45,6 +53,10 @@ class ApiConstants {
   static const String pendingRequests = '/api/trainer-request/pending';
   static String acceptRequest(String id) => '/api/trainer-request/$id/accept';
   static String rejectRequest(String id) => '/api/trainer-request/$id/reject';
+
+  // ── SignalR Hubs ────────────────────────────────────────────────────────────
+  static const String chatHub = '/hubs/chat';
+  static const String notificationHub = '/hubs/notifications';
 
   // ── Onboarding (not yet in backend — kept for future) ───────────────────────
   static const String onboardingForm = '/api/onboarding-form';

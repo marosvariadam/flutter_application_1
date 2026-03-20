@@ -21,9 +21,24 @@ class AuthTokens {
         role: role,
       );
 
-  factory AuthTokens.fromJson(Map<String, dynamic> j) => AuthTokens(
-        accessToken: j['token'] as String,
-        userId: j['userId'] as String,
-        role: j['role'] as String,
+  factory AuthTokens.fromJson(Map<String, dynamic> j) {
+    // Accept both 'token' and 'accessToken' keys from backend
+    final token = (j['token'] ?? j['accessToken']) as String?;
+    final userId = (j['userId'] ?? j['id']) as String?;
+    final role = j['role'] as String?;
+
+    if (token == null || userId == null || role == null) {
+      throw FormatException(
+        'Hiányzó mezők a válaszban: token=${token != null}, '
+        'userId=${userId != null}, role=${role != null}. '
+        'Kapott kulcsok: ${j.keys.toList()}',
       );
+    }
+
+    return AuthTokens(
+      accessToken: token,
+      userId: userId,
+      role: role,
+    );
+  }
 }

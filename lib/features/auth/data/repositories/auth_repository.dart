@@ -55,6 +55,8 @@ class AuthRepository {
       'email': email,
       'password': password,
       'role': 'Athlete',
+      if (trainerEmail != null) 'trainerEmail': trainerEmail,
+      if (introNote != null) 'introNote': introNote,
     });
   }
 

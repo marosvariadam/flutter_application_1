@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'package:flutter_application_1/app/user_session.dart';
-import 'package:flutter_application_1/services/auth_service.dart';
+import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,7 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
-  final _authService = AuthService();
 
   @override
   void dispose() {
@@ -31,36 +30,31 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    try {
-      final success = await _authService.login(
-        _emailController.text,
-        _passwordController.text,
-      );
-
-      if (!mounted) return;
-
-      if (success) {
-        // Load the role stored by AuthService so UserSession is populated
-        await UserSession.instance.loadFromStorage();
-        if (!mounted) return;
-        context.go('/home');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Hibás email vagy jelszó!')),
+    context.read<AuthBloc>().add(
+          LoginRequested(
+            _emailController.text.trim(),
+            _passwordController.text,
+          ),
         );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Hiba történt: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthError) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        } else if (state is AuthAuthenticated) {
+          // Router redirect handles navigation automatically
+          setState(() => _isLoading = false);
+        } else if (state is AuthLoading) {
+          setState(() => _isLoading = true);
+        }
+      },
+      child: Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 100.0, left: 24.0, right: 24.0),
@@ -197,6 +191,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -3,19 +3,25 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
 import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
+import 'package:flutter_application_1/features/auth/presentation/register_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
 import 'package:flutter_application_1/features/home/presantation/home_page.dart';
 import 'package:flutter_application_1/features/login/login_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/chat_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart';
+import 'package:flutter_application_1/features/notifications/presentation/notifications_page.dart';
+import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
+import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
+import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentation/session_page.dart';
-import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
+import 'package:flutter_application_1/features/trainer/presentation/roster_page.dart';
+import 'package:flutter_application_1/features/trainer/presentation/trainer_requests_page.dart';
+import 'package:flutter_application_1/features/user/presentation/change_password_page.dart';
+import 'package:flutter_application_1/features/user/presentation/edit_profile_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
-import 'package:flutter_application_1/features/register/athlete_survey_page.dart';
-import 'package:flutter_application_1/features/register/register_page.dart';
 
 enum Approute { home, session, messages, profile, login, register }
 
@@ -27,9 +33,7 @@ GoRouter buildRouter(AuthBloc authBloc) {
       final authState = authBloc.state;
       if (authState is AuthInitial) return null;
 
-      // Check both AuthBloc (old flow) and UserSession (new AuthService flow)
-      final isAuthenticated = authState is AuthAuthenticated ||
-          UserSession.instance.userId != null;
+      final isAuthenticated = authState is AuthAuthenticated;
       final isPublic = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
@@ -50,18 +54,64 @@ GoRouter buildRouter(AuthBloc authBloc) {
         pageBuilder: (context, state) =>
             const NoTransitionPage(child: RegisterPage()),
       ),
+      // ── Profile sub-routes ───────────────────────────────────────────────────
       GoRoute(
-        path: '/athlete-survey',
-        pageBuilder: (context, state) =>
+        path: '/profile/edit',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: EditProfilePage()),
+      ),
+      GoRoute(
+        path: '/profile/change-password',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ChangePasswordPage()),
+      ),
+
+      // ── Onboarding ───────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/onboarding/form-builder',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: TrainerFormBuilderPage()),
+      ),
+      GoRoute(
+        path: '/onboarding/responses',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: TrainerResponsesPage()),
+      ),
+      GoRoute(
+        path: '/onboarding/survey',
+        pageBuilder: (_, __) =>
             const MaterialPage(child: AthleteSurveyPage()),
+      ),
+
+      // ── Trainer tools ────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/roster',
+        pageBuilder: (_, __) => const MaterialPage(child: RosterPage()),
+      ),
+      GoRoute(
+        path: '/trainer-requests',
+        pageBuilder: (context, _) {
+          final authState = authBloc.state;
+          final isTrainer = authState is AuthAuthenticated &&
+              authState.user.isTrainer;
+          return MaterialPage(
+              child: TrainerRequestsPage(isTrainer: isTrainer));
+        },
+      ),
+
+      // ── Notifications ────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/notifications',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: NotificationsPage()),
       ),
 
       // ── Full-screen routes (outside shell) ──────────────────────────────────
       GoRoute(
         path: '/workout-detail',
         pageBuilder: (context, state) {
-          final workout = state.extra as WorkoutModel;
-          return MaterialPage(child: WorkoutDetailPage(workout: workout));
+          final workoutId = state.extra as String;
+          return MaterialPage(child: WorkoutDetailPage(workoutId: workoutId));
         },
       ),
       GoRoute(

@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'models/exercise_model.dart';
-import 'models/exercise_set_model.dart';
 import 'models/workout_model.dart';
 
 class WorkoutMockData {
@@ -44,54 +41,46 @@ class WorkoutMockData {
       scheduledDate: date,
       athleteId: athleteId,
       coachId: 'c1',
-      difficulty: 'Közepes',
+      difficulty: WorkoutDifficulty.moderate,
       color: DT.cardBlue,
       estimatedDuration: '60 perc',
       kcal: '450 kcal',
       exercises: [
-        const ExerciseModel(
-          id: 'e1',
+        const WorkoutExercise(
+          exerciseId: 'e1',
           name: 'Fekvenyomás',
-          description: 'Vegyél mély lélegzetet, majd nyomd fel a súlyrudat egyenletesen.',
-          category: 'Mellkas',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 80, reps: 8),
-            ExerciseSetModel(setNumber: 2, weight: 80, reps: 8),
-            ExerciseSetModel(setNumber: 3, weight: 75, reps: 10),
-          ],
+          index: 0,
+          sets: 3,
+          targetReps: 8,
+          targetWeightKg: 80,
+          instructions: 'Vegyél mély lélegzetet, majd nyomd fel a súlyrudat egyenletesen.',
         ),
-        const ExerciseModel(
-          id: 'e2',
+        const WorkoutExercise(
+          exerciseId: 'e2',
           name: 'Guggolás',
-          description: 'Tartsd egyenesen a hátat, és guggolj le combtőig.',
-          category: 'Lábak',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 100, reps: 6),
-            ExerciseSetModel(setNumber: 2, weight: 100, reps: 6),
-            ExerciseSetModel(setNumber: 3, weight: 90, reps: 8),
-          ],
+          index: 1,
+          sets: 3,
+          targetReps: 6,
+          targetWeightKg: 100,
+          instructions: 'Tartsd egyenesen a hátat, és guggolj le combtőig.',
         ),
-        const ExerciseModel(
-          id: 'e3',
+        const WorkoutExercise(
+          exerciseId: 'e3',
           name: 'Felhúzás',
-          description: 'Tartsd a gerinced semlegesben végig a mozgás során.',
-          category: 'Háto',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 120, reps: 5),
-            ExerciseSetModel(setNumber: 2, weight: 120, reps: 5),
-            ExerciseSetModel(setNumber: 3, weight: 110, reps: 6),
-          ],
+          index: 2,
+          sets: 3,
+          targetReps: 5,
+          targetWeightKg: 120,
+          instructions: 'Tartsd a gerinced semlegesben végig a mozgás során.',
         ),
-        const ExerciseModel(
-          id: 'e4',
+        const WorkoutExercise(
+          exerciseId: 'e4',
           name: 'Húzódzkodás',
-          description: 'Teljes mozgástartományban végezd az ismétléseket.',
-          category: 'Háto',
-          sets: [
-            ExerciseSetModel(setNumber: 1, reps: 10),
-            ExerciseSetModel(setNumber: 2, reps: 8),
-            ExerciseSetModel(setNumber: 3, reps: 8),
-          ],
+          index: 3,
+          sets: 3,
+          targetReps: 10,
+          targetWeightKg: 0,
+          instructions: 'Teljes mozgástartományban végezd az ismétléseket.',
         ),
       ],
     );
@@ -109,66 +98,55 @@ class WorkoutMockData {
       scheduledDate: date,
       athleteId: athleteId,
       coachId: 'c1',
-      difficulty: 'Közepes',
+      difficulty: WorkoutDifficulty.moderate,
       color: DT.cardTeal,
       estimatedDuration: '55 perc',
       kcal: '380 kcal',
       exercises: [
-        const ExerciseModel(
-          id: 'e5',
+        const WorkoutExercise(
+          exerciseId: 'e5',
           name: 'Emelkedő fekvenyomás',
-          description: 'Dönts 30–45 fokra a paddot a felső mellkas aktiválásához.',
-          category: 'Mellkas',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 70, reps: 10),
-            ExerciseSetModel(setNumber: 2, weight: 70, reps: 10),
-            ExerciseSetModel(setNumber: 3, weight: 65, reps: 12),
-          ],
+          index: 0,
+          sets: 3,
+          targetReps: 10,
+          targetWeightKg: 70,
+          instructions: 'Dönts 30–45 fokra a paddot a felső mellkas aktiválásához.',
         ),
-        const ExerciseModel(
-          id: 'e6',
+        const WorkoutExercise(
+          exerciseId: 'e6',
           name: 'Evezés rúddal',
-          description: 'Tartsd a törzset 45 fokos szögben, könyök a test mellett.',
-          category: 'Háto',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 80, reps: 8),
-            ExerciseSetModel(setNumber: 2, weight: 80, reps: 8),
-            ExerciseSetModel(setNumber: 3, weight: 75, reps: 10),
-            ExerciseSetModel(setNumber: 4, weight: 75, reps: 10),
-          ],
+          index: 1,
+          sets: 4,
+          targetReps: 8,
+          targetWeightKg: 80,
+          instructions: 'Tartsd a törzset 45 fokos szögben, könyök a test mellett.',
         ),
-        const ExerciseModel(
-          id: 'e7',
+        const WorkoutExercise(
+          exerciseId: 'e7',
           name: 'Bicepsz curl',
-          description: 'Lassan engedd vissza, ne lendítsd a könyököd.',
-          category: 'Bicepsz',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 16, reps: 12),
-            ExerciseSetModel(setNumber: 2, weight: 16, reps: 12),
-            ExerciseSetModel(setNumber: 3, weight: 14, reps: 15),
-          ],
+          index: 2,
+          sets: 3,
+          targetReps: 12,
+          targetWeightKg: 16,
+          instructions: 'Lassan engedd vissza, ne lendítsd a könyököd.',
         ),
-        const ExerciseModel(
-          id: 'e8',
+        const WorkoutExercise(
+          exerciseId: 'e8',
           name: 'Tricepsz nyomás',
-          description: 'Tartsd a könyököt rögzítve, csak az alkar mozogjon.',
-          category: 'Tricepsz',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 25, reps: 12),
-            ExerciseSetModel(setNumber: 2, weight: 25, reps: 12),
-            ExerciseSetModel(setNumber: 3, weight: 22, reps: 15),
-          ],
+          index: 3,
+          sets: 3,
+          targetReps: 12,
+          targetWeightKg: 25,
+          instructions: 'Tartsd a könyököt rögzítve, csak az alkar mozogjon.',
         ),
-        const ExerciseModel(
-          id: 'e9',
+        const WorkoutExercise(
+          exerciseId: 'e9',
           name: 'Oldalsó emelés',
-          description: 'Enyhén hajlított könyökkel emeld oldalt vállmagasságig.',
-          category: 'Vállak',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 12, reps: 15),
-            ExerciseSetModel(setNumber: 2, weight: 12, reps: 15),
-            ExerciseSetModel(setNumber: 3, weight: 10, reps: 15),
-          ],
+          index: 4,
+          sets: 3,
+          targetReps: 15,
+          targetWeightKg: 12,
+          instructions: 'Enyhén hajlított könyökkel emeld oldalt vállmagasságig.',
         ),
       ],
     );
@@ -186,57 +164,46 @@ class WorkoutMockData {
       scheduledDate: date,
       athleteId: athleteId,
       coachId: 'c1',
-      difficulty: 'Nehéz',
+      difficulty: WorkoutDifficulty.hard,
       color: DT.cardOrange,
       estimatedDuration: '65 perc',
       kcal: '550 kcal',
       exercises: [
-        const ExerciseModel(
-          id: 'e10',
+        const WorkoutExercise(
+          exerciseId: 'e10',
           name: 'Guggolás',
-          description: 'Mély guggolás, combtőig le, egyenes hát.',
-          category: 'Lábak',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 100, reps: 8),
-            ExerciseSetModel(setNumber: 2, weight: 100, reps: 8),
-            ExerciseSetModel(setNumber: 3, weight: 95, reps: 10),
-            ExerciseSetModel(setNumber: 4, weight: 90, reps: 12),
-          ],
+          index: 0,
+          sets: 4,
+          targetReps: 8,
+          targetWeightKg: 100,
+          instructions: 'Mély guggolás, combtőig le, egyenes hát.',
         ),
-        const ExerciseModel(
-          id: 'e11',
+        const WorkoutExercise(
+          exerciseId: 'e11',
           name: 'Lábnyomás',
-          description: 'Ne engedd ki teljesen a térdeket, tartsd a feszítést.',
-          category: 'Lábak',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 150, reps: 10),
-            ExerciseSetModel(setNumber: 2, weight: 150, reps: 10),
-            ExerciseSetModel(setNumber: 3, weight: 140, reps: 12),
-            ExerciseSetModel(setNumber: 4, weight: 140, reps: 12),
-          ],
+          index: 1,
+          sets: 4,
+          targetReps: 10,
+          targetWeightKg: 150,
+          instructions: 'Ne engedd ki teljesen a térdeket, tartsd a feszítést.',
         ),
-        const ExerciseModel(
-          id: 'e12',
+        const WorkoutExercise(
+          exerciseId: 'e12',
           name: 'Lábhajlítás',
-          description: 'Lassan engedd vissza, tartsd a feszítést a combhajlítón.',
-          category: 'Lábak',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 50, reps: 12),
-            ExerciseSetModel(setNumber: 2, weight: 50, reps: 12),
-            ExerciseSetModel(setNumber: 3, weight: 45, reps: 15),
-          ],
+          index: 2,
+          sets: 3,
+          targetReps: 12,
+          targetWeightKg: 50,
+          instructions: 'Lassan engedd vissza, tartsd a feszítést a combhajlítón.',
         ),
-        const ExerciseModel(
-          id: 'e13',
+        const WorkoutExercise(
+          exerciseId: 'e13',
           name: 'Vádli emelés',
-          description: 'Teljes mozgástartomány, tetőn tartsd 1 másodpercig.',
-          category: 'Lábak',
-          sets: [
-            ExerciseSetModel(setNumber: 1, weight: 80, reps: 15),
-            ExerciseSetModel(setNumber: 2, weight: 80, reps: 15),
-            ExerciseSetModel(setNumber: 3, weight: 80, reps: 15),
-            ExerciseSetModel(setNumber: 4, weight: 80, reps: 15),
-          ],
+          index: 3,
+          sets: 4,
+          targetReps: 15,
+          targetWeightKg: 80,
+          instructions: 'Teljes mozgástartomány, tetőn tartsd 1 másodpercig.',
         ),
       ],
     );

@@ -53,10 +53,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
     try {
       final updated = await context.read<UserRepository>().updateUser(
-            auth.user.id,
-            _firstName.text.trim(),
-            _lastName.text.trim(),
-            _email.text.trim(),
+            firstName: _firstName.text.trim(),
+            lastName: _lastName.text.trim(),
+            email: _email.text.trim(),
           );
       if (mounted) {
         context.read<AuthBloc>().add(AuthUserUpdated(updated));

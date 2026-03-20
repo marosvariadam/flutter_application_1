@@ -105,7 +105,7 @@ class _ResponseCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: DT.metricBlue.withOpacity(0.1),
+                  color: DT.metricBlue.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.person_outline,

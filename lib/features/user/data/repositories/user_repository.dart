@@ -26,13 +26,14 @@ class UserRepository {
     return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
 
-  /// Not supported by current backend — throws if called.
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
   }) async {
-    throw UnimplementedError(
-        'Change password is not yet supported by the backend.');
+    await _client.dio.post(ApiConstants.changePassword, data: {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
   }
 
   Future<void> deleteAccount() async {

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -37,8 +38,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     });
     try {
       await context.read<UserRepository>().changePassword(
-            _current.text,
-            _newPw.text,
+            currentPassword: _current.text,
+            newPassword: _newPw.text,
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -46,9 +47,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         );
         context.pop();
       }
-    } catch (_) {
-      setState(
-          () => _error = 'Nem sikerült megváltoztatni a jelszót. Ellenőrizd a jelenlegi jelszavad.');
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final msg = data is Map
+          ? (data['message'] ?? data['title'] ?? data.toString())
+          : (data?.toString() ?? 'Szerverhiba (${e.response?.statusCode})');
+      setState(() => _error = msg.toString());
+    } catch (e) {
+      setState(() => _error = 'Váratlan hiba: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }

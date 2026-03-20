@@ -34,6 +34,13 @@ class TrainerRequestModel {
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isAccepted => status.toLowerCase() == 'accepted';
   bool get isRejected => status.toLowerCase() == 'rejected';
+
+  String get athleteFullName => athleteName ?? '';
+  String get athleteFirstName {
+    final name = athleteName ?? '';
+    final spaceIdx = name.indexOf(' ');
+    return spaceIdx > 0 ? name.substring(0, spaceIdx) : name;
+  }
 }
 
 class AthleteModel {
