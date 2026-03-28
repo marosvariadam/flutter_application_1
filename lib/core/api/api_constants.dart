@@ -47,12 +47,18 @@ class ApiConstants {
   static String sendMessage(String recipientId) => '/api/message/$recipientId';
   static String markRead(String otherId) => '/api/message/$otherId/read';
 
-  // ── Trainer requests (not yet in backend — kept for future) ─────────────────
+  // ── Trainer requests ─────────────────────────────────────────────────────────
   static const String trainerRequest = '/api/trainer-request';
   static const String myTrainerRequests = '/api/trainer-request/mine';
   static const String pendingRequests = '/api/trainer-request/pending';
   static String acceptRequest(String id) => '/api/trainer-request/$id/accept';
   static String rejectRequest(String id) => '/api/trainer-request/$id/reject';
+  static String cancelRequest(String id) => '/api/trainer-request/$id';
+
+  // ── Trainer / Athlete link management ────────────────────────────────────────
+  static const String leaveTrainer = '/api/user/leave-trainer';
+  static String removeAthlete(String athleteId) =>
+      '/api/user/remove-athlete/$athleteId';
 
   // ── SignalR Hubs ────────────────────────────────────────────────────────────
   static const String chatHub = '/hubs/chat';

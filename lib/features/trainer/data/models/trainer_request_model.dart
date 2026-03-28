@@ -4,6 +4,8 @@ class TrainerRequestModel {
   final String? athleteName;
   final String? athleteEmail;
   final String? trainerEmail;
+  final String? trainerId;
+  final String? trainerName;
   final String status; // 'Pending' | 'Accepted' | 'Rejected'
   final String? note;
   final DateTime createdAt;
@@ -14,6 +16,8 @@ class TrainerRequestModel {
     this.athleteName,
     this.athleteEmail,
     this.trainerEmail,
+    this.trainerId,
+    this.trainerName,
     required this.status,
     this.note,
     required this.createdAt,
@@ -26,6 +30,8 @@ class TrainerRequestModel {
         athleteName: j['athleteName'] as String?,
         athleteEmail: j['athleteEmail'] as String?,
         trainerEmail: j['trainerEmail'] as String?,
+        trainerId: j['trainerId'] as String?,
+        trainerName: j['trainerName'] as String?,
         status: j['status'] as String,
         note: j['note'] as String?,
         createdAt: DateTime.parse(j['createdAt'] as String),

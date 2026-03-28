@@ -54,6 +54,10 @@ class _RequestsView extends StatelessWidget {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }
+          if (state is TrainerRequestSuccess) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
+          }
         },
         builder: (context, state) {
           if (state is TrainerRequestLoading) {
@@ -135,7 +139,7 @@ class _IncomingRequestCard extends StatelessWidget {
                               color: DT.of(context).textPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: DT.s4)),
-                      Text(request.athleteEmail,
+                      Text(request.athleteEmail ?? '',
                           style: TextStyle(
                               color: DT.of(context).textSecondary,
                               fontSize: DT.s3)),
@@ -167,9 +171,7 @@ class _IncomingRequestCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 OutlinedButton(
-                  onPressed: () => context
-                      .read<TrainerRequestBloc>()
-                      .add(RejectRequest(request.id)),
+                  onPressed: () => _confirmReject(context, request.id),
                   style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: DT.cardRed)),
                   child: const Text('Elutasítás',
@@ -189,6 +191,32 @@ class _IncomingRequestCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmReject(BuildContext context, String requestId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Kérés elutasítása'),
+        content: const Text(
+            'Biztosan elutasítod a kérést? A sportoló 7 napig nem küldhet újabb kérést.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Mégse')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context
+                  .read<TrainerRequestBloc>()
+                  .add(RejectRequest(requestId));
+            },
+            child: const Text('Elutasítás',
+                style: TextStyle(color: DT.cardRed)),
+          ),
+        ],
       ),
     );
   }
@@ -216,42 +244,98 @@ class _OutgoingRequestCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: Padding(
         padding: const EdgeInsets.all(DT.s4),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Kérés küldve',
-                      style: TextStyle(
-                          color: DT.of(context).textPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: DT.s4)),
-                  const SizedBox(height: 2),
-                  Text(
-                    DateFormat('yyyy.MM.dd HH:mm')
-                        .format(request.createdAt),
-                    style: TextStyle(
-                        color: DT.of(context).textSecondary, fontSize: DT.s3),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        request.trainerEmail ?? 'Ismeretlen edző',
+                        style: TextStyle(
+                            color: DT.of(context).textPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: DT.s4),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        DateFormat('yyyy.MM.dd HH:mm')
+                            .format(request.createdAt),
+                        style: TextStyle(
+                            color: DT.of(context).textSecondary,
+                            fontSize: DT.s3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: DT.s3, vertical: DT.s1),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(DT.rChip),
+                  ),
+                  child: Text(statusLabel,
+                      style: TextStyle(
+                          color: statusColor,
+                          fontSize: DT.s3,
+                          fontWeight: FontWeight.w600)),
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: DT.s3, vertical: DT.s1),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(DT.rChip),
+            if (request.note != null && request.note!.isNotEmpty) ...[
+              const SizedBox(height: DT.s2),
+              Text(
+                request.note!,
+                style: TextStyle(
+                    color: DT.of(context).textSecondary, fontSize: DT.s3),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              child: Text(statusLabel,
-                  style: TextStyle(
-                      color: statusColor,
-                      fontSize: DT.s3,
-                      fontWeight: FontWeight.w600)),
-            ),
+            ],
+            if (request.isPending) ...[
+              const SizedBox(height: DT.s3),
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton(
+                  onPressed: () => _confirmCancel(context, request.id),
+                  style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: DT.cardRed)),
+                  child: const Text('Visszavonás',
+                      style: TextStyle(color: DT.cardRed)),
+                ),
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmCancel(BuildContext context, String requestId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Kérés visszavonása'),
+        content: const Text('Biztosan visszavonod a csatlakozási kérést?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Mégse')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context
+                  .read<TrainerRequestBloc>()
+                  .add(CancelRequest(requestId));
+            },
+            child: const Text('Visszavonás',
+                style: TextStyle(color: DT.cardRed)),
+          ),
+        ],
       ),
     );
   }

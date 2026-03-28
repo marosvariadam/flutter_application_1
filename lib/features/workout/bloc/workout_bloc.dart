@@ -134,7 +134,9 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
       _hasMore = result.hasMore;
       emit(WorkoutsLoaded(_workouts,
           hasMore: _hasMore, currentPage: _page));
-    } catch (_) {}
+    } catch (_) {
+      emit(WorkoutError('Nem sikerült betölteni a további edzéseket.'));
+    }
   }
 
   Future<void> _onLoadTrainer(
@@ -162,7 +164,9 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
       _hasMore = result.hasMore;
       emit(WorkoutsLoaded(_workouts,
           hasMore: _hasMore, currentPage: _page));
-    } catch (_) {}
+    } catch (_) {
+      emit(WorkoutError('Nem sikerült betölteni a további edzéseket.'));
+    }
   }
 
   Future<void> _onLoadDetail(
@@ -197,9 +201,7 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
         actualWeightKg: event.actualWeightKg,
         exerciseNotes: event.exerciseNotes,
       );
-      // Reload detail to get fresh data
-      final workout = await _repo.getWorkout(event.workoutId);
-      emit(WorkoutDetailLoaded(workout));
+      // Local UI tracks set state; no state change needed
     } catch (_) {
       emit(WorkoutError('Nem sikerült menteni a gyakorlatot.'));
     }

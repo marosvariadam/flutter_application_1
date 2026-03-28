@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/app_router.dart';
 import 'package:flutter_application_1/app/bloc/theme_cubit.dart';
 import 'package:flutter_application_1/app/design/theme.dart';
+import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/storage/token_storage.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_application_1/features/notifications/data/repositories/n
 import 'package:flutter_application_1/features/notifications/services/notification_hub_service.dart';
 import 'package:flutter_application_1/features/onboarding/bloc/onboarding_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/repositories/onboarding_repository.dart';
+import 'package:flutter_application_1/features/trainer/bloc/athlete_status_cubit.dart';
 import 'package:flutter_application_1/features/trainer/bloc/roster_bloc.dart';
 import 'package:flutter_application_1/features/trainer/bloc/trainer_request_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/roster_repository.dart';
@@ -48,6 +50,8 @@ class _AppState extends State<App> {
   late final ExerciseRepository _exerciseRepo;
   late final NotificationRepository _notifRepo;
   late final OnboardingRepository _onboardingRepo;
+  late final MessageRepository _messageRepo;
+  late final AthleteStatusCubit _athleteStatusCubit;
 
   @override
   void initState() {
@@ -70,8 +74,11 @@ class _AppState extends State<App> {
     _exerciseRepo = ExerciseRepository(_apiClient);
     _notifRepo = NotificationRepository(_apiClient);
     _onboardingRepo = OnboardingRepository(_apiClient);
+    _messageRepo = MessageRepository(_apiClient);
 
     _authBloc = AuthBloc(authRepo: _authRepo, userRepo: _userRepo);
+    _athleteStatusCubit =
+        AthleteStatusCubit(_trainerRequestRepo, _onboardingRepo);
     _authBloc.add(AppStarted());
   }
 
@@ -79,6 +86,7 @@ class _AppState extends State<App> {
   void dispose() {
     _themeCubit.close();
     _authBloc.close();
+    _athleteStatusCubit.close();
     _notifHub.disconnect();
     _chatHub.disconnect();
     super.dispose();
@@ -101,15 +109,13 @@ class _AppState extends State<App> {
         providers: [
           BlocProvider.value(value: _themeCubit),
           BlocProvider.value(value: _authBloc),
+          BlocProvider.value(value: _athleteStatusCubit),
           BlocProvider(
-            create: (_) => NotificationBloc(
-              repo: _notifRepo,
-              hubService: _notifHub,
-            ),
+            create: (_) => NotificationBloc(_notifRepo),
           ),
-          BlocProvider(create: (_) => MessagingBloc(repo: null)),
+          BlocProvider(create: (_) => MessagingBloc(repo: _messageRepo)),
           BlocProvider(
-            create: (_) => ChatBloc(repo: null, hub: _chatHub),
+            create: (_) => ChatBloc(repo: _messageRepo, hub: _chatHub),
           ),
           BlocProvider(create: (_) => RosterBloc(_rosterRepo)),
           BlocProvider(
@@ -121,6 +127,17 @@ class _AppState extends State<App> {
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) async {
             if (state is AuthAuthenticated) {
+              UserSession.instance.set(
+                role: state.user.role,
+                userId: state.user.id,
+                firstName: state.user.firstName,
+                lastName: state.user.lastName,
+                email: state.user.email,
+              );
+              // Kick off the athlete onboarding gate check.
+              if (state.user.isAthlete) {
+                _athleteStatusCubit.check();
+              }
               final token = await TokenStorage.getAccessToken();
               if (token != null) {
                 await _notifHub.connect(
@@ -134,11 +151,16 @@ class _AppState extends State<App> {
                 await _chatHub.connect(token);
               }
             } else if (state is AuthUnauthenticated) {
+              UserSession.instance.clear();
+              _athleteStatusCubit.reset();
               await _notifHub.disconnect();
               await _chatHub.disconnect();
             }
           },
-          child: _RouterWrapper(authBloc: _authBloc),
+          child: _RouterWrapper(
+            authBloc: _authBloc,
+            athleteStatusCubit: _athleteStatusCubit,
+          ),
         ),
       ),
     );
@@ -147,14 +169,19 @@ class _AppState extends State<App> {
 
 class _RouterWrapper extends StatefulWidget {
   final AuthBloc authBloc;
-  const _RouterWrapper({required this.authBloc});
+  final AthleteStatusCubit athleteStatusCubit;
+  const _RouterWrapper({
+    required this.authBloc,
+    required this.athleteStatusCubit,
+  });
 
   @override
   State<_RouterWrapper> createState() => _RouterWrapperState();
 }
 
 class _RouterWrapperState extends State<_RouterWrapper> {
-  late final _router = buildRouter(widget.authBloc);
+  late final _router =
+      buildRouter(widget.authBloc, widget.athleteStatusCubit);
 
   @override
   Widget build(BuildContext context) {

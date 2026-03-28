@@ -34,16 +34,6 @@ class _RosterView extends StatelessWidget {
             style: TextStyle(
                 color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person_add_outlined,
-                color: DT.of(context).textPrimary),
-            onPressed: () =>
-                context.push('/athletes/create').then((_) {
-              context.read<RosterBloc>().add(LoadRoster());
-            }),
-          ),
-        ],
       ),
       body: BlocBuilder<RosterBloc, RosterState>(
         builder: (context, state) {
@@ -108,7 +98,7 @@ class _AthleteCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: InkWell(
         borderRadius: BorderRadius.circular(DT.rCardSmall),
-        onTap: () => context.push('/workout/review/${athlete.id}'),
+        onTap: () => context.push('/athlete-detail/${athlete.id}'),
         child: Padding(
           padding: const EdgeInsets.all(DT.s4),
           child: Row(
@@ -144,29 +134,11 @@ class _AthleteCard extends StatelessWidget {
                   ],
                 ),
               ),
-              PopupMenuButton<String>(
-                onSelected: (action) async {
-                  if (action == 'edit') {
-                    await context.push('/athletes/${athlete.id}/edit');
-                    if (context.mounted) {
-                      context.read<RosterBloc>().add(LoadRoster());
-                    }
-                  } else if (action == 'reset') {
-                    _showResetPasswordDialog(context, athlete);
-                  } else if (action == 'delete') {
-                    _showDeleteDialog(context, athlete);
-                  }
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(
-                      value: 'edit', child: Text('Szerkesztés')),
-                  const PopupMenuItem(
-                      value: 'reset', child: Text('Jelszó visszaállítás')),
-                  const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Törlés',
-                          style: TextStyle(color: DT.cardRed))),
-                ],
+              IconButton(
+                icon: const Icon(Icons.person_remove_outlined,
+                    color: DT.cardRed),
+                tooltip: 'Eltávolítás',
+                onPressed: () => _showDeleteDialog(context, athlete),
               ),
             ],
           ),
@@ -179,9 +151,9 @@ class _AthleteCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Sportoló törlése'),
+        title: const Text('Sportoló eltávolítása'),
         content: Text(
-            '${athlete.fullName} biztosan törölni szeretnéd a csapatodból?'),
+            'Biztosan eltávolítod ${athlete.fullName} sportolót a csapatodból? Újra csatlakozhat, ha kérést küld.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
@@ -191,7 +163,7 @@ class _AthleteCard extends StatelessWidget {
               Navigator.pop(ctx);
               context.read<RosterBloc>().add(DeleteAthlete(athlete.id));
             },
-            child: const Text('Törlés',
+            child: const Text('Eltávolítás',
                 style: TextStyle(color: DT.cardRed)),
           ),
         ],
@@ -199,37 +171,6 @@ class _AthleteCard extends StatelessWidget {
     );
   }
 
-  void _showResetPasswordDialog(BuildContext context, AthleteModel athlete) {
-    final ctrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Jelszó visszaállítása'),
-        content: TextField(
-          controller: ctrl,
-          obscureText: true,
-          decoration:
-              const InputDecoration(labelText: 'Új jelszó'),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Mégse')),
-          TextButton(
-            onPressed: () {
-              if (ctrl.text.length >= 6) {
-                Navigator.pop(ctx);
-                context.read<RosterBloc>().add(
-                      ResetAthletePassword(athlete.id, ctrl.text),
-                    );
-              }
-            },
-            child: const Text('Beállít'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _EmptyView extends StatelessWidget {
@@ -248,12 +189,12 @@ class _EmptyView extends StatelessWidget {
               style:
                   TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
           const SizedBox(height: DT.s4),
-          ElevatedButton.icon(
-            onPressed: () => context.push('/athletes/create'),
-            icon: const Icon(Icons.person_add),
-            label: const Text('Sportoló hozzáadása'),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: DT.metricBlue),
+          Text(
+            'A sportolók csatlakozási kéréssel tudnak csatlakozni.',
+            style: TextStyle(
+                color: DT.of(context).textSecondary,
+                fontSize: DT.s3),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

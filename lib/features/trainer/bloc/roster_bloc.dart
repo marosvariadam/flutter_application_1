@@ -89,13 +89,13 @@ class RosterBloc extends Bloc<RosterEvent, RosterState> {
   Future<void> _onDelete(
       DeleteAthlete event, Emitter<RosterState> emit) async {
     try {
-      await _repo.deleteAthlete(event.athleteId);
+      await _repo.removeAthlete(event.athleteId);
       _athletes =
           _athletes.where((a) => a.id != event.athleteId).toList();
       emit(RosterLoaded(_athletes,
           hasMore: _hasMore, currentPage: _page));
     } catch (_) {
-      emit(RosterError('Nem sikerült törölni a sportolót.'));
+      emit(RosterError('Nem sikerült eltávolítani a sportolót.'));
     }
   }
 

@@ -4,7 +4,8 @@ abstract class ChatEvent {}
 
 class LoadChat extends ChatEvent {
   final String contactId;
-  LoadChat(this.contactId);
+  final String? contactName;
+  LoadChat(this.contactId, {this.contactName});
 }
 
 class SendMessage extends ChatEvent {

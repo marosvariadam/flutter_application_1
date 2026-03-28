@@ -13,16 +13,25 @@ import 'package:flutter_application_1/features/messaging/presentation/messaging_
 // Entry point
 // ─────────────────────────────────────────────────────────────
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
   final String contactId;
-  const ChatPage({super.key, required this.contactId});
+  final String? contactName;
+  const ChatPage({super.key, required this.contactId, this.contactName});
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ChatBloc>().add(LoadChat(widget.contactId, contactName: widget.contactName));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ChatBloc()..add(LoadChat(contactId)),
-      child: const _ChatView(),
-    );
+    return const _ChatView();
   }
 }
 

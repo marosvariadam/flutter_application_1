@@ -40,4 +40,9 @@ class UserRepository {
     final id = await TokenStorage.getUserId();
     await _client.dio.delete(ApiConstants.deleteUser(id ?? ''));
   }
+
+  /// Athlete: POST /api/user/leave-trainer
+  Future<void> leaveTrainer() async {
+    await _client.dio.post(ApiConstants.leaveTrainer);
+  }
 }

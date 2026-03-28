@@ -1,3 +1,4 @@
+import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/api/api_constants.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
@@ -5,9 +6,9 @@ import 'package:flutter_application_1/features/messaging/data/models/message_mod
 
 class MessageRepository {
   final ApiClient _client;
-  final String myUserId;
+  MessageRepository(this._client);
 
-  MessageRepository(this._client, {required this.myUserId});
+  String get _myUserId => UserSession.instance.userId ?? '';
 
   Future<List<ConversationModel>> getConversations() async {
     final res = await _client.dio.get(ApiConstants.conversations);
@@ -28,7 +29,7 @@ class MessageRepository {
         id: m['id'] as String,
         text: m['content'] as String,
         timestamp: DateTime.parse(m['createdAt'] as String),
-        isSentByMe: m['senderId'] as String == myUserId,
+        isSentByMe: m['senderId'] as String == _myUserId,
       );
     }).toList();
   }

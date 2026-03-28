@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
 import 'package:flutter_application_1/features/messaging/data/models/message_model.dart';
-import 'package:flutter_application_1/features/messaging/bloc/messaging_bloc.dart';
 import 'package:flutter_application_1/features/messaging/data/repositories/message_repository.dart';
 import 'package:flutter_application_1/features/messaging/services/chat_hub_service.dart';
 
@@ -30,37 +29,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Future<void> _onLoadChat(LoadChat event, Emitter<ChatState> emit) async {
     emit(ChatLoading());
     try {
-      if (_repo != null) {
-        final messages = await _repo!.getThread(event.contactId);
-        final conv = ConversationModel(
-          id: event.contactId,
-          contactName: event.contactId,
-          contactAvatarUrl: '',
-          lastMessage: messages.isNotEmpty ? messages.last.text : '',
-          lastMessageTime:
-              messages.isNotEmpty ? messages.last.timestamp : DateTime.now(),
-          unreadCount: 0,
-          isOnline: false,
-          messages: messages,
-        );
-        emit(ChatLoaded(conv));
-        await _repo!.markRead(event.contactId);
-      } else {
-        await Future.delayed(const Duration(milliseconds: 200));
-        final conversation = MessagingBloc.getById(event.contactId);
-        if (conversation == null) {
-          emit(ChatError('A beszélgetés nem található.'));
-          return;
-        }
-        emit(ChatLoaded(conversation));
-      }
+      final repo = _repo!;
+      final messages = await repo.getThread(event.contactId);
+      final conv = ConversationModel(
+        id: event.contactId,
+        contactName: event.contactName ?? event.contactId,
+        contactAvatarUrl: '',
+        lastMessage: messages.isNotEmpty ? messages.last.text : '',
+        lastMessageTime:
+            messages.isNotEmpty ? messages.last.timestamp : DateTime.now(),
+        unreadCount: 0,
+        isOnline: false,
+        messages: messages,
+      );
+      emit(ChatLoaded(conv));
+      await repo.markRead(event.contactId);
     } catch (_) {
-      final conversation = MessagingBloc.getById(event.contactId);
-      if (conversation != null) {
-        emit(ChatLoaded(conversation));
-      } else {
-        emit(ChatError('Nem sikerült betölteni a beszélgetést.'));
-      }
+      // Show empty chat so the user can still send a first message
+      // (e.g. 404 when no thread exists yet).
+      emit(ChatLoaded(_emptyConversation(event.contactId, event.contactName)));
     }
   }
 
@@ -76,12 +63,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       isSentByMe: true,
     );
 
-    final updated = [...current.conversation.messages, newMessage];
+    final previousMessages = current.conversation.messages.toList();
+    final updated = [...previousMessages, newMessage];
     emit(ChatLoaded(current.conversation.copyWith(messages: updated)));
     try {
       await _repo?.sendMessage(current.conversation.id, event.text);
-    } catch (_) {}
+    } catch (_) {
+      // Revert the optimistic message on failure.
+      emit(ChatLoaded(current.conversation.copyWith(messages: previousMessages)));
+    }
   }
+
+  ConversationModel _emptyConversation(String id, String? name) =>
+      ConversationModel(
+        id: id,
+        contactName: name ?? id,
+        contactAvatarUrl: '',
+        lastMessage: '',
+        lastMessageTime: DateTime.now(),
+        unreadCount: 0,
+        isOnline: false,
+        messages: const [],
+      );
 
   void _onHubMessage(
       MessageReceivedFromHub event, Emitter<ChatState> emit) {

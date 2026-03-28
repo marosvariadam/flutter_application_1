@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/onboarding/bloc/onboarding_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/models/onboarding_models.dart';
+import 'package:flutter_application_1/features/trainer/bloc/athlete_status_cubit.dart';
 
 class AthleteSurveyPage extends StatefulWidget {
   const AthleteSurveyPage({super.key});
@@ -16,6 +18,24 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
   final Map<String, String> _answers = {};
   bool _loaded = false;
   bool _submitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Always (re-)load the form when this page opens so we never get stuck in a
+    // stale/unexpected OnboardingBloc state (e.g. OnboardingSuccess from a prior
+    // submission, or OnboardingResponsesLoaded from another page).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<OnboardingBloc>().add(LoadMyTrainerForm());
+      }
+    });
+  }
+
+  void _skip(BuildContext context) {
+    context.read<AthleteStatusCubit>().markReady();
+    context.go('/home');
+  }
 
   void _submit(OnboardingFormModel form) {
     // Check all questions answered
@@ -47,13 +67,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
         }
       },
       builder: (context, state) {
-        if (state is OnboardingInitial) {
-          context.read<OnboardingBloc>().add(LoadMyTrainerForm());
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (state is OnboardingLoading && !_loaded) {
+        if (state is OnboardingInitial || state is OnboardingLoading && !_loaded) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -90,8 +104,44 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
 
         OnboardingFormModel? form;
         if (state is OnboardingFormLoaded) {
-          form = state.form;
           _loaded = true;
+          if (state.form == null) {
+            // Trainer hasn't created a form yet.
+            return Scaffold(
+              backgroundColor: DT.of(context).bg,
+              appBar: AppBar(
+                backgroundColor: DT.of(context).bg,
+                elevation: 0,
+                leading: BackButton(color: DT.of(context).textPrimary),
+                title: Text('Felmérő',
+                    style: TextStyle(
+                        color: DT.of(context).textPrimary,
+                        fontWeight: FontWeight.w600)),
+                centerTitle: true,
+              ),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(DT.s6),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.assignment_outlined,
+                          size: 64, color: DT.of(context).iconLightGrey),
+                      const SizedBox(height: DT.s4),
+                      Text(
+                        'Az edző még nem töltött fel felmérőt.',
+                        style: TextStyle(
+                            color: DT.of(context).textSecondary,
+                            fontSize: DT.s4),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+          form = state.form;
         }
         // Keep form in view even after submit triggers Loading
         if (form == null && !_submitted) {
@@ -135,9 +185,30 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: DT.s6),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Vissza'),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.read<AthleteStatusCubit>().markReady();
+                          context.go('/home');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: DT.metricBlue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(DT.rCardSmall),
+                          ),
+                        ),
+                        child: const Text(
+                          'Tovább a főoldalra',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: DT.s4,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -158,6 +229,18 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                   color: DT.of(context).textPrimary, fontWeight: FontWeight.w600),
             ),
             centerTitle: true,
+            actions: [
+              TextButton(
+                onPressed: () => _skip(context),
+                child: Text(
+                  'Kihagyás',
+                  style: TextStyle(
+                    color: DT.of(context).textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
           body: ListView(
             padding: const EdgeInsets.all(DT.s4),

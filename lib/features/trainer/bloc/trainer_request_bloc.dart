@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/trainer_request_repository.dart';
@@ -17,6 +18,11 @@ class AcceptRequest extends TrainerRequestEvent {
 class RejectRequest extends TrainerRequestEvent {
   final String requestId;
   RejectRequest(this.requestId);
+}
+
+class CancelRequest extends TrainerRequestEvent {
+  final String requestId;
+  CancelRequest(this.requestId);
 }
 
 class SendTrainerRequest extends TrainerRequestEvent {
@@ -58,7 +64,19 @@ class TrainerRequestBloc
     on<LoadMyRequests>(_onLoadMine);
     on<AcceptRequest>(_onAccept);
     on<RejectRequest>(_onReject);
+    on<CancelRequest>(_onCancel);
     on<SendTrainerRequest>(_onSend);
+  }
+
+  String _extractMessage(Object e, String fallback) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map) {
+        final msg = data['message'];
+        if (msg is String && msg.isNotEmpty) return msg;
+      }
+    }
+    return fallback;
   }
 
   Future<void> _onLoadPending(
@@ -90,8 +108,9 @@ class TrainerRequestBloc
       _requests =
           _requests.where((r) => r.id != event.requestId).toList();
       emit(TrainerRequestsLoaded(_requests));
-    } catch (_) {
-      emit(TrainerRequestError('Nem sikerült elfogadni a kérést.'));
+    } catch (e) {
+      emit(TrainerRequestError(
+          _extractMessage(e, 'Nem sikerült elfogadni a kérést.')));
     }
   }
 
@@ -102,8 +121,22 @@ class TrainerRequestBloc
       _requests =
           _requests.where((r) => r.id != event.requestId).toList();
       emit(TrainerRequestsLoaded(_requests));
-    } catch (_) {
-      emit(TrainerRequestError('Nem sikerült elutasítani a kérést.'));
+    } catch (e) {
+      emit(TrainerRequestError(
+          _extractMessage(e, 'Nem sikerült elutasítani a kérést.')));
+    }
+  }
+
+  Future<void> _onCancel(
+      CancelRequest event, Emitter<TrainerRequestState> emit) async {
+    try {
+      await _repo.cancelRequest(event.requestId);
+      _requests =
+          _requests.where((r) => r.id != event.requestId).toList();
+      emit(TrainerRequestsLoaded(_requests));
+    } catch (e) {
+      emit(TrainerRequestError(
+          _extractMessage(e, 'Nem sikerült visszavonni a kérést.')));
     }
   }
 
@@ -113,9 +146,9 @@ class TrainerRequestBloc
     try {
       await _repo.sendRequest(event.trainerEmail, note: event.note);
       emit(TrainerRequestSuccess('A csatlakozási kérés sikeresen elküldve.'));
-    } catch (_) {
+    } catch (e) {
       emit(TrainerRequestError(
-          'Nem sikerült elküldeni a kérést. Ellenőrizd az edzői email címet.'));
+          _extractMessage(e, 'Nem sikerült elküldeni a kérést. Ellenőrizd az edzői email címet.')));
     }
   }
 }

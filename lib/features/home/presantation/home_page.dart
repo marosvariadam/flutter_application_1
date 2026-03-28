@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/coach/presentation/coach_home_page.dart';
+import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
-import 'package:flutter_application_1/services/workout_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -23,34 +24,14 @@ class AthleteHomePage extends StatefulWidget {
 
 class _AthleteHomePageState extends State<AthleteHomePage> {
   DateTime _selected = DateTime.now();
-  List<WorkoutModel> _workouts = [];
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadWorkouts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<WorkoutBloc>().add(LoadMyWorkouts());
+    });
   }
-
-  Future<void> _loadWorkouts() async {
-    final userId = UserSession.instance.userId ?? '';
-    final workouts = await WorkoutService().getWorkoutsForAthlete(userId);
-    if (mounted) setState(() { _workouts = workouts; _isLoading = false; });
-  }
-
-  WorkoutModel? get _workout {
-    try {
-      return _workouts.firstWhere(
-        (w) => w.scheduledDate.year == _selected.year &&
-               w.scheduledDate.month == _selected.month &&
-               w.scheduledDate.day == _selected.day,
-      );
-    } catch (_) { return null; }
-  }
-
-  Set<String> get _workoutDateKeys => _workouts
-      .map((w) => '${w.scheduledDate.year}-${w.scheduledDate.month}-${w.scheduledDate.day}')
-      .toSet();
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +56,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 ),
                 child: ClipOval(
                   child: Container(
-                    color: DT.metricBlue.withOpacity(0.15),
+                    color: DT.metricBlue.withValues(alpha: 0.15),
                     child: const Icon(Icons.person, color: DT.metricBlue),
                   ),
                 ),
@@ -109,33 +90,50 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(DT.s5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _DailyChallengeCard(),
-                  const SizedBox(height: DT.s5),
-                  Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
-                  const SizedBox(height: DT.s3),
-                  _WeeklyStrip(
-                    selected: _selected,
-                    workoutDateKeys: _workoutDateKeys,
-                    onDateSelected: (date) => setState(() => _selected = date),
-                  ),
-                  const SizedBox(height: DT.s5),
-                  Text('Edzéstervem', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
-                  const SizedBox(height: DT.s3),
-                  _workout != null
-                      ? _WorkoutCard(workout: _workout!, onTap: () => context.push('/workout-detail', extra: _workout))
-                      : const _RestDayCard(),
-                  const SizedBox(height: DT.s5),
-                  _SocialCard(),
-                ],
-              ),
+      body: BlocBuilder<WorkoutBloc, WorkoutState>(
+        builder: (context, state) {
+          if (state is WorkoutInitial || state is WorkoutLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final workouts = state is WorkoutsLoaded ? state.workouts : <WorkoutModel>[];
+
+          final workoutDateKeys = workouts
+              .map((w) => '${w.scheduledDate.year}-${w.scheduledDate.month}-${w.scheduledDate.day}')
+              .toSet();
+
+          WorkoutModel? todayWorkout;
+          try {
+            todayWorkout = workouts.firstWhere(
+              (w) => w.scheduledDate.year == _selected.year &&
+                     w.scheduledDate.month == _selected.month &&
+                     w.scheduledDate.day == _selected.day,
+            );
+          } catch (_) {}
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(DT.s5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+                const SizedBox(height: DT.s3),
+                _WeeklyStrip(
+                  selected: _selected,
+                  workoutDateKeys: workoutDateKeys,
+                  onDateSelected: (date) => setState(() => _selected = date),
+                ),
+                const SizedBox(height: DT.s5),
+                Text('Edzéstervem', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
+                const SizedBox(height: DT.s3),
+                todayWorkout != null
+                    ? _WorkoutCard(workout: todayWorkout, onTap: () => context.push('/workout-detail', extra: todayWorkout!.id))
+                    : const _RestDayCard(),
+              ],
             ),
+          );
+        },
+      ),
     );
   }
 }
@@ -214,7 +212,7 @@ class _WorkoutCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final diffColor = _diffColor(workout.difficulty);
     return Material(
-      color: workout.color.withOpacity(0.25),
+      color: workout.color.withValues(alpha: 0.25),
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: InkWell(
         onTap: onTap,
@@ -305,124 +303,3 @@ class _RestDayCard extends StatelessWidget {
   }
 }
 
-class _DailyChallengeCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(DT.s5),
-      decoration: BoxDecoration(
-        color: DT.gbWhite,
-        borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 20, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Napi kihívás', style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
-          const SizedBox(height: DT.s2),
-          Text('Csináld meg az edzést 9:00 előtt', style: TextStyle(fontSize: DT.s4, color: DT.of(context).textSecondary)),
-          const SizedBox(height: DT.s3),
-          Row(
-            children: [
-              _UserChip(),
-              Transform.translate(offset: const Offset(-DT.s2, 0), child: _UserChip()),
-              Transform.translate(offset: const Offset(-DT.s4, 0), child: _UserChip()),
-              Transform.translate(
-                offset: const Offset(-DT.s6, 0),
-                child: Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: DT.of(context).bg, border: Border.all(color: DT.gbWhite, width: 2)),
-                  child: Center(child: Text('+12', style: TextStyle(fontSize: 9, color: DT.of(context).textSecondary, fontWeight: FontWeight.w600))),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: DT.s4),
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(DT.rCardSmall),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s2),
-              decoration: BoxDecoration(color: DT.gbBlack, borderRadius: BorderRadius.circular(DT.rCardSmall)),
-              child: const Text('Csatlakozz →', style: TextStyle(color: DT.gbWhite, fontSize: DT.s3, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserChip extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32, height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: DT.metricBlue.withOpacity(0.15),
-        border: Border.all(color: DT.gbWhite, width: 2),
-      ),
-      child: const Icon(Icons.person, size: 18, color: DT.metricBlue),
-    );
-  }
-}
-
-class _SocialCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Közösség', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
-        const SizedBox(height: DT.s3),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: DT.s4, horizontal: DT.s5),
-          decoration: BoxDecoration(
-            color: DT.gbWhite,
-            borderRadius: BorderRadius.circular(DT.rCard),
-            boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 16, offset: const Offset(0, 4))],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _SocialItem(icon: Icons.camera_alt, color: DT.socialPink, label: 'Kamera', onTap: () {}),
-              _SocialItem(icon: Icons.play_circle_outline, color: DT.socialRed, label: 'Videó', onTap: () {}),
-              _SocialItem(icon: Icons.chat_bubble_outline, color: DT.socialBlue, label: 'Üzenet', onTap: () => context.go('/messages')),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SocialItem extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final VoidCallback? onTap;
-  const _SocialItem({required this.icon, required this.color, required this.label, this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(DT.rCard),
-      child: Padding(
-        padding: const EdgeInsets.all(DT.s2),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 48, height: 48,
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: DT.s5),
-            ),
-            const SizedBox(height: DT.s1),
-            Text(label, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary, fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-}

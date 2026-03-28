@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
-import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/auth/presentation/register_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
@@ -16,6 +15,9 @@ import 'package:flutter_application_1/features/onboarding/presentation/trainer_f
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
 import 'package:flutter_application_1/features/session/presentation/session_page.dart';
+import 'package:flutter_application_1/features/trainer/bloc/athlete_status_cubit.dart';
+import 'package:flutter_application_1/features/trainer/presentation/athlete_requests_page.dart';
+import 'package:flutter_application_1/features/trainer/presentation/athlete_waiting_page.dart';
 import 'package:flutter_application_1/features/trainer/presentation/roster_page.dart';
 import 'package:flutter_application_1/features/trainer/presentation/trainer_requests_page.dart';
 import 'package:flutter_application_1/features/user/presentation/change_password_page.dart';
@@ -25,20 +27,37 @@ import 'package:flutter_application_1/features/workout/presentation/workout_list
 
 enum Approute { home, session, messages, profile, login, register }
 
-GoRouter buildRouter(AuthBloc authBloc) {
+/// Routes an athlete can visit while still in the onboarding gate.
+const _athleteGateRoutes = {'/waiting', '/athlete-requests'};
+
+GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
   return GoRouter(
     initialLocation: '/login',
-    refreshListenable: _AuthBlocListenable(authBloc),
+    refreshListenable:
+        _CombinedListenable([authBloc.stream, athleteStatusCubit.stream]),
     redirect: (context, state) {
       final authState = authBloc.state;
       if (authState is AuthInitial) return null;
 
-      final isAuthenticated = authState is AuthAuthenticated;
-      final isPublic = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register';
+      final loc = state.matchedLocation;
+      final isPublic = loc == '/login' || loc == '/register';
 
-      if (!isAuthenticated && !isPublic) return '/login';
-      if (isAuthenticated && isPublic) return '/home';
+      if (authState is! AuthAuthenticated && !isPublic) return '/login';
+
+      if (authState is AuthAuthenticated && isPublic) {
+        if (authState.user.isAthlete) {
+          return _athleteRedirect(athleteStatusCubit, loc);
+        }
+        return '/home';
+      }
+
+      // Authenticated athlete on an app route — enforce the gate.
+      if (authState is AuthAuthenticated &&
+          authState.user.isAthlete &&
+          !_athleteGateRoutes.contains(loc)) {
+        return _athleteRedirect(athleteStatusCubit, loc);
+      }
+
       return null;
     },
     routes: [
@@ -54,6 +73,14 @@ GoRouter buildRouter(AuthBloc authBloc) {
         pageBuilder: (context, state) =>
             const NoTransitionPage(child: RegisterPage()),
       ),
+
+      // ── Athlete onboarding gate ──────────────────────────────────────────────
+      GoRoute(
+        path: '/waiting',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: AthleteWaitingPage()),
+      ),
+
       // ── Profile sub-routes ───────────────────────────────────────────────────
       GoRoute(
         path: '/profile/edit',
@@ -90,13 +117,13 @@ GoRouter buildRouter(AuthBloc authBloc) {
       ),
       GoRoute(
         path: '/trainer-requests',
-        pageBuilder: (context, _) {
-          final authState = authBloc.state;
-          final isTrainer = authState is AuthAuthenticated &&
-              authState.user.isTrainer;
-          return MaterialPage(
-              child: TrainerRequestsPage(isTrainer: isTrainer));
-        },
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: TrainerRequestsPage(isTrainer: true)),
+      ),
+      GoRoute(
+        path: '/athlete-requests',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: AthleteRequestsPage()),
       ),
 
       // ── Notifications ────────────────────────────────────────────────────────
@@ -176,7 +203,8 @@ GoRouter buildRouter(AuthBloc authBloc) {
                     path: ':id',
                     pageBuilder: (context, state) {
                       final id = state.pathParameters['id']!;
-                      return MaterialPage(child: ChatPage(contactId: id));
+                      final name = state.extra as String?;
+                      return MaterialPage(child: ChatPage(contactId: id, contactName: name));
                     },
                   ),
                 ],
@@ -199,9 +227,38 @@ GoRouter buildRouter(AuthBloc authBloc) {
   );
 }
 
-/// Makes GoRouter re-evaluate redirect on every AuthBloc state change.
-class _AuthBlocListenable extends ChangeNotifier {
-  _AuthBlocListenable(AuthBloc bloc) {
-    bloc.stream.listen((_) => notifyListeners());
+/// Returns the redirect target for an authenticated athlete, or null if they
+/// are already on the right screen.
+String? _athleteRedirect(AthleteStatusCubit cubit, String currentLoc) {
+  final status = cubit.state;
+
+  // Still loading — send to waiting (which shows a spinner).
+  if (status is AthleteStatusInitial || status is AthleteStatusLoading) {
+    if (currentLoc != '/waiting') return '/waiting';
+    return null;
+  }
+
+  if (status is AthleteStatusPending) {
+    if (currentLoc != '/waiting') return '/waiting';
+    return null;
+  }
+
+  if (status is AthleteStatusNeedsForm) {
+    if (currentLoc != '/onboarding/survey') return '/onboarding/survey';
+    return null;
+  }
+
+  // AthleteStatusReady — let the original navigation proceed.
+  return null;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/// Makes GoRouter re-evaluate redirect whenever any of the given streams emit.
+class _CombinedListenable extends ChangeNotifier {
+  _CombinedListenable(List<Stream<dynamic>> streams) {
+    for (final s in streams) {
+      s.listen((_) => notifyListeners());
+    }
   }
 }

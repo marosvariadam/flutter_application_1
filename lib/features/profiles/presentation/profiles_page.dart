@@ -6,6 +6,7 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/shared/widgets/notification_bell.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/user/data/models/user_model.dart';
+import 'package:flutter_application_1/features/user/data/repositories/user_repository.dart';
 
 class ProfilesPage extends StatelessWidget {
   const ProfilesPage({super.key});
@@ -273,12 +274,19 @@ class _MenuSection extends StatelessWidget {
           _MenuItem(
             icon: Icons.send_outlined,
             title: 'Edzőhöz csatlakozás',
-            onTap: () => context.push('/trainer-requests'),
+            onTap: () => context.push('/athlete-requests'),
           ),
           _MenuItem(
             icon: Icons.quiz_outlined,
             title: 'Edzői felmérő',
             onTap: () => context.push('/onboarding/survey'),
+          ),
+          _MenuItem(
+            icon: Icons.exit_to_app,
+            title: 'Edző elhagyása',
+            iconColor: DT.cardRed,
+            textColor: DT.cardRed,
+            onTap: () => _confirmLeaveTrainer(context),
           ),
         ],
         const SizedBox(height: DT.s4),
@@ -300,10 +308,52 @@ class _MenuSection extends StatelessWidget {
     );
   }
 
+  void _confirmLeaveTrainer(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: DT.of(context).bg,
+        title: Text('Edző elhagyása',
+            style: TextStyle(color: DT.of(context).textPrimary)),
+        content: Text(
+          'Biztosan el szeretnéd hagyni az edződet? Újra csatlakozáshoz új kérést kell küldened.',
+          style: TextStyle(color: DT.of(context).textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Mégse'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await context.read<UserRepository>().leaveTrainer();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sikeresen elhagytad az edződet.')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Nem sikerült elhagyni az edzőt.')),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: DT.cardRed),
+            child: const Text('Elhagyás'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _confirmDeleteAccount(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: DT.of(context).bg,
         title: Text('Fiók törlése',
             style: TextStyle(color: DT.of(context).textPrimary)),
@@ -313,11 +363,11 @@ class _MenuSection extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Mégse'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             style: TextButton.styleFrom(foregroundColor: DT.cardRed),
             child: const Text('Törlés'),
           ),
@@ -481,7 +531,7 @@ class _LogoutButton extends StatelessWidget {
   void _confirm(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: DT.of(context).bg,
         title: Text('Kijelentkezés',
             style: TextStyle(color: DT.of(context).textPrimary)),
@@ -489,12 +539,12 @@ class _LogoutButton extends StatelessWidget {
             style: TextStyle(color: DT.of(context).textSecondary)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Mégse'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(ctx);
               context.read<AuthBloc>().add(LogoutRequested());
             },
             style: TextButton.styleFrom(foregroundColor: DT.cardRed),

@@ -57,8 +57,9 @@ class RosterRepository {
     return AthleteModel.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<void> deleteAthlete(String id) async {
-    await _client.dio.delete(ApiConstants.deleteUser(id));
+  /// Trainer: POST /api/user/remove-athlete/{id}
+  Future<void> removeAthlete(String id) async {
+    await _client.dio.post(ApiConstants.removeAthlete(id));
   }
 
   /// Not supported by current backend — no-op.

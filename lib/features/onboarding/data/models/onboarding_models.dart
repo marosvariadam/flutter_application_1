@@ -76,6 +76,13 @@ class OnboardingFormModel {
                 OnboardingQuestion.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        if (description != null) 'description': description,
+        'questions': questions.map((q) => q.toJson()).toList(),
+      };
 }
 
 class OnboardingAnswer {

@@ -24,17 +24,21 @@ String _guessEquipment(String? backendEquipment) {
   return _kFreeWeight;
 }
 
-// ── Data class ────────────────────────────────────────────────────────────────
+// ── Data classes ──────────────────────────────────────────────────────────────
+
+class _SetEntry {
+  int? reps;
+  double? weightKg;
+  _SetEntry({this.reps, this.weightKg});
+}
 
 class _BuilderExercise {
   final String exerciseId;
   final String name;
   final String muscleGroup;
   String equipmentType;
-  int sets;
-  int? targetReps;
-  double? targetWeightKg;
-  // Filled after athlete selection
+  List<_SetEntry> setEntries;
+  // Filled after athlete selection — used only for the hint row
   double? prevWeightKg;
   int? prevReps;
 
@@ -43,12 +47,17 @@ class _BuilderExercise {
     required this.name,
     required this.muscleGroup,
     required this.equipmentType,
-    this.sets = 3,
-    this.targetReps,
-    this.targetWeightKg,
+    int initialSets = 3,
+    int? defaultReps,
+    double? defaultWeightKg,
     this.prevWeightKg,
     this.prevReps,
-  });
+  }) : setEntries = List.generate(
+          initialSets,
+          (_) => _SetEntry(reps: defaultReps, weightKg: defaultWeightKg),
+        );
+
+  int get sets => setEntries.length;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -165,7 +174,9 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
         name: lib.name,
         muscleGroup: lib.muscleGroup,
         equipmentType: equip,
-        sets: 3,
+        initialSets: 3,
+        defaultReps: prev?.reps,
+        defaultWeightKg: prev?.weight,
         prevWeightKg: prev?.weight,
         prevReps: prev?.reps,
       ));
@@ -181,7 +192,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
         name: name,
         muscleGroup: muscleGroup,
         equipmentType: equip,
-        sets: 3,
+        initialSets: 3,
         prevWeightKg: prev?.weight,
         prevReps: prev?.reps,
       ));
@@ -242,14 +253,22 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
       final exercisePayload = _exercises.asMap().entries.map((e) {
         final ex = e.value;
         final isBodyweight = ex.equipmentType == _kBodyweight;
+        final first = ex.setEntries.isNotEmpty ? ex.setEntries.first : null;
         return {
           if (ex.exerciseId.isNotEmpty) 'exerciseId': ex.exerciseId,
           'name': ex.name,
           'index': e.key,
           'sets': ex.sets,
-          'targetReps': ex.targetReps ?? 0,
-          'targetWeightKg': isBodyweight ? 0.0 : (ex.targetWeightKg ?? 0.0),
           'equipmentType': ex.equipmentType,
+          // First-set values kept as top-level for backward compat
+          'targetReps': first?.reps ?? 0,
+          'targetWeightKg': isBodyweight ? 0.0 : (first?.weightKg ?? 0.0),
+          'setEntries': ex.setEntries.asMap().entries.map((s) => {
+                'setIndex': s.key,
+                'targetReps': s.value.reps ?? 0,
+                'targetWeightKg':
+                    isBodyweight ? 0.0 : (s.value.weightKg ?? 0.0),
+              }).toList(),
         };
       }).toList();
 
@@ -486,23 +505,49 @@ class _ExerciseBuilderCard extends StatefulWidget {
 }
 
 class _ExerciseBuilderCardState extends State<_ExerciseBuilderCard> {
-  late TextEditingController _repsCtrl;
-  late TextEditingController _weightCtrl;
+  final List<TextEditingController> _repsCtrls = [];
+  final List<TextEditingController> _weightCtrls = [];
 
   @override
   void initState() {
     super.initState();
-    _repsCtrl = TextEditingController(
-        text: widget.exercise.targetReps?.toString() ?? '');
-    _weightCtrl = TextEditingController(
-        text: widget.exercise.targetWeightKg?.toString() ?? '');
+    for (final s in widget.exercise.setEntries) {
+      _repsCtrls.add(TextEditingController(text: s.reps?.toString() ?? ''));
+      _weightCtrls.add(TextEditingController(text: s.weightKg?.toString() ?? ''));
+    }
   }
 
   @override
   void dispose() {
-    _repsCtrl.dispose();
-    _weightCtrl.dispose();
+    for (final c in _repsCtrls) c.dispose();
+    for (final c in _weightCtrls) c.dispose();
     super.dispose();
+  }
+
+  void _addSet() {
+    final last = widget.exercise.setEntries.isNotEmpty
+        ? widget.exercise.setEntries.last
+        : null;
+    setState(() {
+      widget.exercise.setEntries
+          .add(_SetEntry(reps: last?.reps, weightKg: last?.weightKg));
+      _repsCtrls.add(
+          TextEditingController(text: last?.reps?.toString() ?? ''));
+      _weightCtrls.add(
+          TextEditingController(text: last?.weightKg?.toString() ?? ''));
+    });
+    widget.onChanged();
+  }
+
+  void _removeSet(int i) {
+    _repsCtrls[i].dispose();
+    _weightCtrls[i].dispose();
+    setState(() {
+      widget.exercise.setEntries.removeAt(i);
+      _repsCtrls.removeAt(i);
+      _weightCtrls.removeAt(i);
+    });
+    widget.onChanged();
   }
 
   bool get _isBodyweight => widget.exercise.equipmentType == _kBodyweight;
@@ -606,98 +651,127 @@ class _ExerciseBuilderCardState extends State<_ExerciseBuilderCard> {
             ),
           ),
 
-          // Sets / Reps / Weight row
+          // Per-set table
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: DT.s4, vertical: DT.s3),
+            padding: const EdgeInsets.fromLTRB(DT.s4, DT.s3, DT.s4, DT.s2),
             decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: DT.borderLight))),
-            child: Row(
+            child: Column(
               children: [
-                // Sets stepper
-                Column(
+                // Column headers
+                Row(
                   children: [
-                    const Text('Sorozat',
-                        style: TextStyle(
-                            fontSize: 11, color: DT.textSecondary)),
-                    const SizedBox(height: DT.s1),
-                    Row(
-                      children: [
-                        _StepBtn(
-                          icon: Icons.remove,
-                          onTap: ex.sets > 1
-                              ? () {
-                                  setState(() => ex.sets--);
-                                  widget.onChanged();
-                                }
-                              : null,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: DT.s2),
-                          child: Text('${ex.sets}',
-                              style: const TextStyle(
-                                  fontSize: DT.s4,
-                                  fontWeight: FontWeight.w700,
-                                  color: DT.textPrimary)),
-                        ),
-                        _StepBtn(
-                          icon: Icons.add,
-                          onTap: () {
-                            setState(() => ex.sets++);
-                            widget.onChanged();
-                          },
-                        ),
-                      ],
-                    ),
+                    const SizedBox(
+                        width: 28,
+                        child: Text('Set',
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: DT.textSecondary,
+                                fontWeight: FontWeight.w600))),
+                    const SizedBox(width: DT.s3),
+                    const Expanded(
+                        child: Text('Ismétlés',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 11, color: DT.textSecondary))),
+                    if (!_isBodyweight) ...[
+                      const SizedBox(width: DT.s3),
+                      const Expanded(
+                          child: Text('Súly (kg)',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 11, color: DT.textSecondary))),
+                    ],
+                    const SizedBox(width: 28),
                   ],
                 ),
-                const SizedBox(width: DT.s4),
+                const SizedBox(height: DT.s2),
 
-                // Reps
-                Expanded(
-                  child: Column(
-                    children: [
-                      const Text('Ismétlés',
-                          style: TextStyle(
-                              fontSize: 11, color: DT.textSecondary)),
-                      const SizedBox(height: DT.s1),
-                      _NumField(
-                        controller: _repsCtrl,
-                        hint: '10',
-                        isDecimal: false,
-                        onChanged: (v) {
-                          ex.targetReps = int.tryParse(v);
-                          widget.onChanged();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Weight (hidden for bodyweight)
-                if (!_isBodyweight) ...[
-                  const SizedBox(width: DT.s3),
-                  Expanded(
-                    child: Column(
+                // One row per set
+                ...ex.setEntries.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: DT.s2),
+                    child: Row(
                       children: [
-                        const Text('Súly (kg)',
-                            style: TextStyle(
-                                fontSize: 11, color: DT.textSecondary)),
-                        const SizedBox(height: DT.s1),
-                        _NumField(
-                          controller: _weightCtrl,
-                          hint: '0',
-                          isDecimal: true,
-                          onChanged: (v) {
-                            ex.targetWeightKg = double.tryParse(v);
-                            widget.onChanged();
-                          },
+                        // Set number badge
+                        SizedBox(
+                          width: 28,
+                          child: Center(
+                            child: Text('${i + 1}',
+                                style: const TextStyle(
+                                    fontSize: DT.s3,
+                                    fontWeight: FontWeight.w700,
+                                    color: DT.metricBlue)),
+                          ),
+                        ),
+                        const SizedBox(width: DT.s3),
+
+                        // Reps
+                        Expanded(
+                          child: _NumField(
+                            controller: _repsCtrls[i],
+                            hint: '10',
+                            isDecimal: false,
+                            onChanged: (v) {
+                              ex.setEntries[i].reps = int.tryParse(v);
+                              widget.onChanged();
+                            },
+                          ),
+                        ),
+
+                        // Weight
+                        if (!_isBodyweight) ...[
+                          const SizedBox(width: DT.s3),
+                          Expanded(
+                            child: _NumField(
+                              controller: _weightCtrls[i],
+                              hint: '0',
+                              isDecimal: true,
+                              onChanged: (v) {
+                                ex.setEntries[i].weightKg =
+                                    double.tryParse(v);
+                                widget.onChanged();
+                              },
+                            ),
+                          ),
+                        ],
+
+                        // Remove set
+                        SizedBox(
+                          width: 28,
+                          child: ex.setEntries.length > 1
+                              ? GestureDetector(
+                                  onTap: () => _removeSet(i),
+                                  child: const Icon(Icons.close,
+                                      size: 16, color: DT.cardRed),
+                                )
+                              : const SizedBox.shrink(),
                         ),
                       ],
                     ),
+                  );
+                }),
+
+                // Add set button
+                GestureDetector(
+                  onTap: _addSet,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: DT.s2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.add, size: 15, color: DT.metricBlue),
+                        SizedBox(width: 4),
+                        Text('Sorozat hozzáadása',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: DT.metricBlue,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -1155,31 +1229,6 @@ class _AthleteSelector extends StatelessWidget {
   }
 }
 
-class _StepBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-  const _StepBtn({required this.icon, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          color: onTap != null ? DT.metricBlue.withValues(alpha: 0.1) : DT.bg,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-              color: onTap != null ? DT.metricBlue : DT.borderGrey),
-        ),
-        child: Icon(icon,
-            size: 16,
-            color: onTap != null ? DT.metricBlue : DT.textGrey),
-      ),
-    );
-  }
-}
 
 class _NumField extends StatelessWidget {
   final TextEditingController controller;

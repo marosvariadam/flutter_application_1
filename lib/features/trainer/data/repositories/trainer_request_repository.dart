@@ -46,4 +46,9 @@ class TrainerRequestRepository {
   Future<void> rejectRequest(String id) async {
     await _client.dio.patch(ApiConstants.rejectRequest(id));
   }
+
+  /// Athlete: DELETE /api/trainer-request/{id}
+  Future<void> cancelRequest(String id) async {
+    await _client.dio.delete(ApiConstants.cancelRequest(id));
+  }
 }

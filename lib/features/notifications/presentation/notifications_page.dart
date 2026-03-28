@@ -5,8 +5,19 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/notifications/bloc/notification_bloc.dart';
 import 'package:flutter_application_1/features/notifications/data/models/notification_model.dart';
 
-class NotificationsPage extends StatelessWidget {
+class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
+
+  @override
+  State<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends State<NotificationsPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<NotificationBloc>().add(LoadNotifications());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +53,6 @@ class NotificationsPage extends StatelessWidget {
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
           if (state is NotificationInitial) {
-            context
-                .read<NotificationBloc>()
-                .add(LoadNotifications());
             return const Center(child: CircularProgressIndicator());
           }
           if (state is NotificationError) {
@@ -183,6 +191,7 @@ class _NotificationIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color) = switch (type.toLowerCase()) {
+      'trainerrequestreceived' => (Icons.person_add_outlined, DT.metricBlue),
       'trainerrequestaccepted' => (Icons.check_circle, Colors.green),
       'trainerrequestrejected' => (Icons.cancel, DT.cardRed),
       'onboardingformavailable' =>
@@ -195,7 +204,7 @@ class _NotificationIcon extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: color, size: 18),
