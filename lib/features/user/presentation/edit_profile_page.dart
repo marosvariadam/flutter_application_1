@@ -17,6 +17,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late final TextEditingController _firstName;
   late final TextEditingController _lastName;
   late final TextEditingController _email;
+  late final TextEditingController _weight;
   bool _loading = false;
   String? _error;
 
@@ -24,14 +25,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     final auth = context.read<AuthBloc>().state;
-    final user =
-        auth is AuthAuthenticated ? auth.user : null;
-    _firstName =
-        TextEditingController(text: user?.firstName ?? '');
-    _lastName =
-        TextEditingController(text: user?.lastName ?? '');
-    _email =
-        TextEditingController(text: user?.email ?? '');
+    final user = auth is AuthAuthenticated ? auth.user : null;
+    _firstName = TextEditingController(text: user?.firstName ?? '');
+    _lastName = TextEditingController(text: user?.lastName ?? '');
+    _email = TextEditingController(text: user?.email ?? '');
+    _weight = TextEditingController(
+      text: user?.weightKg != null ? user!.weightKg!.toStringAsFixed(1) : '',
+    );
   }
 
   @override
@@ -39,6 +39,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _firstName.dispose();
     _lastName.dispose();
     _email.dispose();
+    _weight.dispose();
     super.dispose();
   }
 
@@ -52,11 +53,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _error = null;
     });
     try {
+      final weightText = _weight.text.trim();
+      final weightKg = weightText.isNotEmpty ? double.tryParse(weightText) : null;
+
       final updated = await context.read<UserRepository>().updateUser(
-            auth.user.id,
-            _firstName.text.trim(),
-            _lastName.text.trim(),
-            _email.text.trim(),
+            firstName: _firstName.text.trim(),
+            lastName: _lastName.text.trim(),
+            email: _email.text.trim(),
+            weightKg: weightKg,
           );
       if (mounted) {
         context.read<AuthBloc>().add(AuthUserUpdated(updated));
@@ -74,6 +78,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthBloc>().state;
+    final isAthlete = auth is AuthAuthenticated && auth.user.isAthlete;
+
     return Scaffold(
       backgroundColor: DT.of(context).bg,
       appBar: AppBar(
@@ -90,6 +97,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: DT.s4),
               Row(
@@ -132,6 +140,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return null;
                 },
               ),
+              if (isAthlete) ...[
+                const SizedBox(height: DT.s6),
+                Text(
+                  'Fizikai adatok',
+                  style: TextStyle(
+                    color: DT.of(context).textSecondary,
+                    fontSize: DT.s3,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: DT.s3),
+                TextFormField(
+                  controller: _weight,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    labelText: 'Testsúly (kg)',
+                    prefixIcon: Icon(Icons.monitor_weight_outlined),
+                    suffixText: 'kg',
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null; // optional
+                    final parsed = double.tryParse(v.trim());
+                    if (parsed == null || parsed <= 0) return 'Érvénytelen érték';
+                    return null;
+                  },
+                ),
+              ],
               if (_error != null) ...[
                 const SizedBox(height: DT.s3),
                 Text(_error!,

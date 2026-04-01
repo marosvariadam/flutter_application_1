@@ -16,13 +16,16 @@ class UserRepository {
     required String firstName,
     required String lastName,
     required String email,
+    double? weightKg,
   }) async {
     final id = await TokenStorage.getUserId();
-    final res = await _client.dio.put(ApiConstants.updateUser(id ?? ''), data: {
+    final body = {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
-    });
+      if (weightKg != null) 'weightKg': weightKg,
+    };
+    final res = await _client.dio.put(ApiConstants.updateUser(id ?? ''), data: body);
     return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
 

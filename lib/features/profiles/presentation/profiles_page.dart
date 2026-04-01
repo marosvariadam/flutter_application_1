@@ -39,7 +39,7 @@ class ProfilesPage extends StatelessWidget {
                 _UserProfileSection(user: user),
                 const SizedBox(height: DT.s6),
                 if (user?.isAthlete == true) ...[
-                  const _MetricsRow(),
+                  _MetricsRow(user: user),
                   const SizedBox(height: DT.s6),
                 ],
                 _MenuSection(user: user),
@@ -163,25 +163,39 @@ class _ProfileActionButton extends StatelessWidget {
 // ── Metrics row (athlete only) ─────────────────────────────────────────────
 
 class _MetricsRow extends StatelessWidget {
-  const _MetricsRow();
+  final UserModel? user;
+  const _MetricsRow({required this.user});
+
+  String _fmt(double? kg) =>
+      kg != null ? '${kg.toStringAsFixed(1)} kg' : '— kg';
 
   @override
   Widget build(BuildContext context) {
+    final weight = _fmt(user?.weightKg);
     return Row(
-      children: const [
+      children: [
         Expanded(
           child: _MetricCard(
-              color: DT.metricGreen, title: 'Kezdő súly', value: '— kg'),
+            color: DT.metricGreen,
+            title: 'Testsúly',
+            value: weight,
+          ),
         ),
-        SizedBox(width: DT.s3),
+        const SizedBox(width: DT.s3),
         Expanded(
           child: _MetricCard(
-              color: DT.metricBlue, title: 'Jelenlegi', value: '— kg'),
+            color: DT.metricBlue,
+            title: 'BMI',
+            value: '—',
+          ),
         ),
-        SizedBox(width: DT.s3),
+        const SizedBox(width: DT.s3),
         Expanded(
           child: _MetricCard(
-              color: DT.metricOrange, title: 'Magasság', value: '— cm'),
+            color: DT.metricOrange,
+            title: 'Magasság',
+            value: '— cm',
+          ),
         ),
       ],
     );
