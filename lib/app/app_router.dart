@@ -5,7 +5,7 @@ import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
-import 'package:flutter_application_1/features/home/presantation/home_page.dart';
+import 'package:flutter_application_1/features/home/presentation/home_page.dart';
 import 'package:flutter_application_1/features/login/login_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/chat_page.dart';
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart';
