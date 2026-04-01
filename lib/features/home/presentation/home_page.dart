@@ -111,7 +111,10 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+          : RefreshIndicator(
+              onRefresh: _loadWorkouts,
+              child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(DT.s5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,6 +139,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 ],
               ),
             ),
+          ),
     );
   }
 }

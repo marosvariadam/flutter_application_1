@@ -46,27 +46,40 @@ class _AthleteSessionsPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
+            Future<void> onRefresh() async {
+              context.read<SessionBloc>().add(LoadSessions());
+              await context.read<SessionBloc>().stream
+                  .firstWhere((s) => s is SessionLoaded || s is SessionError);
+            }
+
             if (state is SessionError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView(
                   children: [
-                    const Icon(Icons.error_outline,
-                        size: 48, color: DT.cardRed),
-                    const SizedBox(height: DT.s4),
-                    Text(
-                      state.message,
-                      style: TextStyle(
-                        color: DT.of(context).textSecondary,
-                        fontSize: DT.s4,
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              size: 48, color: DT.cardRed),
+                          const SizedBox(height: DT.s4),
+                          Text(
+                            state.message,
+                            style: TextStyle(
+                              color: DT.of(context).textSecondary,
+                              fontSize: DT.s4,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: DT.s4),
+                          ElevatedButton(
+                            onPressed: () =>
+                                context.read<SessionBloc>().add(LoadSessions()),
+                            child: const Text('Újra'),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: DT.s4),
-                    ElevatedButton(
-                      onPressed: () =>
-                          context.read<SessionBloc>().add(LoadSessions()),
-                      child: const Text('Újra'),
                     ),
                   ],
                 ),
@@ -75,34 +88,46 @@ class _AthleteSessionsPage extends StatelessWidget {
 
             if (state is SessionLoaded) {
               if (state.sessions.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                return RefreshIndicator(
+                  onRefresh: onRefresh,
+                  child: ListView(
                     children: [
-                      Icon(Icons.fitness_center_outlined,
-                          size: 64, color: DT.of(context).iconLightGrey),
-                      const SizedBox(height: DT.s4),
-                      Text(
-                        'Jelenleg nincs elérhető edzés.',
-                        style:
-                            TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.fitness_center_outlined,
+                                size: 64, color: DT.of(context).iconLightGrey),
+                            const SizedBox(height: DT.s4),
+                            Text(
+                              'Jelenleg nincs elérhető edzés.',
+                              style: TextStyle(
+                                  color: DT.of(context).textSecondary,
+                                  fontSize: DT.s4),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 );
               }
 
-              return ListView.separated(
-                padding: const EdgeInsets.all(DT.s5),
-                itemCount: state.sessions.length,
-                separatorBuilder: (_, __) => const SizedBox(height: DT.s4),
-                itemBuilder: (context, index) {
-                  final session = state.sessions[index];
-                  return _SessionCard(
-                    session: session,
-                    onTap: () => context.go('/session-detail'),
-                  );
-                },
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(DT.s5),
+                  itemCount: state.sessions.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: DT.s4),
+                  itemBuilder: (context, index) {
+                    final session = state.sessions[index];
+                    return _SessionCard(
+                      session: session,
+                      onTap: () => context.go('/session-detail'),
+                    );
+                  },
+                ),
               );
             }
 
