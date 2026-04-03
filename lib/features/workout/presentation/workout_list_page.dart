@@ -68,56 +68,80 @@ class _AthleteWorkoutView extends StatelessWidget {
           if (state is WorkoutLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+
+          Future<void> onRefresh() async {
+            context.read<WorkoutBloc>().add(LoadMyWorkouts());
+            await context.read<WorkoutBloc>().stream
+                .firstWhere((s) => s is WorkoutsLoaded || s is WorkoutError);
+          }
+
           if (state is WorkoutError) {
-            return _ErrorView(
-              message: state.message,
-              onRetry: () =>
-                  context.read<WorkoutBloc>().add(LoadMyWorkouts()),
+            return RefreshIndicator(
+              onRefresh: onRefresh,
+              child: ListView(
+                children: [_ErrorView(
+                  message: state.message,
+                  onRetry: () =>
+                      context.read<WorkoutBloc>().add(LoadMyWorkouts()),
+                )],
+              ),
             );
           }
           if (state is WorkoutsLoaded) {
             if (state.workouts.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              return RefreshIndicator(
+                onRefresh: onRefresh,
+                child: ListView(
                   children: [
-                    Icon(Icons.fitness_center_outlined,
-                        size: 64, color: DT.of(context).iconLightGrey),
-                    const SizedBox(height: DT.s4),
-                    Text('Jelenleg nincs elérhető edzés.',
-                        style: TextStyle(
-                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.fitness_center_outlined,
+                              size: 64, color: DT.of(context).iconLightGrey),
+                          const SizedBox(height: DT.s4),
+                          Text('Jelenleg nincs elérhető edzés.',
+                              style: TextStyle(
+                                  color: DT.of(context).textSecondary,
+                                  fontSize: DT.s4)),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               );
             }
-            return NotificationListener<ScrollNotification>(
-              onNotification: (n) {
-                if (n is ScrollEndNotification &&
-                    n.metrics.pixels >=
-                        n.metrics.maxScrollExtent - 200) {
-                  context.read<WorkoutBloc>().add(LoadMoreWorkouts());
-                }
-                return false;
-              },
-              child: ListView.separated(
-                padding: const EdgeInsets.all(DT.s5),
-                itemCount: state.workouts.length + (state.hasMore ? 1 : 0),
-                separatorBuilder: (_, __) => const SizedBox(height: DT.s4),
-                itemBuilder: (context, i) {
-                  if (i == state.workouts.length) {
-                    return const Center(
-                        child: Padding(
-                      padding: EdgeInsets.all(DT.s4),
-                      child: CircularProgressIndicator(),
-                    ));
+            return RefreshIndicator(
+              onRefresh: onRefresh,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (n) {
+                  if (n is ScrollEndNotification &&
+                      n.metrics.pixels >=
+                          n.metrics.maxScrollExtent - 200) {
+                    context.read<WorkoutBloc>().add(LoadMoreWorkouts());
                   }
-                  return WorkoutCard(
-                    workout: state.workouts[i],
-                    onTap: () => context
-                        .push('/workout/${state.workouts[i].id}'),
-                  );
+                  return false;
                 },
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(DT.s5),
+                  itemCount: state.workouts.length + (state.hasMore ? 1 : 0),
+                  separatorBuilder: (_, __) => const SizedBox(height: DT.s4),
+                  itemBuilder: (context, i) {
+                    if (i == state.workouts.length) {
+                      return const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(DT.s4),
+                        child: CircularProgressIndicator(),
+                      ));
+                    }
+                    return WorkoutCard(
+                      workout: state.workouts[i],
+                      onTap: () => context
+                          .push('/workout/${state.workouts[i].id}'),
+                    );
+                  },
+                ),
               ),
             );
           }

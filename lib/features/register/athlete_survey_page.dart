@@ -14,9 +14,12 @@ class AthleteSurveyPage extends StatefulWidget {
 class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  static const int _totalPages = 5;
+  static const int _totalPages = 6;
 
-  // Step 1 — Goals
+  // Step 1 — Weight
+  final _weightController = TextEditingController();
+
+  // Step 2 — Goals
   String? _selectedGoal;
 
   // Step 2 — Sport history
@@ -65,6 +68,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
   @override
   void dispose() {
     _pageController.dispose();
+    _weightController.dispose();
     _sportHistoryController.dispose();
     super.dispose();
   }
@@ -72,10 +76,13 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
   bool _canProceed() {
     switch (_currentPage) {
       case 0:
+        final w = double.tryParse(_weightController.text.trim());
+        return w != null && w > 0;
+      case 1:
         return _selectedGoal != null;
-      case 2:
+      case 3:
         return _selectedInjuries.isNotEmpty;
-      case 4:
+      case 5:
         return _selectedEquipment.isNotEmpty;
       default:
         return true;
@@ -115,6 +122,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     await storage.write(
       key: 'athlete_survey',
       value: jsonEncode({
+        'weightKg': double.tryParse(_weightController.text.trim()),
         'goal': _selectedGoal,
         'sportHistory': _sportHistoryController.text.trim(),
         'injuries': _selectedInjuries.toList(),
@@ -165,6 +173,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
               children: [
+                _buildWeightStep(),
                 _buildGoalsStep(),
                 _buildSportHistoryStep(),
                 _buildInjuriesStep(),
@@ -236,7 +245,68 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 1: Goals ────────────────────────────────────────────────────────────
+  // ── Step 1: Weight ───────────────────────────────────────────────────────────
+
+  Widget _buildWeightStep() {
+    return _buildStepWrapper(
+      title: 'Mennyi a testsúlyod?',
+      subtitle: 'Ez segít az edzőnek a megfelelő terhelés meghatározásában.',
+      child: Column(
+        children: [
+          const SizedBox(height: DT.s5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              SizedBox(
+                width: 120,
+                child: TextField(
+                  controller: _weightController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: DT.metricBlue,
+                    fontSize: 56,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '70',
+                    hintStyle: TextStyle(
+                      color: DT.metricBlue,
+                      fontSize: 56,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(width: DT.s2),
+              Text(
+                'kg',
+                style: TextStyle(
+                  color: DT.of(context).textSecondary,
+                  fontSize: DT.s5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: DT.s6),
+          Text(
+            'Csak a kezdő értéket kérjük — ezt később bármikor módosíthatod a profilodban.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: DT.of(context).textSecondary,
+              fontSize: DT.s3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Step 2: Goals ────────────────────────────────────────────────────────────
 
   Widget _buildGoalsStep() {
     return _buildStepWrapper(

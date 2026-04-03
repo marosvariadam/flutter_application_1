@@ -57,22 +57,35 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          Future<void> onRefresh() async {
+            context.read<WorkoutBloc>().add(LoadMyWorkouts());
+            await context.read<WorkoutBloc>().stream
+                .firstWhere((s) => s is WorkoutsLoaded || s is WorkoutError);
+          }
+
           if (state is WorkoutError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            return RefreshIndicator(
+              onRefresh: onRefresh,
+              child: ListView(
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
-                  const SizedBox(height: DT.s4),
-                  Text(
-                    state.message,
-                    style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: DT.s4),
-                  ElevatedButton(
-                    onPressed: () => context.read<WorkoutBloc>().add(LoadMyWorkouts()),
-                    child: const Text('Újra'),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
+                        const SizedBox(height: DT.s4),
+                        Text(
+                          state.message,
+                          style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: DT.s4),
+                        ElevatedButton(
+                          onPressed: () => context.read<WorkoutBloc>().add(LoadMyWorkouts()),
+                          child: const Text('Újra'),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -82,15 +95,23 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
           final workouts = state is WorkoutsLoaded ? state.workouts : <WorkoutModel>[];
 
           if (workouts.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            return RefreshIndicator(
+              onRefresh: onRefresh,
+              child: ListView(
                 children: [
-                  Icon(Icons.fitness_center_outlined, size: 64, color: DT.of(context).iconLightGrey),
-                  const SizedBox(height: DT.s4),
-                  Text(
-                    'Jelenleg nincs elérhető edzés.',
-                    style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.fitness_center_outlined, size: 64, color: DT.of(context).iconLightGrey),
+                        const SizedBox(height: DT.s4),
+                        Text(
+                          'Jelenleg nincs elérhető edzés.',
+                          style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -101,7 +122,6 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
           final completed = workouts.where((w) => w.status == WorkoutStatus.completed).toList();
           final hasMore = state is WorkoutsLoaded && state.hasMore;
 
-          // Build a flat item list: [section?, ...cards, section?, ...cards, loader?]
           final items = <Object>[
             if (upcoming.isNotEmpty) ...[
               _SectionHeader('Közelgő edzések', upcoming.length),
@@ -114,37 +134,40 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
             if (hasMore) const _LoaderItem(),
           ];
 
-          return NotificationListener<ScrollNotification>(
-            onNotification: (n) {
-              if (n is ScrollEndNotification &&
-                  n.metrics.pixels >= n.metrics.maxScrollExtent - 200) {
-                context.read<WorkoutBloc>().add(LoadMoreWorkouts());
-              }
-              return false;
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(DT.s5),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                if (item is _SectionHeader) {
-                  return _SectionHeaderTile(header: item);
+          return RefreshIndicator(
+            onRefresh: onRefresh,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (n) {
+                if (n is ScrollEndNotification &&
+                    n.metrics.pixels >= n.metrics.maxScrollExtent - 200) {
+                  context.read<WorkoutBloc>().add(LoadMoreWorkouts());
                 }
-                if (item is _LoaderItem) {
-                  return const Center(child: Padding(
-                    padding: EdgeInsets.all(DT.s4),
-                    child: CircularProgressIndicator(),
-                  ));
-                }
-                final workout = item as WorkoutModel;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: DT.s4),
-                  child: _SessionCard(
-                    workout: workout,
-                    onTap: () => context.push('/workout-detail', extra: workout.id),
-                  ),
-                );
+                return false;
               },
+              child: ListView.builder(
+                padding: const EdgeInsets.all(DT.s5),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  if (item is _SectionHeader) {
+                    return _SectionHeaderTile(header: item);
+                  }
+                  if (item is _LoaderItem) {
+                    return const Center(child: Padding(
+                      padding: EdgeInsets.all(DT.s4),
+                      child: CircularProgressIndicator(),
+                    ));
+                  }
+                  final workout = item as WorkoutModel;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: DT.s4),
+                    child: _SessionCard(
+                      workout: workout,
+                      onTap: () => context.push('/workout-detail', extra: workout.id),
+                    ),
+                  );
+                },
+              ),
             ),
           );
         },

@@ -7,6 +7,7 @@ import 'package:flutter_application_1/app/shared/widgets/notification_bell.dart'
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/user/data/models/user_model.dart';
 import 'package:flutter_application_1/features/user/data/repositories/user_repository.dart';
+import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 
 class ProfilesPage extends StatelessWidget {
   const ProfilesPage({super.key});
@@ -40,7 +41,7 @@ class ProfilesPage extends StatelessWidget {
                 _UserProfileSection(user: user),
                 const SizedBox(height: DT.s6),
                 if (user?.isAthlete == true) ...[
-                  const _MetricsRow(),
+                  _MetricsRow(user: user),
                   const SizedBox(height: DT.s6),
                 ],
                 _MenuSection(user: user),
@@ -163,28 +164,81 @@ class _ProfileActionButton extends StatelessWidget {
 
 // ── Metrics row (athlete only) ─────────────────────────────────────────────
 
-class _MetricsRow extends StatelessWidget {
-  const _MetricsRow();
+class _MetricsRow extends StatefulWidget {
+  final UserModel? user;
+  const _MetricsRow({required this.user});
+
+  @override
+  State<_MetricsRow> createState() => _MetricsRowState();
+}
+
+class _MetricsRowState extends State<_MetricsRow> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger a load if the workout list hasn't been fetched yet.
+    final bloc = context.read<WorkoutBloc>();
+    if (bloc.state is WorkoutInitial) {
+      bloc.add(LoadMyWorkouts());
+    }
+  }
+
+  static bool _isThisWeek(DateTime date) {
+    final now = DateTime.now();
+    final monday = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final sunday = monday.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+    return date.isAfter(monday.subtract(const Duration(seconds: 1))) &&
+        date.isBefore(sunday.add(const Duration(seconds: 1)));
+  }
+
+  String _fmt(double? kg) =>
+      kg != null ? '${kg.toStringAsFixed(1)} kg' : '— kg';
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: const [
-        Expanded(
-          child: _MetricCard(
-              color: DT.metricGreen, title: 'Kezdő súly', value: '— kg'),
-        ),
-        SizedBox(width: DT.s3),
-        Expanded(
-          child: _MetricCard(
-              color: DT.metricBlue, title: 'Jelenlegi', value: '— kg'),
-        ),
-        SizedBox(width: DT.s3),
-        Expanded(
-          child: _MetricCard(
-              color: DT.metricOrange, title: 'Magasság', value: '— cm'),
-        ),
-      ],
+    final weight = _fmt(widget.user?.weightKg);
+
+    return BlocBuilder<WorkoutBloc, WorkoutState>(
+      builder: (context, state) {
+        String weeklyCount = '—';
+        if (state is WorkoutsLoaded) {
+          final count = state.workouts
+              .where((w) =>
+                  w.status == WorkoutStatus.completed &&
+                  _isThisWeek(w.scheduledDate))
+              .length;
+          weeklyCount = count.toString();
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: _MetricCard(
+                color: DT.metricGreen,
+                title: 'Testsúly',
+                value: weight,
+              ),
+            ),
+            const SizedBox(width: DT.s3),
+            Expanded(
+              child: _MetricCard(
+                color: DT.metricBlue,
+                title: 'Edzés (hét)',
+                value: weeklyCount,
+              ),
+            ),
+            const SizedBox(width: DT.s3),
+            Expanded(
+              child: _MetricCard(
+                color: DT.metricOrange,
+                title: 'Magasság',
+                value: '— cm',
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
