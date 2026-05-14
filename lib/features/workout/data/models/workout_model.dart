@@ -167,9 +167,11 @@ class WorkoutExercise {
   final double targetWeightKg;
   final String? instructions;
   final String? equipmentType; // 'Szabadsúly' | 'Gép' | 'Testsúly'
+  final String? muscleGroup;
   final int? actualSets;
   final int? actualReps;
   final double? actualWeightKg;
+  final int? rpe; // 0-10, optional Rate of Perceived Exertion
   final String? exerciseNotes;
 
   const WorkoutExercise({
@@ -181,9 +183,11 @@ class WorkoutExercise {
     required this.targetWeightKg,
     this.instructions,
     this.equipmentType,
+    this.muscleGroup,
     this.actualSets,
     this.actualReps,
     this.actualWeightKg,
+    this.rpe,
     this.exerciseNotes,
   });
 
@@ -197,9 +201,11 @@ class WorkoutExercise {
       targetWeightKg: (json['targetWeightKg'] as num?)?.toDouble() ?? 0,
       instructions: json['instructions'] as String?,
       equipmentType: json['equipmentType'] as String?,
+      muscleGroup: json['muscleGroup'] as String?,
       actualSets: (json['actualSets'] as num?)?.toInt(),
       actualReps: (json['actualReps'] as num?)?.toInt(),
       actualWeightKg: (json['actualWeightKg'] as num?)?.toDouble(),
+      rpe: (json['rpe'] as num?)?.toInt(),
       exerciseNotes: json['exerciseNotes'] as String?,
     );
   }

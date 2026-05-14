@@ -159,15 +159,63 @@ class _ReviewCard extends StatelessWidget {
                         color: DT.of(context).textSecondary, fontSize: DT.s3)),
               ],
               const SizedBox(height: DT.s2),
-              Text(
-                '${workout.exercises.length} gyakorlat',
-                style: TextStyle(
-                    color: DT.of(context).textSecondary, fontSize: DT.s3),
+              Row(
+                children: [
+                  Text(
+                    '${workout.exercises.length} gyakorlat',
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: DT.s3),
+                  ),
+                  ..._rpeBadges(workout),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// Compact "RPE 8" chips for exercises that have an RPE logged. Capped at 3
+  /// to avoid crowding the row; remainder shown as "+N".
+  List<Widget> _rpeBadges(WorkoutModel workout) {
+    final withRpe =
+        workout.exercises.where((e) => e.rpe != null).toList(growable: false);
+    if (withRpe.isEmpty) return const [];
+    final shown = withRpe.take(3).toList();
+    final overflow = withRpe.length - shown.length;
+    return [
+      const SizedBox(width: DT.s2),
+      ...shown.map(
+        (e) => Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
+            decoration: BoxDecoration(
+              color: DT.metricBlue.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(DT.rChip),
+            ),
+            child: Text(
+              'RPE ${e.rpe}',
+              style: const TextStyle(
+                color: DT.metricBlue,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      ),
+      if (overflow > 0)
+        Text(
+          '+$overflow',
+          style: const TextStyle(
+            color: DT.metricBlue,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+    ];
   }
 }

@@ -25,6 +25,12 @@ import 'package:flutter_application_1/features/trainer/bloc/trainer_request_bloc
 import 'package:flutter_application_1/features/trainer/data/repositories/roster_repository.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/trainer_request_repository.dart';
 import 'package:flutter_application_1/features/user/data/repositories/user_repository.dart';
+import 'package:flutter_application_1/features/exercise_stats/bloc/exercise_stats_cubit.dart';
+import 'package:flutter_application_1/features/exercise_stats/data/repositories/exercise_stats_repository.dart';
+import 'package:flutter_application_1/features/prediction/bloc/prediction_cubit.dart';
+import 'package:flutter_application_1/features/prediction/data/repositories/prediction_repository.dart';
+import 'package:flutter_application_1/features/training_block/bloc/training_block_bloc.dart';
+import 'package:flutter_application_1/features/training_block/data/repositories/training_block_repository.dart';
 import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
 
@@ -51,6 +57,9 @@ class _AppState extends State<App> {
   late final NotificationRepository _notifRepo;
   late final OnboardingRepository _onboardingRepo;
   late final MessageRepository _messageRepo;
+  late final ExerciseStatsRepository _exerciseStatsRepo;
+  late final PredictionRepository _predictionRepo;
+  late final TrainingBlockRepository _trainingBlockRepo;
   late final AthleteStatusCubit _athleteStatusCubit;
 
   @override
@@ -75,6 +84,9 @@ class _AppState extends State<App> {
     _notifRepo = NotificationRepository(_apiClient);
     _onboardingRepo = OnboardingRepository(_apiClient);
     _messageRepo = MessageRepository(_apiClient);
+    _exerciseStatsRepo = ExerciseStatsRepository(_apiClient);
+    _predictionRepo = PredictionRepository(_apiClient);
+    _trainingBlockRepo = TrainingBlockRepository(_apiClient);
 
     _authBloc = AuthBloc(authRepo: _authRepo, userRepo: _userRepo);
     _athleteStatusCubit =
@@ -104,6 +116,9 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _exerciseRepo),
         RepositoryProvider.value(value: _notifRepo),
         RepositoryProvider.value(value: _onboardingRepo),
+        RepositoryProvider.value(value: _exerciseStatsRepo),
+        RepositoryProvider.value(value: _predictionRepo),
+        RepositoryProvider.value(value: _trainingBlockRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -123,6 +138,9 @@ class _AppState extends State<App> {
           BlocProvider(create: (_) => WorkoutBloc(_workoutRepo)),
           BlocProvider(create: (_) => ExerciseBloc(_exerciseRepo)),
           BlocProvider(create: (_) => OnboardingBloc(_onboardingRepo)),
+          BlocProvider(create: (_) => ExerciseStatsCubit(_exerciseStatsRepo)),
+          BlocProvider(create: (_) => PredictionCubit(_predictionRepo)),
+          BlocProvider(create: (_) => TrainingBlockBloc(_trainingBlockRepo)),
         ],
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) async {

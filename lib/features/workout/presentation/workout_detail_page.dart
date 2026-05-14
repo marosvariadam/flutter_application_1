@@ -203,6 +203,8 @@ class _ActiveWorkoutBody extends StatefulWidget {
 
 class _ActiveWorkoutBodyState extends State<_ActiveWorkoutBody> {
   late final List<List<_SetData>> _setData;
+  // Per-exercise RPE (0-10), null = not set. Optional per spec.
+  late final List<int?> _rpePerExercise;
 
   @override
   void initState() {
@@ -210,6 +212,8 @@ class _ActiveWorkoutBodyState extends State<_ActiveWorkoutBody> {
     _setData = widget.workout.exercises
         .map((e) => List.generate(e.sets, (_) => _SetData()))
         .toList();
+    _rpePerExercise =
+        widget.workout.exercises.map((e) => e.rpe).toList(growable: false);
   }
 
   @override
@@ -244,7 +248,24 @@ class _ActiveWorkoutBodyState extends State<_ActiveWorkoutBody> {
               exercise.targetReps,
           actualWeightKg: double.tryParse(set.weightCtrl.text.trim()) ??
               exercise.targetWeightKg,
+          rpe: _rpePerExercise[exerciseIndex],
         ));
+  }
+
+  void _onRpeChanged(int exerciseIndex, int? rpe) {
+    setState(() => _rpePerExercise[exerciseIndex] = rpe);
+    final exercise = widget.workout.exercises[exerciseIndex];
+    final doneSets =
+        _setData[exerciseIndex].where((s) => s.isDone).length;
+    // Persist immediately so RPE survives a refresh even without toggling a set.
+    if (doneSets > 0) {
+      context.read<WorkoutBloc>().add(LogExercise(
+            workoutId: widget.workout.id,
+            index: exercise.index,
+            actualSets: doneSets,
+            rpe: rpe,
+          ));
+    }
   }
 
   @override
@@ -272,6 +293,8 @@ class _ActiveWorkoutBodyState extends State<_ActiveWorkoutBody> {
                 exercise: exercise,
                 sets: _setData[i],
                 onToggleSet: (setIndex) => _toggleSet(i, setIndex),
+                rpe: _rpePerExercise[i],
+                onRpeChanged: (v) => _onRpeChanged(i, v),
               );
             },
           ),
@@ -337,11 +360,15 @@ class _ActiveExerciseCard extends StatelessWidget {
   final WorkoutExercise exercise;
   final List<_SetData> sets;
   final ValueChanged<int> onToggleSet;
+  final int? rpe;
+  final ValueChanged<int?> onRpeChanged;
 
   const _ActiveExerciseCard({
     required this.exercise,
     required this.sets,
     required this.onToggleSet,
+    required this.rpe,
+    required this.onRpeChanged,
   });
 
   @override
@@ -459,7 +486,89 @@ class _ActiveExerciseCard extends StatelessWidget {
                 hintReps: hintReps,
                 onToggle: () => onToggleSet(entry.key),
               )),
+          // RPE slider (optional)
+          _RpeSlider(value: rpe, onChanged: onRpeChanged),
           const SizedBox(height: DT.s3),
+        ],
+      ),
+    );
+  }
+}
+
+/// Optional 0-10 Rate of Perceived Exertion control. Renders below the set rows
+/// of an active exercise card. Submitting without setting RPE works (backend
+/// accepts null). The label is the exact wording requested in the spec.
+class _RpeSlider extends StatelessWidget {
+  final int? value;
+  final ValueChanged<int?> onChanged;
+  const _RpeSlider({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final v = value;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(DT.s4, DT.s2, DT.s4, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'RPE (optional)',
+                style: TextStyle(
+                  color: DT.of(context).textSecondary,
+                  fontSize: DT.s3,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              if (v != null)
+                GestureDetector(
+                  onTap: () => onChanged(null),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: DT.s2, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: DT.metricBlue.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(DT.rChip),
+                    ),
+                    child: Text(
+                      'RPE $v',
+                      style: const TextStyle(
+                        color: DT.metricBlue,
+                        fontSize: DT.s3,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  '—',
+                  style: TextStyle(
+                    color: DT.of(context).textSecondary,
+                    fontSize: DT.s3,
+                  ),
+                ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 3,
+              activeTrackColor: DT.metricBlue,
+              inactiveTrackColor: DT.metricBlue.withValues(alpha: 0.15),
+              thumbColor: DT.metricBlue,
+              overlayColor: DT.metricBlue.withValues(alpha: 0.1),
+            ),
+            child: Slider(
+              min: 0,
+              max: 10,
+              divisions: 10,
+              value: (v ?? 0).toDouble(),
+              label: '${v ?? 0}',
+              onChanged: (raw) => onChanged(raw.round()),
+            ),
+          ),
         ],
       ),
     );
@@ -791,6 +900,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
   late final TextEditingController _repsCtrl;
   late final TextEditingController _weightCtrl;
   late final TextEditingController _notesCtrl;
+  int? _rpe;
 
   @override
   void initState() {
@@ -804,6 +914,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
         TextEditingController(text: e.actualWeightKg?.toString() ?? '');
     _notesCtrl =
         TextEditingController(text: e.exerciseNotes ?? '');
+    _rpe = e.rpe;
   }
 
   @override
@@ -822,6 +933,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
           actualSets: int.tryParse(_setsCtrl.text),
           actualReps: int.tryParse(_repsCtrl.text),
           actualWeightKg: double.tryParse(_weightCtrl.text),
+          rpe: _rpe,
           exerciseNotes: _notesCtrl.text.trim().isEmpty
               ? null
               : _notesCtrl.text.trim(),
@@ -890,6 +1002,11 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                       ],
                     ),
                     const SizedBox(height: DT.s2),
+                    _RpeSlider(
+                      value: _rpe,
+                      onChanged: (v) => setState(() => _rpe = v),
+                    ),
+                    const SizedBox(height: DT.s2),
                     TextField(
                       controller: _notesCtrl,
                       decoration: const InputDecoration(
@@ -918,17 +1035,47 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                     const Icon(Icons.check_circle,
                         color: Colors.green, size: 16),
                     const SizedBox(width: DT.s2),
-                    Text(
-                      '${e.actualSets} × ${e.actualReps} ism. @ ${e.actualWeightKg} kg',
-                      style: const TextStyle(
-                          color: Colors.green, fontSize: DT.s3),
+                    Expanded(
+                      child: Text(
+                        '${e.actualSets} × ${e.actualReps} ism. @ ${e.actualWeightKg} kg',
+                        style: const TextStyle(
+                            color: Colors.green, fontSize: DT.s3),
+                      ),
                     ),
+                    if (e.rpe != null) _RpeBadge(rpe: e.rpe!),
                   ],
                 ),
               ),
             ],
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Small "RPE 8" chip shown in the workout-review UI when an exercise has been
+/// logged with an RPE value.
+class _RpeBadge extends StatelessWidget {
+  final int rpe;
+  const _RpeBadge({required this.rpe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
+      decoration: BoxDecoration(
+        color: DT.metricBlue.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(DT.rChip),
+      ),
+      child: Text(
+        'RPE $rpe',
+        style: const TextStyle(
+          color: DT.metricBlue,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }

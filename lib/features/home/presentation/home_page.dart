@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/coach/presentation/coach_home_page.dart';
+import 'package:flutter_application_1/features/training_block/data/models/training_block_model.dart';
+import 'package:flutter_application_1/features/training_block/data/repositories/training_block_repository.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/services/workout_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -119,6 +122,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _CurrentBlockPill(),
                   _DailyChallengeCard(),
                   const SizedBox(height: DT.s5),
                   Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
@@ -134,6 +138,10 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                   _workout != null
                       ? _WorkoutCard(workout: _workout!, onTap: () => context.push('/workout-detail', extra: _workout))
                       : const _RestDayCard(),
+                  const SizedBox(height: DT.s5),
+                  _StatsEntryCard(),
+                  const SizedBox(height: DT.s3),
+                  _PredictionEntryCard(),
                   const SizedBox(height: DT.s5),
                   _SocialCard(),
                 ],
@@ -205,10 +213,11 @@ class _WorkoutCard extends StatelessWidget {
   final VoidCallback onTap;
   const _WorkoutCard({required this.workout, required this.onTap});
 
-  static Color _diffColor(String d) {
-    switch (d.toLowerCase()) {
-      case 'könnyű': return DT.difficultyLight;
-      case 'nehéz': return DT.difficultyHard;
+  static Color _diffColor(WorkoutDifficulty d) {
+    switch (d) {
+      case WorkoutDifficulty.easy: return DT.difficultyLight;
+      case WorkoutDifficulty.hard:
+      case WorkoutDifficulty.intense: return DT.difficultyHard;
       default: return DT.difficultyMedium;
     }
   }
@@ -236,7 +245,7 @@ class _WorkoutCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: DT.s1),
                     decoration: BoxDecoration(color: diffColor, borderRadius: BorderRadius.circular(DT.s1)),
-                    child: Text(workout.difficulty, style: const TextStyle(color: Colors.white, fontSize: DT.s3, fontWeight: FontWeight.w600)),
+                    child: Text(workout.difficulty.label, style: const TextStyle(color: Colors.white, fontSize: DT.s3, fontWeight: FontWeight.w600)),
                   ),
                   const Spacer(),
                   Icon(Icons.arrow_forward_ios, size: 14, color: DT.of(context).textSecondary),
@@ -371,6 +380,70 @@ class _UserChip extends StatelessWidget {
   }
 }
 
+class _StatsEntryCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Fejlődésem',
+            style: TextStyle(
+                fontSize: DT.s4,
+                fontWeight: FontWeight.w700,
+                color: DT.of(context).textPrimary)),
+        const SizedBox(height: DT.s3),
+        GestureDetector(
+          onTap: () => context.push('/exercise-stats'),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(DT.s5),
+            decoration: BoxDecoration(
+              color: DT.metricBlue.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(DT.rCardSmall),
+              border: Border(
+                  left: BorderSide(color: DT.metricBlue, width: 4)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: DT.metricBlue.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.show_chart,
+                      color: DT.metricBlue),
+                ),
+                const SizedBox(width: DT.s4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Gyakorlat statisztikák',
+                          style: TextStyle(
+                              fontSize: DT.s4,
+                              fontWeight: FontWeight.w600,
+                              color: DT.of(context).textPrimary)),
+                      const SizedBox(height: DT.s1),
+                      Text('Kövesd a súly- és ismétlés fejlődésed',
+                          style: TextStyle(
+                              fontSize: DT.s3,
+                              color: DT.of(context).textSecondary)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios,
+                    size: 14, color: DT.of(context).textSecondary),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _SocialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -396,6 +469,136 @@ class _SocialCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PredictionEntryCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/prediction'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(DT.s5),
+        decoration: BoxDecoration(
+          color: DT.cardTeal.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(DT.rCardSmall),
+          border: Border(left: BorderSide(color: DT.cardTeal, width: 4)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: DT.cardTeal.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.timeline, color: DT.cardTeal),
+            ),
+            const SizedBox(width: DT.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Fejlődés előrejelzés',
+                      style: TextStyle(
+                          fontSize: DT.s4,
+                          fontWeight: FontWeight.w600,
+                          color: DT.of(context).textPrimary)),
+                  const SizedBox(height: DT.s1),
+                  Text('Becsült 1RM trendje gyakorlatonként',
+                      style: TextStyle(
+                          fontSize: DT.s3,
+                          color: DT.of(context).textSecondary)),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios,
+                size: 14, color: DT.of(context).textSecondary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Read-only pill shown on the athlete dashboard when a training block covers
+/// today. Renders nothing while loading, when there is no active block, or on
+/// any error.
+class _CurrentBlockPill extends StatefulWidget {
+  @override
+  State<_CurrentBlockPill> createState() => _CurrentBlockPillState();
+}
+
+class _CurrentBlockPillState extends State<_CurrentBlockPill> {
+  TrainingBlockModel? _current;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final userId = UserSession.instance.userId;
+    if (userId == null) return;
+    try {
+      final repo = context.read<TrainingBlockRepository>();
+      final blocks = await repo.getForAthlete(userId);
+      final today = DateTime.now();
+      final dayOnly = DateTime(today.year, today.month, today.day);
+      TrainingBlockModel? hit;
+      for (final b in blocks) {
+        final s = DateTime(b.startDate.year, b.startDate.month, b.startDate.day);
+        final e = DateTime(b.endDate.year, b.endDate.month, b.endDate.day);
+        if (!dayOnly.isBefore(s) && !dayOnly.isAfter(e)) {
+          hit = b;
+          break;
+        }
+      }
+      if (mounted) setState(() { _current = hit; _loaded = true; });
+    } catch (_) {
+      if (mounted) setState(() { _loaded = true; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded || _current == null) return const SizedBox.shrink();
+    final b = _current!;
+    final remaining = b.endDate
+        .difference(DateTime.now())
+        .inDays
+        .clamp(0, 9999);
+    return Container(
+      margin: const EdgeInsets.only(bottom: DT.s4),
+      padding:
+          const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s2),
+      decoration: BoxDecoration(
+        color: DT.metricBlue.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(DT.rChip),
+        border: Border.all(color: DT.metricBlue.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.bolt, size: 16, color: DT.metricBlue),
+          const SizedBox(width: DT.s2),
+          Expanded(
+            child: Text(
+              'Aktuális blokk: ${b.focus} · még $remaining nap',
+              style: const TextStyle(
+                color: DT.metricBlue,
+                fontWeight: FontWeight.w600,
+                fontSize: DT.s3,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

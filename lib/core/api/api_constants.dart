@@ -31,9 +31,16 @@ class ApiConstants {
   static const String trainerCalendar = '/api/workout/trainer/calendar';
   static const String athleteCalendar = '/api/workout/my-workouts/calendar';
 
+  // ── Workout stats ──────────────────────────────────────────────────────────
+  static const String exerciseStats = '/api/workout/stats/exercise';
+  static String exerciseStatsForAthlete(String athleteId) =>
+      '/api/workout/stats/exercise/$athleteId';
+
   // ── Exercises ───────────────────────────────────────────────────────────────
   static const String exercise = '/api/exercise';
   static String exerciseById(String id) => '/api/exercise/$id';
+  static String exercisesForAthlete(String athleteId) =>
+      '/api/exercise/for-athlete/$athleteId';
 
   // ── Notifications (not yet in backend — kept for future) ────────────────────
   static const String notifications = '/api/notification';
@@ -59,6 +66,19 @@ class ApiConstants {
   static const String leaveTrainer = '/api/user/leave-trainer';
   static String removeAthlete(String athleteId) =>
       '/api/user/remove-athlete/$athleteId';
+
+  // ── Prediction (Est1Rm forecast) ────────────────────────────────────────────
+  /// GET ?exerciseName=&weeksAhead=&focus=  — athlete-self forecast.
+  static const String predictionMine = '/api/prediction/exercise';
+  /// GET ?exerciseName=&weeksAhead=&focus=  — trainer view for an athlete.
+  static String predictionForAthlete(String athleteId) =>
+      '/api/prediction/exercise/$athleteId';
+
+  // ── Training blocks (trainer CRUD; athletes can read their own) ─────────────
+  static const String trainingBlock = '/api/trainingblock';
+  static String trainingBlockById(String id) => '/api/trainingblock/$id';
+  static String trainingBlocksForAthlete(String athleteId) =>
+      '/api/trainingblock/athlete/$athleteId';
 
   // ── SignalR Hubs ────────────────────────────────────────────────────────────
   static const String chatHub = '/hubs/chat';

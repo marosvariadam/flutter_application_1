@@ -37,6 +37,8 @@ class LogExercise extends WorkoutEvent {
   final int? actualSets;
   final int? actualReps;
   final double? actualWeightKg;
+  /// Rate of Perceived Exertion (0-10), optional.
+  final int? rpe;
   final String? exerciseNotes;
   LogExercise({
     required this.workoutId,
@@ -44,6 +46,7 @@ class LogExercise extends WorkoutEvent {
     this.actualSets,
     this.actualReps,
     this.actualWeightKg,
+    this.rpe,
     this.exerciseNotes,
   });
 }
@@ -199,6 +202,7 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
         actualSets: event.actualSets,
         actualReps: event.actualReps,
         actualWeightKg: event.actualWeightKg,
+        rpe: event.rpe,
         exerciseNotes: event.exerciseNotes,
       );
       // Local UI tracks set state; no state change needed

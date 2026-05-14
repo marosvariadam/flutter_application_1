@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/shared/widgets/widgets_nav/bottom_nav.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
-import 'package:flutter_application_1/features/auth/presentation/register_page.dart';
+import 'package:flutter_application_1/features/register/register_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/coach/presentation/workout_builder_page.dart';
 import 'package:flutter_application_1/features/home/presentation/home_page.dart';
@@ -22,6 +22,8 @@ import 'package:flutter_application_1/features/trainer/presentation/roster_page.
 import 'package:flutter_application_1/features/trainer/presentation/trainer_requests_page.dart';
 import 'package:flutter_application_1/features/user/presentation/change_password_page.dart';
 import 'package:flutter_application_1/features/user/presentation/edit_profile_page.dart';
+import 'package:flutter_application_1/features/exercise_stats/presentation/exercise_stats_page.dart';
+import 'package:flutter_application_1/features/prediction/presentation/prediction_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
 
@@ -154,6 +156,30 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
           final athleteId = state.extra as String?;
           return MaterialPage(
             child: WorkoutBuilderPage(preselectedAthleteId: athleteId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/exercise-stats',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, String?>?;
+          return MaterialPage(
+            child: ExerciseStatsPage(
+              athleteId: extra?['athleteId'],
+              athleteName: extra?['athleteName'],
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/prediction',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, String?>?;
+          return MaterialPage(
+            child: PredictionPage(
+              athleteId: extra?['athleteId'],
+              athleteName: extra?['athleteName'],
+            ),
           );
         },
       ),

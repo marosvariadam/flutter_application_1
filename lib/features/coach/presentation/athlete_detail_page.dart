@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/trainer/bloc/roster_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
+import 'package:flutter_application_1/features/training_block/presentation/training_blocks_section.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -171,6 +172,48 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
               thisWeek: thisWeek,
               streak: streak,
             ),
+            const SizedBox(height: DT.s4),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push('/exercise-stats', extra: {
+                      'athleteId': widget.athleteId,
+                      'athleteName': name,
+                    }),
+                    icon: const Icon(Icons.show_chart),
+                    label: const Text('Statisztikák'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: DT.metricBlue,
+                      side: const BorderSide(color: DT.metricBlue),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(DT.rCardSmall)),
+                      padding: const EdgeInsets.symmetric(vertical: DT.s3),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: DT.s3),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push('/prediction', extra: {
+                      'athleteId': widget.athleteId,
+                      'athleteName': name,
+                    }),
+                    icon: const Icon(Icons.timeline),
+                    label: const Text('Fejlődés'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: DT.metricBlue,
+                      side: const BorderSide(color: DT.metricBlue),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(DT.rCardSmall)),
+                      padding: const EdgeInsets.symmetric(vertical: DT.s3),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: DT.s5),
+            TrainingBlocksSection(athleteId: widget.athleteId),
             const SizedBox(height: DT.s5),
             Text(
               'Aktivitás (elmúlt 8 hét)',

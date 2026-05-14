@@ -89,6 +89,7 @@ class WorkoutRepository {
     int? actualSets,
     int? actualReps,
     double? actualWeightKg,
+    int? rpe,
     String? exerciseNotes,
   }) async {
     await _client.dio.patch(
@@ -97,6 +98,7 @@ class WorkoutRepository {
         if (actualSets != null) 'actualSets': actualSets,
         if (actualReps != null) 'actualReps': actualReps,
         if (actualWeightKg != null) 'actualWeightKg': actualWeightKg,
+        if (rpe != null) 'rpe': rpe,
         if (exerciseNotes != null) 'exerciseNotes': exerciseNotes,
       },
     );
