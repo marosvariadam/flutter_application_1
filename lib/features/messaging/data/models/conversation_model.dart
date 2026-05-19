@@ -23,7 +23,7 @@ class ConversationModel {
 
   factory ConversationModel.fromJson(Map<String, dynamic> j) =>
       ConversationModel(
-        id: j['partnerId'] as String? ?? j['id'] as String,
+        id: j['partnerId']?.toString() ?? j['id']?.toString() ?? '',
         contactName:
             j['partnerName'] as String? ?? j['contactName'] as String? ?? '',
         contactAvatarUrl: j['partnerAvatarUrl'] as String? ?? '',
@@ -36,17 +36,22 @@ class ConversationModel {
         messages: const [],
       );
 
-  ConversationModel copyWith({List<MessageModel>? messages, int? unreadCount}) {
+  ConversationModel copyWith({
+    List<MessageModel>? messages,
+    int? unreadCount,
+    String? lastMessage,
+    DateTime? lastMessageTime,
+  }) {
     return ConversationModel(
       id: id,
       contactName: contactName,
       contactAvatarUrl: contactAvatarUrl,
       lastMessage: messages != null && messages.isNotEmpty
           ? messages.last.text
-          : lastMessage,
+          : lastMessage ?? this.lastMessage,
       lastMessageTime: messages != null && messages.isNotEmpty
           ? messages.last.timestamp
-          : lastMessageTime,
+          : lastMessageTime ?? this.lastMessageTime,
       unreadCount: unreadCount ?? this.unreadCount,
       isOnline: isOnline,
       messages: messages ?? this.messages,

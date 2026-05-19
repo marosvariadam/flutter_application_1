@@ -255,8 +255,8 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () =>
             context.push('/workout-builder', extra: widget.athleteId),
-        backgroundColor: DT.gbBlack,
-        foregroundColor: DT.gbWhite,
+        backgroundColor: DT.of(context).accentPrimary,
+        foregroundColor: DT.of(context).textOnAccent,
         icon: const Icon(Icons.add),
         label: const Text('Edzés hozzáadása'),
       ),
@@ -264,7 +264,7 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
   }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// Header
 
 class _HeaderCard extends StatelessWidget {
   final AthleteModel? athlete;
@@ -282,7 +282,7 @@ class _HeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(DT.s5),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
         boxShadow: [
           BoxShadow(
@@ -357,7 +357,7 @@ class _HeaderCard extends StatelessWidget {
   }
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+// Stats
 
 class _StatsRow extends StatelessWidget {
   final int total;
@@ -430,7 +430,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: DT.s3, horizontal: DT.s2),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
         boxShadow: [
           BoxShadow(
@@ -465,7 +465,7 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// ── Activity Heatmap ──────────────────────────────────────────────────────────
+// Activity Heatmap
 
 class _ActivityHeatmap extends StatelessWidget {
   final List<WorkoutModel> workouts;
@@ -477,7 +477,7 @@ class _ActivityHeatmap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Build a date → status map
+    // Build a date -> status map
     final Map<String, WorkoutStatus> dateMap = {};
     for (final w in workouts) {
       final key = _dateKey(w.scheduledDate);
@@ -499,7 +499,7 @@ class _ActivityHeatmap extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(DT.s4),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
         boxShadow: [
           BoxShadow(
@@ -635,7 +635,7 @@ class _HeatCell extends StatelessWidget {
     } else if (status == WorkoutStatus.planned && isFuture) {
       fill = DT.metricBlue.withValues(alpha: 0.35);
     } else if (status == WorkoutStatus.planned && isPast) {
-      // Planned but never started — missed
+      // Planned but never started - missed
       fill = DT.cardRed.withValues(alpha: 0.25);
     } else {
       // Rest day
@@ -681,7 +681,7 @@ class _LegendDot extends StatelessWidget {
   }
 }
 
-// ── Workout row ───────────────────────────────────────────────────────────────
+// Workout row
 
 class _WorkoutRow extends StatelessWidget {
   final WorkoutModel workout;
@@ -706,7 +706,7 @@ class _WorkoutRow extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: DT.s3),
         padding: const EdgeInsets.all(DT.s4),
         decoration: BoxDecoration(
-          color: DT.gbWhite,
+          color: DT.of(context).cardSurface,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           border: Border(left: BorderSide(color: workout.color, width: 3)),
           boxShadow: [

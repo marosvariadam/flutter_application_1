@@ -24,6 +24,26 @@ class ExerciseRepository {
     return PaginatedExercises.fromList(res.data as List);
   }
 
+  /// Exercises sorted by usage frequency for a specific athlete.
+  Future<List<ExerciseModel>> getExercisesForAthlete(
+    String athleteId, {
+    String? search,
+    String? muscleGroup,
+  }) async {
+    final res = await _client.dio.get(
+      ApiConstants.exercisesForAthlete(athleteId),
+      queryParameters: {
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (muscleGroup != null && muscleGroup.isNotEmpty)
+          'muscleGroup': muscleGroup,
+      },
+    );
+    final list = res.data as List;
+    return list
+        .map((e) => ExerciseModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<ExerciseModel> createExercise({
     required String name,
     required String muscleGroup,

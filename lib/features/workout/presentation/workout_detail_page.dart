@@ -54,7 +54,7 @@ class WorkoutDetailView extends StatelessWidget {
         if (state is WorkoutDetailLoaded) {
           final w = state.workout;
 
-          // ── Active workout view (athlete, in-progress) ──────────────────
+          // Active workout view (athlete, in-progress)
           if (!isTrainer && w.status == WorkoutStatus.inProgress) {
             return Scaffold(
               backgroundColor: DT.of(context).bg,
@@ -72,7 +72,7 @@ class WorkoutDetailView extends StatelessWidget {
             );
           }
 
-          // ── Detail view (trainer or planned/completed) ──────────────────
+          // Detail view (trainer or planned/completed)
           return Scaffold(
             backgroundColor: DT.of(context).bg,
             appBar: AppBar(
@@ -177,7 +177,7 @@ class WorkoutDetailView extends StatelessWidget {
   }
 }
 
-// ── Active workout ─────────────────────────────────────────────────────────
+// Active workout
 
 /// Local per-set state: editable weight/reps + done flag.
 class _SetData {
@@ -203,7 +203,7 @@ class _ActiveWorkoutBody extends StatefulWidget {
 
 class _ActiveWorkoutBodyState extends State<_ActiveWorkoutBody> {
   late final List<List<_SetData>> _setData;
-  // Per-exercise RPE (0-10), null = not set. Optional per spec.
+  // Per-exercise RPE (0-10), null = not set. Optional.
   late final List<int?> _rpePerExercise;
 
   @override
@@ -319,7 +319,7 @@ class _ProgressBar extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(DT.s5, DT.s3, DT.s5, DT.s4),
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -387,7 +387,7 @@ class _ActiveExerciseCard extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: DT.s4),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
         border: allDone
             ? Border.all(
@@ -724,14 +724,14 @@ class _SetTextField extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(vertical: 8, horizontal: DT.s2),
           filled: true,
-          fillColor: DT.gbWhite,
+          fillColor: DT.of(context).cardSurface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
-            borderSide: const BorderSide(color: DT.iconLightGrey),
+            borderSide: BorderSide(color: DT.of(context).borderGrey),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
-            borderSide: const BorderSide(color: DT.iconLightGrey),
+            borderSide: BorderSide(color: DT.of(context).borderGrey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -743,7 +743,7 @@ class _SetTextField extends StatelessWidget {
   }
 }
 
-// ── Workout header (detail / trainer view) ─────────────────────────────────
+// Workout header (detail / trainer view)
 
 class _WorkoutHeader extends StatelessWidget {
   final WorkoutModel workout;
@@ -754,7 +754,7 @@ class _WorkoutHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(DT.s5),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
       ),
       child: Column(
@@ -875,7 +875,7 @@ class _Chip extends StatelessWidget {
   }
 }
 
-// ── Exercise card (read-only / log view for planned/completed) ─────────────
+// Exercise card (read-only / log view for planned/completed)
 
 class _ExerciseCard extends StatefulWidget {
   final WorkoutExercise exercise;
@@ -949,7 +949,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: DT.s3),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
       ),
       child: Column(
@@ -1098,7 +1098,7 @@ class _LogField extends StatelessWidget {
   }
 }
 
-// ── Athlete actions (start / complete) ────────────────────────────────────
+// Athlete actions (start / complete)
 
 class _AthleteActions extends StatefulWidget {
   final WorkoutModel workout;

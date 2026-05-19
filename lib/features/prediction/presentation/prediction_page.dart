@@ -11,8 +11,8 @@ import 'package:intl/intl.dart';
 /// Progress prediction screen.
 ///
 /// Used in two modes:
-///   • athlete-self: [athleteId] == null
-///   • trainer view: [athleteId] != null (already-existing athlete-detail flow)
+///   - athlete-self: [athleteId] == null
+///   - trainer view: [athleteId] != null (already-existing athlete-detail flow)
 class PredictionPage extends StatefulWidget {
   final String? athleteId;
   final String? athleteName;
@@ -25,7 +25,7 @@ class PredictionPage extends StatefulWidget {
 
 class _PredictionPageState extends State<PredictionPage> {
   ExerciseModel? _selected;
-  int _weeksAhead = 8; // default per spec
+  int _weeksAhead = 8; // default
 
   @override
   void initState() {
@@ -133,7 +133,7 @@ class _PredictionPageState extends State<PredictionPage> {
   }
 }
 
-// ── Exercise selector ────────────────────────────────────────────────────────
+// Exercise selector
 
 class _ExerciseSelector extends StatelessWidget {
   final ExerciseModel? selected;
@@ -151,7 +151,7 @@ class _ExerciseSelector extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: DT.s4),
           decoration: BoxDecoration(
-            color: DT.gbWhite,
+            color: DT.of(context).cardSurface,
             borderRadius: BorderRadius.circular(DT.rCardSmall),
             boxShadow: [
               BoxShadow(
@@ -197,7 +197,7 @@ class _ExerciseSelector extends StatelessWidget {
   }
 }
 
-// ── weeksAhead selector ──────────────────────────────────────────────────────
+// weeksAhead selector
 
 class _WeeksAheadSelector extends StatelessWidget {
   final int value;
@@ -215,13 +215,15 @@ class _WeeksAheadSelector extends StatelessWidget {
         return ChoiceChip(
           label: Text('$v hét'),
           selected: isActive,
-          selectedColor: DT.gbBlack,
+          selectedColor: DT.of(context).accentPrimary,
           labelStyle: TextStyle(
-            color: isActive ? DT.gbWhite : DT.of(context).textPrimary,
+            color: isActive
+                ? DT.of(context).textOnAccent
+                : DT.of(context).textPrimary,
             fontWeight: FontWeight.w600,
             fontSize: DT.s3,
           ),
-          backgroundColor: DT.gbWhite,
+          backgroundColor: DT.of(context).cardSurface,
           side: BorderSide(color: DT.of(context).borderGrey),
           onSelected: (_) => onChanged(v),
         );
@@ -230,7 +232,7 @@ class _WeeksAheadSelector extends StatelessWidget {
   }
 }
 
-// ── Loaded content ───────────────────────────────────────────────────────────
+// Loaded content
 
 class _PredictionContent extends StatelessWidget {
   final PredictionResult result;
@@ -302,7 +304,7 @@ class _MetaHeader extends StatelessWidget {
       padding:
           const EdgeInsets.symmetric(horizontal: DT.s3, vertical: DT.s1),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rChip),
         border: Border.all(color: DT.of(context).borderGrey),
       ),
@@ -431,7 +433,7 @@ class _LinePainter extends CustomPainter {
       old.color != color || old.dashed != dashed;
 }
 
-// ── Chart ────────────────────────────────────────────────────────────────────
+// Chart
 
 class _PredictionChart extends StatelessWidget {
   final PredictionResult result;
@@ -441,7 +443,7 @@ class _PredictionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     // Build a single x-axis indexed by week. Actual: [0 .. n-1]. Predicted
     // continues at n and is joined to the last actual point so the curve is
-    // continuous (the connector segment lives in the dotted series only — the
+    // continuous (the connector segment lives in the dotted series only - the
     // join point itself is the last actual data point, drawn as a solid dot).
     final actuals = result.actual;
     final predicted = result.predicted;
@@ -460,7 +462,7 @@ class _PredictionChart extends StatelessWidget {
       actualSpots.add(FlSpot(i.toDouble(), actuals[i].est1Rm));
     }
 
-    // Predicted series — prepend the last-actual point so it joins continuously.
+    // Predicted series - prepend the last-actual point so it joins continuously.
     final predSpots = <FlSpot>[];
     final lowSpots = <FlSpot>[];
     final highSpots = <FlSpot>[];
@@ -494,14 +496,14 @@ class _PredictionChart extends StatelessWidget {
         ? 1.0
         : allYValues.reduce((a, b) => a > b ? a : b) + 5;
 
-    final color = DT.metricBlue;
+    final color = DT.of(context).accentPrimary;
     final bandColor = color.withValues(alpha: 0.20);
 
     return Container(
       height: 300,
       padding: const EdgeInsets.fromLTRB(DT.s2, DT.s4, DT.s4, DT.s4),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
         boxShadow: [
           BoxShadow(
@@ -573,7 +575,7 @@ class _PredictionChart extends StatelessWidget {
             touchTooltipData: LineTouchTooltipData(
               maxContentWidth: 220,
               getTooltipItems: (touched) {
-                // De-duplicate by x — the band lines stack on the same point.
+                // De-duplicate by x - the band lines stack on the same point.
                 final seenX = <double>{};
                 final items = <LineTooltipItem?>[];
                 for (final s in touched) {
@@ -622,7 +624,7 @@ class _PredictionChart extends StatelessWidget {
           ),
           lineBarsData: [
             // Confidence band: high line (transparent) with belowBarData
-            // shaded down to the matching low line — gives the band fill.
+            // shaded down to the matching low line - gives the band fill.
             if (hasPredicted && predicted.first.hasBand)
               LineChartBarData(
                 spots: highSpots,
@@ -647,12 +649,12 @@ class _PredictionChart extends StatelessWidget {
                 dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
-                  color: DT.gbWhite,
+                  color: DT.of(context).cardSurface,
                   cutOffY: 0,
                   applyCutOffY: false,
                 ),
               ),
-            // Actual — solid
+            // Actual - solid
             if (hasActual)
               LineChartBarData(
                 spots: actualSpots,
@@ -673,7 +675,7 @@ class _PredictionChart extends StatelessWidget {
                   color: color.withValues(alpha: 0.06),
                 ),
               ),
-            // Predicted — dotted/dashed (only when model has predictions)
+            // Predicted - dotted/dashed (only when model has predictions)
             if (hasPredicted)
               LineChartBarData(
                 spots: predSpots,
@@ -690,7 +692,7 @@ class _PredictionChart extends StatelessWidget {
                   },
                   getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
                     radius: 3,
-                    color: DT.gbWhite,
+                    color: DT.of(context).cardSurface,
                     strokeColor: color,
                     strokeWidth: 2,
                   ),
@@ -711,7 +713,7 @@ class _PredictionChart extends StatelessWidget {
   }
 }
 
-// ── Placeholder ──────────────────────────────────────────────────────────────
+// Placeholder
 
 class _Placeholder extends StatelessWidget {
   final IconData icon;
@@ -724,7 +726,7 @@ class _Placeholder extends StatelessWidget {
       height: 280,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
         boxShadow: [
           BoxShadow(

@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/notifications/data/models/notification_model.dart';
 import 'package:flutter_application_1/features/notifications/data/repositories/notification_repository.dart';
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// Events
 abstract class NotificationEvent {}
 
 class LoadNotifications extends NotificationEvent {}
@@ -20,7 +20,7 @@ class NotificationReceived extends NotificationEvent {
   NotificationReceived(this.data);
 }
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 abstract class NotificationState {}
 
 class NotificationInitial extends NotificationState {}
@@ -37,7 +37,7 @@ class NotificationError extends NotificationState {
   NotificationError(this.message);
 }
 
-// ── BLoC ──────────────────────────────────────────────────────────────────────
+// BLoC
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final NotificationRepository _repo;
   List<NotificationModel> _notifications = [];

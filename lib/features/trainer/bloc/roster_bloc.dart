@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/roster_repository.dart';
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// Events
 abstract class RosterEvent {}
 
 class LoadRoster extends RosterEvent {
@@ -24,7 +24,7 @@ class ResetAthletePassword extends RosterEvent {
   ResetAthletePassword(this.athleteId, this.newPassword);
 }
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 abstract class RosterState {}
 
 class RosterInitial extends RosterState {}
@@ -44,7 +44,7 @@ class RosterError extends RosterState {
   RosterError(this.message);
 }
 
-// ── BLoC ──────────────────────────────────────────────────────────────────────
+// BLoC
 class RosterBloc extends Bloc<RosterEvent, RosterState> {
   final RosterRepository _repo;
   List<AthleteModel> _athletes = [];

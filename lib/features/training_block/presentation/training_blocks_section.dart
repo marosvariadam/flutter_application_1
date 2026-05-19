@@ -31,7 +31,7 @@ class _TrainingBlocksSectionState extends State<TrainingBlocksSection> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: DT.gbWhite,
+      backgroundColor: DT.of(context).cardSurfaceElevated,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(DT.rCard)),
       ),
@@ -168,7 +168,7 @@ class _TrainingBlocksSectionState extends State<TrainingBlocksSection> {
       width: double.infinity,
       padding: const EdgeInsets.all(DT.s4),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
         boxShadow: [
           BoxShadow(
@@ -187,7 +187,7 @@ class _TrainingBlocksSectionState extends State<TrainingBlocksSection> {
   }
 }
 
-// ── Block row ────────────────────────────────────────────────────────────────
+// Block row
 
 class _BlockRow extends StatelessWidget {
   final TrainingBlockModel block;
@@ -209,7 +209,7 @@ class _BlockRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: DT.s3),
       padding: const EdgeInsets.all(DT.s4),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
         border: Border(left: BorderSide(color: accent, width: 3)),
         boxShadow: [
@@ -299,7 +299,7 @@ class _BlockRow extends StatelessWidget {
   }
 }
 
-// ── Form (bottom sheet) ──────────────────────────────────────────────────────
+// Form (bottom sheet)
 
 class _TrainingBlockForm extends StatefulWidget {
   final String athleteId;
@@ -363,7 +363,7 @@ class _TrainingBlockFormState extends State<_TrainingBlockForm> {
       _saving = true;
     });
 
-    // Client-side end >= start guard (matches the 400 message verbatim).
+    // Client-side end >= start guard (matches the 400 message).
     final s = DateTime(_start.year, _start.month, _start.day);
     final e = DateTime(_end.year, _end.month, _end.day);
     if (e.isBefore(s)) {
@@ -410,7 +410,7 @@ class _TrainingBlockFormState extends State<_TrainingBlockForm> {
           // Snackbar is shown by the parent section listener (spec: "keep form open").
           if (mounted) setState(() => _saving = false);
         } else if (state is TrainingBlocksLoaded && _saving) {
-          // Success — close the sheet.
+          // Success - close the sheet.
           _saving = false;
           if (mounted) Navigator.of(context).pop();
         } else if (state is TrainingBlockError ||

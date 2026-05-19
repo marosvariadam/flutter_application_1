@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/models/onboarding_models.dart';
 import 'package:flutter_application_1/features/onboarding/data/repositories/onboarding_repository.dart';
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// Events
 abstract class OnboardingEvent {}
 
 // Trainer events
@@ -33,7 +33,7 @@ class SubmitSurveyAnswers extends OnboardingEvent {
 
 class LoadMyOnboardingResponse extends OnboardingEvent {}
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 abstract class OnboardingState {}
 
 class OnboardingInitial extends OnboardingState {}
@@ -65,7 +65,7 @@ class OnboardingError extends OnboardingState {
   OnboardingError(this.message);
 }
 
-// ── BLoC ──────────────────────────────────────────────────────────────────────
+// BLoC
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   final OnboardingRepository _repo;
 

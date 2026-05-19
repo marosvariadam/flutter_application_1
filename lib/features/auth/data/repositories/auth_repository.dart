@@ -14,14 +14,14 @@ class AuthRepository {
       data: {'email': email, 'password': password},
     );
     final tokens = AuthTokens.fromJson(res.data as Map<String, dynamic>);
-    // Backend has no refresh token — store the single JWT.
+    // Backend has no refresh token - store the single JWT.
     await TokenStorage.saveTokens(tokens.accessToken, '');
     await TokenStorage.saveUserInfo(tokens.userId, tokens.role);
     return tokens;
   }
 
   Future<void> logout() async {
-    // Backend has no logout endpoint — just clear local storage.
+    // Backend has no logout endpoint - just clear local storage.
     await TokenStorage.clearAll();
   }
 

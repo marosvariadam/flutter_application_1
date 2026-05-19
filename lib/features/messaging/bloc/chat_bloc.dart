@@ -27,27 +27,53 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   Future<void> _onLoadChat(LoadChat event, Emitter<ChatState> emit) async {
-    emit(ChatLoading());
+    // If we're re-entering a conversation we already have in memory, keep
+    // those messages visible while we try to refresh from the server.
+    // This prevents a blank flash when the backend history endpoint isn't
+    // implemented or temporarily unavailable.
+    final current = state;
+    final cached = (current is ChatLoaded &&
+            current.conversation.id == event.contactId)
+        ? current.conversation
+        : null;
+
+    if (cached == null) emit(ChatLoading());
+
     try {
       final repo = _repo!;
       final messages = await repo.getThread(event.contactId);
-      final conv = ConversationModel(
-        id: event.contactId,
-        contactName: event.contactName ?? event.contactId,
-        contactAvatarUrl: '',
-        lastMessage: messages.isNotEmpty ? messages.last.text : '',
-        lastMessageTime:
-            messages.isNotEmpty ? messages.last.timestamp : DateTime.now(),
-        unreadCount: 0,
-        isOnline: false,
-        messages: messages,
-      );
-      emit(ChatLoaded(conv));
-      await repo.markRead(event.contactId);
+
+      if (messages.isNotEmpty) {
+        // Server returned history - use it as the source of truth.
+        emit(ChatLoaded(ConversationModel(
+          id: event.contactId,
+          contactName:
+              event.contactName ?? cached?.contactName ?? event.contactId,
+          contactAvatarUrl: '',
+          lastMessage: messages.last.text,
+          lastMessageTime: messages.last.timestamp,
+          unreadCount: 0,
+          isOnline: false,
+          messages: messages,
+        )));
+      } else if (cached != null) {
+        // Server returned empty but we have in-memory messages - keep them.
+        // This is the common case when the backend history endpoint is not
+        // yet implemented (returns 200 [] or 404).
+      } else {
+        emit(ChatLoaded(_emptyConversation(event.contactId, event.contactName)));
+      }
+
+      // markRead is (do not await).
+      try {
+        await repo.markRead(event.contactId);
+      } catch (_) {}
     } catch (_) {
-      // Show empty chat so the user can still send a first message
-      // (e.g. 404 when no thread exists yet).
-      emit(ChatLoaded(_emptyConversation(event.contactId, event.contactName)));
+      // API call failed. If we have cached messages, keep them; otherwise
+      // show an empty chat so the user can still send a first message.
+      if (cached == null) {
+        emit(ChatLoaded(_emptyConversation(event.contactId, event.contactName)));
+      }
     }
   }
 

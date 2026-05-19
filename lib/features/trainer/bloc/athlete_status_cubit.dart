@@ -2,26 +2,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/repositories/onboarding_repository.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/trainer_request_repository.dart';
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 
 abstract class AthleteStatusState {}
 
-/// Not yet checked — shown briefly on app start.
+/// Not yet checked - shown briefly on app start.
 class AthleteStatusInitial extends AthleteStatusState {}
 
 /// Actively loading status from the API.
 class AthleteStatusLoading extends AthleteStatusState {}
 
-/// No accepted trainer request yet — athlete must wait.
+/// No accepted trainer request yet - athlete must wait.
 class AthleteStatusPending extends AthleteStatusState {}
 
 /// Trainer accepted, a form exists, and the athlete hasn't filled it yet.
 class AthleteStatusNeedsForm extends AthleteStatusState {}
 
-/// All good — athlete may access the main app.
+/// All good - athlete may access the main app.
 class AthleteStatusReady extends AthleteStatusState {}
 
-// ── Cubit ─────────────────────────────────────────────────────────────────────
+// Cubit
 
 class AthleteStatusCubit extends Cubit<AthleteStatusState> {
   final TrainerRequestRepository _requestRepo;
@@ -42,7 +42,7 @@ class AthleteStatusCubit extends Cubit<AthleteStatusState> {
         return;
       }
 
-      // Accepted — check whether the trainer has a form and it's not yet filled.
+      // Accepted - check whether the trainer has a form and it's not yet filled.
       final form = await _onboardingRepo.getMyTrainerForm();
       if (form == null || form.questions.isEmpty) {
         emit(AthleteStatusReady());

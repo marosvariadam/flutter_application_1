@@ -6,7 +6,7 @@ import 'package:flutter_application_1/features/trainer/data/repositories/roster_
 
 /// Used both to create a new athlete account and edit an existing one.
 class CreateEditAthletePage extends StatefulWidget {
-  /// null → create mode; non-null → edit mode
+  /// null -> create mode; non-null -> edit mode
   final String? athleteId;
   final String? initialFirstName;
   final String? initialLastName;

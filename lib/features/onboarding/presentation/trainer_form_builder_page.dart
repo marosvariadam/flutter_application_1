@@ -209,7 +209,7 @@ class _Field extends StatelessWidget {
           labelText: label,
           labelStyle: TextStyle(color: DT.of(context).textSecondary),
           filled: true,
-          fillColor: DT.gbWhite,
+          fillColor: DT.of(context).cardSurface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
             borderSide: BorderSide.none,
@@ -218,7 +218,7 @@ class _Field extends StatelessWidget {
       );
 }
 
-// ── Question card ─────────────────────────────────────────────────────────────
+// Question card
 
 class _QuestionDraft {
   String? id;
@@ -271,7 +271,7 @@ class _QuestionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: DT.s3),
       padding: const EdgeInsets.all(DT.s4),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
       ),
       child: Column(

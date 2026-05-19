@@ -16,22 +16,22 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
   int _currentPage = 0;
   static const int _totalPages = 6;
 
-  // Step 1 — Weight
+  // Step 1 - Weight
   final _weightController = TextEditingController();
 
-  // Step 2 — Goals
+  // Step 2 - Goals
   String? _selectedGoal;
 
-  // Step 2 — Sport history
+  // Step 2 - Sport history
   final _sportHistoryController = TextEditingController();
 
-  // Step 3 — Previous injuries
+  // Step 3 - Previous injuries
   final Set<String> _selectedInjuries = {};
 
-  // Step 4 — Gym frequency
+  // Step 4 - Gym frequency
   int _gymFrequency = 3;
 
-  // Step 5 — Equipment
+  // Step 5 - Equipment
   final Set<String> _selectedEquipment = {};
 
   static const _goals = [
@@ -245,7 +245,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 1: Weight ───────────────────────────────────────────────────────────
+  // Step 1: Weight
 
   Widget _buildWeightStep() {
     return _buildStepWrapper(
@@ -306,7 +306,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 2: Goals ────────────────────────────────────────────────────────────
+  // Step 2: Goals
 
   Widget _buildGoalsStep() {
     return _buildStepWrapper(
@@ -360,7 +360,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 2: Sport history ────────────────────────────────────────────────────
+  // Step 2: Sport history
 
   Widget _buildSportHistoryStep() {
     return _buildStepWrapper(
@@ -392,7 +392,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 3: Previous injuries ────────────────────────────────────────────────
+  // Step 3: Previous injuries
 
   Widget _buildInjuriesStep() {
     return _buildStepWrapper(
@@ -449,7 +449,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 4: Gym frequency ────────────────────────────────────────────────────
+  // Step 4: Gym frequency
 
   Widget _buildGymFrequencyStep() {
     return _buildStepWrapper(
@@ -515,7 +515,7 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
     );
   }
 
-  // ── Step 5: Equipment ────────────────────────────────────────────────────────
+  // Step 5: Equipment
 
   Widget _buildEquipmentStep() {
     return _buildStepWrapper(

@@ -182,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ],
               ),
 
-              // Trainer name field — only shown for athletes
+              // Trainer name field - only shown for athletes
               if (_isAthlete) ...[
                 const SizedBox(height: DT.s4),
                 Text(

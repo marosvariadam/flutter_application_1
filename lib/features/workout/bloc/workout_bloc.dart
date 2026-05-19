@@ -1,8 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_1/core/notifications/local_notification_service.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// Events
 abstract class WorkoutEvent {}
 
 // List events
@@ -62,7 +63,7 @@ class DeleteWorkout extends WorkoutEvent {
   DeleteWorkout(this.workoutId);
 }
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 abstract class WorkoutState {}
 
 class WorkoutInitial extends WorkoutState {}
@@ -93,7 +94,7 @@ class WorkoutError extends WorkoutState {
   WorkoutError(this.message);
 }
 
-// ── BLoC ──────────────────────────────────────────────────────────────────────
+// BLoC
 class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
   final WorkoutRepository _repo;
   List<WorkoutModel> _workouts = [];
@@ -122,8 +123,31 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
       _hasMore = result.hasMore;
       emit(WorkoutsLoaded(_workouts,
           hasMore: _hasMore, currentPage: _page));
+      // Locally schedule a "starting soon" reminder for every upcoming planned
+      // workout. Re-scheduling replaces any prior reminder.
+      _scheduleReminders(_workouts);
     } catch (_) {
       emit(WorkoutError('Nem sikerült betölteni az edzéseket.'));
+    }
+  }
+
+  /// Schedule a 30-minutes-before reminder for each upcoming planned workout.
+  /// Skips workouts in the past or already completed; cancels reminders for
+  /// completed ones.
+  void _scheduleReminders(List<WorkoutModel> workouts) {
+    final svc = LocalNotificationService.instance;
+    final now = DateTime.now();
+    for (final w in workouts) {
+      if (w.status == WorkoutStatus.completed) {
+        svc.cancelWorkoutReminder(w.id);
+        continue;
+      }
+      if (w.scheduledDate.isBefore(now)) continue;
+      svc.scheduleWorkoutReminder(
+        workoutId: w.id,
+        workoutTitle: w.title,
+        scheduledFor: w.scheduledDate,
+      );
     }
   }
 
@@ -216,6 +240,8 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
     try {
       final workout =
           await _repo.completeWorkout(event.workoutId, feedback: event.feedback);
+      // Workout done - no need for the upcoming-reminder anymore.
+      LocalNotificationService.instance.cancelWorkoutReminder(event.workoutId);
       emit(WorkoutActionSuccess('Edzés befejezve!', workout: workout));
     } catch (_) {
       emit(WorkoutError('Nem sikerült befejezni az edzést.'));
@@ -228,6 +254,7 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
       await _repo.deleteWorkout(event.workoutId);
       _workouts =
           _workouts.where((w) => w.id != event.workoutId).toList();
+      LocalNotificationService.instance.cancelWorkoutReminder(event.workoutId);
       emit(WorkoutsLoaded(_workouts,
           hasMore: _hasMore, currentPage: _page));
     } catch (_) {

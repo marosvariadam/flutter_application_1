@@ -48,7 +48,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: DT.metricBlue.withValues(alpha: 0.15),
-                border: Border.all(color: DT.gbWhite, width: 2),
+                border: Border.all(color: DT.of(context).textOnAccent, width: 2),
               ),
               child: const Icon(Icons.person, color: DT.metricBlue),
             ),
@@ -91,7 +91,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: DT.gbWhite,
+                          color: DT.of(context).cardSurface,
                           borderRadius: BorderRadius.circular(DT.rCardSmall),
                           boxShadow: [
                             BoxShadow(
@@ -140,11 +140,11 @@ class _CoachHomePageState extends State<CoachHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Stats row ──────────────────────────────────────────────────
+            // Stats row
             _StatsRow(),
             const SizedBox(height: DT.s5),
 
-            // ── Athletes horizontal list ────────────────────────────────────
+            // Athletes horizontal list
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -204,7 +204,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
             ),
             const SizedBox(height: DT.s5),
 
-            // ── This week's workouts ────────────────────────────────────────
+            // This week's workouts
             Text(
               'Edzések ezen a héten',
               style: TextStyle(
@@ -237,7 +237,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(DT.s5),
                     decoration: BoxDecoration(
-                      color: DT.gbWhite,
+                      color: DT.of(context).cardSurface,
                       borderRadius: BorderRadius.circular(DT.rCardSmall),
                       boxShadow: [
                         BoxShadow(
@@ -277,8 +277,8 @@ class _CoachHomePageState extends State<CoachHomePage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/workout-builder'),
-        backgroundColor: DT.gbBlack,
-        foregroundColor: DT.gbWhite,
+        backgroundColor: DT.of(context).accentPrimary,
+        foregroundColor: DT.of(context).textOnAccent,
         icon: const Icon(Icons.add),
         label: const Text('Új edzés'),
       ),
@@ -286,7 +286,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
   }
 }
 
-// ── Stats row ─────────────────────────────────────────────────────────────────
+// Stats row
 
 class _StatsRow extends StatelessWidget {
   @override
@@ -403,7 +403,7 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// ── Athlete chip ──────────────────────────────────────────────────────────────
+// Athlete chip
 
 class _AthleteChip extends StatelessWidget {
   final AthleteModel athlete;
@@ -423,7 +423,7 @@ class _AthleteChip extends StatelessWidget {
         width: 90,
         padding: const EdgeInsets.all(DT.s3),
         decoration: BoxDecoration(
-          color: DT.gbWhite,
+          color: DT.of(context).cardSurface,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           boxShadow: [
             BoxShadow(
@@ -472,7 +472,7 @@ class _AthleteChip extends StatelessWidget {
   }
 }
 
-// ── Workout row ───────────────────────────────────────────────────────────────
+// Workout row
 
 class _WorkoutRow extends StatelessWidget {
   final WorkoutModel workout;
@@ -498,7 +498,7 @@ class _WorkoutRow extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: DT.s3),
         padding: const EdgeInsets.all(DT.s4),
         decoration: BoxDecoration(
-          color: DT.gbWhite,
+          color: DT.of(context).cardSurface,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           border: Border(left: BorderSide(color: workout.color, width: 3)),
           boxShadow: [

@@ -6,7 +6,7 @@ class OnboardingRepository {
   final ApiClient _client;
   OnboardingRepository(this._client);
 
-  // ── Trainer ────────────────────────────────────────────────────────────────
+  // Trainer
 
   Future<OnboardingFormModel?> getMyForm() async {
     try {
@@ -44,7 +44,7 @@ class OnboardingRepository {
     return OnboardingResponse.fromJson(res.data as Map<String, dynamic>);
   }
 
-  // ── Athlete ────────────────────────────────────────────────────────────────
+  // Athlete
 
   Future<OnboardingFormModel?> getMyTrainerForm() async {
     try {

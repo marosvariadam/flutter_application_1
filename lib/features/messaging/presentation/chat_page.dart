@@ -9,9 +9,9 @@ import 'package:flutter_application_1/features/messaging/data/models/message_mod
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart'
     show AvatarWidget;
 
-// ─────────────────────────────────────────────────────────────
+//
 // Entry point
-// ─────────────────────────────────────────────────────────────
+//
 
 class ChatPage extends StatefulWidget {
   final String contactId;
@@ -35,9 +35,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Main view (stateful — owns controllers)
-// ─────────────────────────────────────────────────────────────
+//
+// Main view (stateful - owns controllers)
+//
 
 class _ChatView extends StatefulWidget {
   const _ChatView();
@@ -73,21 +73,19 @@ class _ChatViewState extends State<_ChatView> {
     context.read<ChatBloc>().add(SendMessage(text));
     _inputCtrl.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollCtrl.hasClients) {
-        _scrollCtrl.animateTo(
-          _scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
+      if (!mounted || !_scrollCtrl.hasClients) return;
+      _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
   }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollCtrl.hasClients) {
-        _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
-      }
+      if (!mounted || !_scrollCtrl.hasClients) return;
+      _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
     });
   }
 
@@ -112,7 +110,7 @@ class _ChatViewState extends State<_ChatView> {
                     color: DT.of(context).textPrimary, size: 20),
                 onPressed: () => context.pop(),
               ),
-              backgroundColor: DT.gbWhite,
+              backgroundColor: DT.of(context).cardSurface,
               elevation: 0,
             ),
             body: Center(
@@ -129,7 +127,7 @@ class _ChatViewState extends State<_ChatView> {
     );
   }
 
-  // ── Scaffold ─────────────────────────────────────────────
+  // Scaffold
 
   Widget _buildScaffold(
       BuildContext context, ConversationModel conversation) {
@@ -149,7 +147,7 @@ class _ChatViewState extends State<_ChatView> {
     );
   }
 
-  // ── Message list ─────────────────────────────────────────
+  // Message list
 
   Widget _buildMessageList(
       BuildContext context, ConversationModel conversation) {
@@ -196,9 +194,9 @@ class _ChatViewState extends State<_ChatView> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AppBar
-// ─────────────────────────────────────────────────────────────
+//
 
 class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ConversationModel conversation;
@@ -210,7 +208,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: DT.gbWhite,
+      backgroundColor: DT.of(context).cardSurface,
       elevation: 0,
       scrolledUnderElevation: 0,
       titleSpacing: 0,
@@ -220,7 +218,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () => context.pop(),
       ),
       title: GestureDetector(
-        // Tapping the header could open profile — placeholder
+        // Tapping the header could open profile - placeholder
         onTap: () {},
         child: Row(
           children: [
@@ -240,7 +238,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                         color: Colors.green,
                         shape: BoxShape.circle,
                         border:
-                            Border.all(color: DT.gbWhite, width: 2),
+                            Border.all(color: DT.of(context).textOnAccent, width: 2),
                       ),
                     ),
                   ),
@@ -289,9 +287,9 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // Message row (one message + surrounding chrome)
-// ─────────────────────────────────────────────────────────────
+//
 
 class _MessageRow extends StatelessWidget {
   final MessageModel message;
@@ -320,9 +318,9 @@ class _MessageRow extends StatelessWidget {
   }
 
   // Border radius following Messenger convention:
-  //   Sent  → left corners always full; right top = full only on group-start,
+  //   Sent  -> left corners always full; right top = full only on group-start,
   //            right bottom always 4 (the "tail")
-  //   Received → right corners always full; left top = full on group-start,
+  //   Received -> right corners always full; left top = full on group-start,
   //              left bottom always 4 (the "tail")
   BorderRadius _radius() {
     const full = Radius.circular(18);
@@ -351,7 +349,7 @@ class _MessageRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // ── Time divider ─────────────────────────────────
+        // Time divider
         if (showTimeDivider)
           Padding(
             padding: EdgeInsets.only(
@@ -363,7 +361,7 @@ class _MessageRow extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: DT.s3, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.06),
+                  color: DT.of(context).iconLight.withValues(alpha: 0.12),
                   borderRadius:
                       BorderRadius.circular(DT.rChip),
                 ),
@@ -384,7 +382,7 @@ class _MessageRow extends StatelessWidget {
         else
           const SizedBox(height: 2),
 
-        // ── Bubble row ───────────────────────────────────
+        // Bubble row
         Row(
           mainAxisAlignment: message.isSentByMe
               ? MainAxisAlignment.end
@@ -417,7 +415,7 @@ class _MessageRow extends StatelessWidget {
                   borderRadius: _radius(),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: DT.of(context).shadowLight,
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -444,7 +442,7 @@ class _MessageRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         color: message.isSentByMe
-                            ? Colors.white.withOpacity(0.6)
+                            ? Colors.white.withValues(alpha: 0.7)
                             : DT.of(context).textSecondary,
                       ),
                     ),
@@ -455,7 +453,7 @@ class _MessageRow extends StatelessWidget {
           ],
         ),
 
-        // ── "Kézbesítve" under last sent message ─────────
+        // "Kézbesítve" under last sent message
         if (showDelivered)
           Padding(
             padding: const EdgeInsets.only(top: 4, right: DT.s3, bottom: 2),
@@ -475,9 +473,9 @@ class _MessageRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // Input bar
-// ─────────────────────────────────────────────────────────────
+//
 
 class _InputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -496,7 +494,7 @@ class _InputBar extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         border: Border(
             top: BorderSide(color: DT.of(context).borderLight, width: 0.8)),
       ),
@@ -596,9 +594,9 @@ class _InputBar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // Empty chat state
-// ─────────────────────────────────────────────────────────────
+//
 class _EmptyChat extends StatelessWidget {
   final String name;
   const _EmptyChat({required this.name});

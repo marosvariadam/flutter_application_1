@@ -12,7 +12,7 @@ class RosterRepository {
     final res = await _client.dio.get(
       ApiConstants.trainerAthletes(trainerId ?? ''),
     );
-    // Backend returns plain array — wrap in PaginatedAthletes
+    // Backend returns plain array - wrap in PaginatedAthletes
     final items = (res.data as List)
         .map((e) => AthleteModel.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -62,6 +62,6 @@ class RosterRepository {
     await _client.dio.post(ApiConstants.removeAthlete(id));
   }
 
-  /// Not supported by current backend — no-op.
+  /// Not supported by current backend -.
   Future<void> resetAthletePassword(String id, String newPassword) async {}
 }
