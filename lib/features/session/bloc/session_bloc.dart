@@ -16,7 +16,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   ) async {
     emit(SessionLoading());
     try {
-      // Mock data — replace with a repository/API call when the backend is ready
+      // Mock data - replace with a repository/API call when the backend is ready
       final sessions = [
         const SessionModel(
           id: '1',

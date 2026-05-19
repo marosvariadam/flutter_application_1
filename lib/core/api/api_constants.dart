@@ -1,11 +1,11 @@
 class ApiConstants {
   static const String baseUrl = 'http://10.0.2.2:5233';
 
-  // ── Auth ────────────────────────────────────────────────────────────────────
-  /// POST { email, password } → { token, userId, role }
+  // Auth
+  /// POST { email, password } -> { token, userId, role }
   static const String login = '/api/auth/login';
 
-  // ── User ────────────────────────────────────────────────────────────────────
+  // User
   /// POST { firstName, lastName, email, password, role }
   static const String register = '/api/user/register';
   static String userById(String id) => '/api/user/$id';
@@ -13,11 +13,11 @@ class ApiConstants {
   static String deleteUser(String id) => '/api/user/$id';
   static const String changePassword = '/api/user/change-password';
 
-  // ── Trainer's athletes ───────────────────────────────────────────────────────
+  // Trainer's athletes
   static String trainerAthletes(String trainerId) =>
       '/api/user/trainer/$trainerId/athletes';
 
-  // ── Workouts ────────────────────────────────────────────────────────────────
+  // Workouts
   static const String workout = '/api/workout';
   static String workoutById(String id) => '/api/workout/$id';
   static const String trainerCreated = '/api/workout/trainer/created';
@@ -31,30 +31,30 @@ class ApiConstants {
   static const String trainerCalendar = '/api/workout/trainer/calendar';
   static const String athleteCalendar = '/api/workout/my-workouts/calendar';
 
-  // ── Workout stats ──────────────────────────────────────────────────────────
+  // Workout stats
   static const String exerciseStats = '/api/workout/stats/exercise';
   static String exerciseStatsForAthlete(String athleteId) =>
       '/api/workout/stats/exercise/$athleteId';
 
-  // ── Exercises ───────────────────────────────────────────────────────────────
+  // Exercises
   static const String exercise = '/api/exercise';
   static String exerciseById(String id) => '/api/exercise/$id';
   static String exercisesForAthlete(String athleteId) =>
       '/api/exercise/for-athlete/$athleteId';
 
-  // ── Notifications (not yet in backend — kept for future) ────────────────────
+  // Notifications (not yet in backend - kept for future)
   static const String notifications = '/api/notification';
   static const String unreadCount = '/api/notification/unread-count';
   static String markNotifRead(String id) => '/api/notification/$id/read';
   static const String markAllRead = '/api/notification/mark-all-read';
 
-  // ── Messaging (not yet in backend — kept for future) ────────────────────────
+  // Messaging (not yet in backend - kept for future)
   static const String conversations = '/api/message/conversations';
   static String messageThread(String otherId) => '/api/message/$otherId';
   static String sendMessage(String recipientId) => '/api/message/$recipientId';
   static String markRead(String otherId) => '/api/message/$otherId/read';
 
-  // ── Trainer requests ─────────────────────────────────────────────────────────
+  // Trainer requests
   static const String trainerRequest = '/api/trainer-request';
   static const String myTrainerRequests = '/api/trainer-request/mine';
   static const String pendingRequests = '/api/trainer-request/pending';
@@ -62,29 +62,29 @@ class ApiConstants {
   static String rejectRequest(String id) => '/api/trainer-request/$id/reject';
   static String cancelRequest(String id) => '/api/trainer-request/$id';
 
-  // ── Trainer / Athlete link management ────────────────────────────────────────
+  // Trainer / Athlete link management
   static const String leaveTrainer = '/api/user/leave-trainer';
   static String removeAthlete(String athleteId) =>
       '/api/user/remove-athlete/$athleteId';
 
-  // ── Prediction (Est1Rm forecast) ────────────────────────────────────────────
-  /// GET ?exerciseName=&weeksAhead=&focus=  — athlete-self forecast.
+  // Prediction (Est1Rm forecast)
+  /// GET ?exerciseName=&weeksAhead=&focus=  - athlete-self forecast.
   static const String predictionMine = '/api/prediction/exercise';
-  /// GET ?exerciseName=&weeksAhead=&focus=  — trainer view for an athlete.
+  /// GET ?exerciseName=&weeksAhead=&focus=  - trainer view for an athlete.
   static String predictionForAthlete(String athleteId) =>
       '/api/prediction/exercise/$athleteId';
 
-  // ── Training blocks (trainer CRUD; athletes can read their own) ─────────────
+  // Training blocks (trainer CRUD; athletes can read their own)
   static const String trainingBlock = '/api/trainingblock';
   static String trainingBlockById(String id) => '/api/trainingblock/$id';
   static String trainingBlocksForAthlete(String athleteId) =>
       '/api/trainingblock/athlete/$athleteId';
 
-  // ── SignalR Hubs ────────────────────────────────────────────────────────────
+  // SignalR Hubs
   static const String chatHub = '/hubs/chat';
   static const String notificationHub = '/hubs/notifications';
 
-  // ── Onboarding (not yet in backend — kept for future) ───────────────────────
+  // Onboarding (not yet in backend - kept for future)
   static const String onboardingForm = '/api/onboarding-form';
   static const String onboardingMine = '/api/onboarding-form/mine';
   static const String onboardingResponses = '/api/onboarding-form/responses';

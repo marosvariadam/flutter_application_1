@@ -292,7 +292,7 @@ class _DayWorkoutList extends StatelessWidget {
       itemBuilder: (context, i) {
         final w = workouts[i];
         return Material(
-          color: DT.gbWhite,
+          color: DT.of(context).cardSurface,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           child: InkWell(
             borderRadius: BorderRadius.circular(DT.rCardSmall),

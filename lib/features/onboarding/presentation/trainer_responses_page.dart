@@ -92,7 +92,7 @@ class _ResponseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: InkWell(
         borderRadius: BorderRadius.circular(DT.rCardSmall),

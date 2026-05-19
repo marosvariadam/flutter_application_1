@@ -79,7 +79,7 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                   children: [
                     const Spacer(),
 
-                    // ── Pulsing icon ──────────────────────────────────────
+                    // Pulsing icon
                     if (state is AthleteStatusLoading ||
                         state is AthleteStatusInitial)
                       const CircularProgressIndicator()
@@ -104,7 +104,7 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
 
                     const SizedBox(height: DT.s6),
 
-                    // ── Title ─────────────────────────────────────────────
+                    // Title
                     Text(
                       'Edzőre várakozás',
                       style: TextStyle(
@@ -118,7 +118,7 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
 
                     const SizedBox(height: DT.s3),
 
-                    // ── Subtitle ──────────────────────────────────────────
+                    // Subtitle
                     Text(
                       state is AthleteStatusLoading ||
                               state is AthleteStatusInitial
@@ -135,7 +135,7 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
 
                     const SizedBox(height: DT.s8),
 
-                    // ── Status pill ───────────────────────────────────────
+                    // Status pill
                     if (state is AthleteStatusPending)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -156,10 +156,10 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                               ),
                             ),
                             const SizedBox(width: DT.s2),
-                            const Text(
+                            Text(
                               'Jóváhagyásra vár',
                               style: TextStyle(
-                                color: Color(0xFFB8860B),
+                                color: DT.of(context).accentWarning,
                                 fontWeight: FontWeight.w600,
                                 fontSize: DT.s3,
                               ),
@@ -170,7 +170,7 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
 
                     const Spacer(),
 
-                    // ── Action buttons ────────────────────────────────────
+                    // Action buttons
                     SizedBox(
                       width: double.infinity,
                       height: 50,

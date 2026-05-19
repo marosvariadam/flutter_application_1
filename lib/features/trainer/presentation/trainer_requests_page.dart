@@ -7,8 +7,8 @@ import 'package:flutter_application_1/features/trainer/data/repositories/trainer
 import 'package:intl/intl.dart';
 
 class TrainerRequestsPage extends StatelessWidget {
-  /// [isTrainer] = true → trainer sees incoming requests
-  /// [isTrainer] = false → athlete sees their outgoing requests
+  /// [isTrainer] = true -> trainer sees incoming requests
+  /// [isTrainer] = false -> athlete sees their outgoing requests
   final bool isTrainer;
   const TrainerRequestsPage({super.key, this.isTrainer = true});
 
@@ -108,7 +108,7 @@ class _IncomingRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: Padding(
         padding: const EdgeInsets.all(DT.s4),
@@ -240,7 +240,7 @@ class _OutgoingRequestCard extends StatelessWidget {
             : 'Függőben';
 
     return Material(
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: Padding(
         padding: const EdgeInsets.all(DT.s4),

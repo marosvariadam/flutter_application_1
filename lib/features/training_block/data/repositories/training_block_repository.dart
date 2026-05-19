@@ -4,20 +4,20 @@ import 'package:flutter_application_1/core/api/api_constants.dart';
 import 'package:flutter_application_1/features/training_block/data/models/training_block_model.dart';
 
 /// Server said the new/edited block overlaps an existing one for this athlete.
-/// Carries the backend message so the UI snackbar can echo it verbatim per spec.
+/// Includes the backend message.
 class TrainingBlockOverlapException implements Exception {
   final String message;
   const TrainingBlockOverlapException(this.message);
 }
 
-/// 400 — typically `endDate < startDate`. Carries the server message so the
+/// 400 - typically `endDate < startDate`. Carries the server message so the
 /// form can show it inline next to the date fields.
 class TrainingBlockValidationException implements Exception {
   final String message;
   const TrainingBlockValidationException(this.message);
 }
 
-/// 403 — trainer doesn't own this athlete.
+/// 403 - trainer doesn't own this athlete.
 class TrainingBlockForbiddenException implements Exception {
   const TrainingBlockForbiddenException();
 }
@@ -35,7 +35,7 @@ class TrainingBlockRepository {
     return '$y-$m-$day';
   }
 
-  // ── Read ────────────────────────────────────────────────────────────────────
+  // Read
 
   /// Trainer or self-athlete may call this. Returns blocks sorted ascending.
   Future<List<TrainingBlockModel>> getForAthlete(String athleteId) async {
@@ -57,7 +57,7 @@ class TrainingBlockRepository {
     }
   }
 
-  // ── Write (trainer-only on the server) ──────────────────────────────────────
+  // Write (trainer-only on the server)
 
   Future<TrainingBlockModel> create({
     required String athleteId,
@@ -79,7 +79,7 @@ class TrainingBlockRepository {
       );
       return TrainingBlockModel.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      _mapWriteError(e); // returns Never — throws a typed exception
+      _mapWriteError(e); // returns Never - throws a typed exception
     }
   }
 
@@ -94,7 +94,7 @@ class TrainingBlockRepository {
       final res = await _client.dio.put(
         ApiConstants.trainingBlockById(id),
         data: {
-          // athleteId ignored on PUT per spec; omit.
+          // athleteId ignored on PUT; omit.
           'focus': focus,
           'startDate': _dateOnly(startDate),
           'endDate': _dateOnly(endDate),
@@ -103,7 +103,7 @@ class TrainingBlockRepository {
       );
       return TrainingBlockModel.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      _mapWriteError(e); // returns Never — throws a typed exception
+      _mapWriteError(e); // returns Never - throws a typed exception
     }
   }
 
@@ -118,7 +118,7 @@ class TrainingBlockRepository {
     }
   }
 
-  /// Translates backend write errors into typed exceptions the UI can branch on.
+  /// Maps backend write errors to typed exceptions.
   Never _mapWriteError(DioException e) {
     final code = e.response?.statusCode;
     final body = e.response?.data;

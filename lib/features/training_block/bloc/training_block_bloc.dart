@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/training_block/data/models/training_block_model.dart';
 import 'package:flutter_application_1/features/training_block/data/repositories/training_block_repository.dart';
 
-// ── Events ───────────────────────────────────────────────────────────────────
+// Events
 abstract class TrainingBlockEvent {}
 
 class LoadTrainingBlocks extends TrainingBlockEvent {
@@ -48,7 +48,7 @@ class DeleteTrainingBlock extends TrainingBlockEvent {
   DeleteTrainingBlock({required this.id, required this.athleteId});
 }
 
-// ── States ───────────────────────────────────────────────────────────────────
+// States
 abstract class TrainingBlockState {
   const TrainingBlockState();
 }
@@ -91,7 +91,7 @@ class TrainingBlockValidation extends TrainingBlockState {
   const TrainingBlockValidation(this.message);
 }
 
-// ── BLoC ─────────────────────────────────────────────────────────────────────
+// BLoC
 class TrainingBlockBloc
     extends Bloc<TrainingBlockEvent, TrainingBlockState> {
   final TrainingBlockRepository _repo;

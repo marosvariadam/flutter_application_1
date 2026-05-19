@@ -88,7 +88,7 @@ class _AthletesPageState extends State<AthletesPage> {
                 padding: const EdgeInsets.fromLTRB(DT.s5, 0, DT.s5, DT.s3),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: DT.gbWhite,
+                    color: DT.of(context).cardSurface,
                     borderRadius: BorderRadius.circular(DT.rCardSmall),
                     boxShadow: [
                       BoxShadow(
@@ -158,7 +158,7 @@ class _AthleteCard extends StatelessWidget {
             .toUpperCase();
 
     return Material(
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: InkWell(
         onTap: onTap,

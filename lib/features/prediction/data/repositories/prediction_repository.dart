@@ -3,7 +3,7 @@ import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/api/api_constants.dart';
 import 'package:flutter_application_1/features/prediction/data/models/prediction_models.dart';
 
-/// Thrown when the backend returns 404 — meaning the athlete has no completed
+/// Thrown when the backend returns 404 - meaning the athlete has no completed
 /// sessions for this exercise yet. The UI distinguishes this from a generic
 /// error.
 class PredictionEmptyException implements Exception {
@@ -33,7 +33,7 @@ class PredictionRepository {
     );
   }
 
-  /// Forecast for a specific athlete — trainer view.
+  /// Forecast for a specific athlete - trainer view.
   Future<PredictionResult> getPredictionForAthlete({
     required String athleteId,
     required String exerciseName,

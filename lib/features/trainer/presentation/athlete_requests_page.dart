@@ -86,7 +86,7 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
           return ListView(
             padding: const EdgeInsets.all(DT.s5),
             children: [
-              // ── Find trainer card ───────────────────────────────────────
+              // Find trainer card
               _FindTrainerCard(
                 formKey: _formKey,
                 emailCtrl: _emailCtrl,
@@ -95,7 +95,7 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
                 onSend: () => _send(context),
               ),
               const SizedBox(height: DT.s6),
-              // ── My requests header ──────────────────────────────────────
+              // My requests header
               Text(
                 'Kéréseim',
                 style: TextStyle(
@@ -104,7 +104,7 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
                     fontSize: DT.s4),
               ),
               const SizedBox(height: DT.s3),
-              // ── Requests list ───────────────────────────────────────────
+              // Requests list
               if (isLoading)
                 const Center(
                     child: Padding(
@@ -143,7 +143,7 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
   }
 }
 
-// ── Find trainer form card ─────────────────────────────────────────────────
+// Find trainer form card
 
 class _FindTrainerCard extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -165,7 +165,7 @@ class _FindTrainerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(DT.s5),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
         boxShadow: [
           BoxShadow(
@@ -250,7 +250,7 @@ class _FindTrainerCard extends StatelessWidget {
   }
 }
 
-// ── Request card ───────────────────────────────────────────────────────────
+// Request card
 
 class _RequestCard extends StatelessWidget {
   final TrainerRequestModel request;
@@ -270,7 +270,7 @@ class _RequestCard extends StatelessWidget {
             : 'Függőben';
 
     return Material(
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: Padding(
         padding: const EdgeInsets.all(DT.s4),

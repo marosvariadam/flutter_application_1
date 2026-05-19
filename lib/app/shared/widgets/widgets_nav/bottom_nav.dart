@@ -15,16 +15,24 @@ class BottomNavScaffold extends StatelessWidget {
     final isCoach = UserSession.instance.isCoach;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
+    final dt = DT.of(context);
     return Scaffold(
       body: shell,
       bottomNavigationBar: Container(
-        color: DT.of(context).bg,
+        color: dt.bg,
         padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset : DT.s2),
         child: Container(
           height: 64,
           decoration: BoxDecoration(
-            color: DT.bottomNavBG,
+            color: dt.bottomNavBg,
             borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: dt.shadowMedium,
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           margin: const EdgeInsets.only(
             bottom: DT.s2,
@@ -83,14 +91,17 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = isSelected ? DT.gbBlack : Colors.white.withValues(alpha: 0.5);
-    final labelColor = isSelected ? DT.gbWhite : Colors.white.withValues(alpha: 0.5);
+    final dt = DT.of(context);
+    final iconColor =
+        isSelected ? dt.bottomNavSelectedIcon : dt.bottomNavUnselected;
+    final labelColor =
+        isSelected ? dt.bottomNavSelectedLabel : dt.bottomNavUnselected;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(DT.rCard),
-      splashColor: Colors.white.withValues(alpha: 0.1),
-      highlightColor: Colors.white.withValues(alpha: 0.05),
+      splashColor: dt.textOnAccent.withValues(alpha: 0.1),
+      highlightColor: dt.textOnAccent.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s1),
         child: Column(
@@ -102,7 +113,8 @@ class _NavItem extends StatelessWidget {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: isSelected ? DT.of(context).bg : Colors.transparent,
+                color:
+                    isSelected ? dt.bottomNavSelectedBg : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: iconColor, size: DT.s5),

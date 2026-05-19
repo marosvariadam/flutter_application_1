@@ -119,8 +119,8 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: notification.isRead
-          ? DT.gbWhite
-          : DT.metricBlue.withOpacity(0.08),
+          ? DT.of(context).cardSurface
+          : DT.of(context).accentPrimary.withValues(alpha: 0.10),
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: InkWell(
         borderRadius: BorderRadius.circular(DT.rCardSmall),

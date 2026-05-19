@@ -26,7 +26,7 @@ class WorkoutsHubPage extends StatelessWidget {
   }
 }
 
-// ── Athlete workout list ───────────────────────────────────────────────────────
+// Athlete workout list
 
 class AthleteWorkoutListPage extends StatelessWidget {
   const AthleteWorkoutListPage({super.key});
@@ -152,7 +152,7 @@ class _AthleteWorkoutView extends StatelessWidget {
   }
 }
 
-// ── Shared workout card ───────────────────────────────────────────────────────
+// Shared workout card
 
 class WorkoutCard extends StatelessWidget {
   final WorkoutModel workout;
@@ -166,7 +166,7 @@ class WorkoutCard extends StatelessWidget {
     final diffColor = _diffColor(workout.difficulty);
 
     return Material(
-      color: DT.gbWhite,
+      color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCard),
       child: InkWell(
         onTap: onTap,

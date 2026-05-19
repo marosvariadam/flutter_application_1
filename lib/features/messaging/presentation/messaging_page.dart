@@ -4,15 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/user_session.dart';
+import 'package:flutter_application_1/features/messaging/bloc/chat_bloc.dart';
 import 'package:flutter_application_1/features/messaging/bloc/messaging_bloc.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
 import 'package:flutter_application_1/features/trainer/bloc/roster_bloc.dart';
 import 'package:flutter_application_1/features/trainer/bloc/trainer_request_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 
-// ─────────────────────────────────────────────────────────────
+//
 // Page
-// ─────────────────────────────────────────────────────────────
+//
 
 class MessagingPage extends StatefulWidget {
   const MessagingPage({super.key});
@@ -25,13 +26,17 @@ class _MessagingPageState extends State<MessagingPage> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // ── Athlete-only navigation state ──────────────────────────
-  // True once the athlete has been auto-navigated to the trainer chat
-  // (so we don't loop on state rebuilds).
-  bool _navigated = false;
-  // True once we've dispatched LoadMyRequests as a fallback for empty convos.
-  bool _trainerFallbackStarted = false;
-  // Trainer info resolved from the accepted trainer request (fallback).
+  // Set to true after the one-time auto-navigation fires. Never reset.
+  // Using addPostFrameCallback + this flag makes the auto-nav loop-proof:
+  // even if the MessagingPage remounts (branch reset via bottom-nav tap),
+  // the flag prevents a second push.
+  bool _autoNavDone = false;
+
+  // Prevents duplicate LoadMyRequests dispatches for the trainer fallback.
+  bool _trainerLookupStarted = false;
+
+  // Trainer info resolved from the accepted trainer request (fallback path
+  // used when no conversation history exists yet).
   String? _fallbackTrainerId;
   String? _fallbackTrainerName;
 
@@ -40,10 +45,10 @@ class _MessagingPageState extends State<MessagingPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (UserSession.instance.isCoach) {
-        // Only load if not already populated.
         if (context.read<RosterBloc>().state is! RosterLoaded) {
           context.read<RosterBloc>().add(LoadRoster());
         }
+        context.read<MessagingBloc>().add(LoadConversations());
       } else {
         context.read<MessagingBloc>().add(LoadConversations());
       }
@@ -56,41 +61,39 @@ class _MessagingPageState extends State<MessagingPage> {
     super.dispose();
   }
 
-  // ── Helpers ─────────────────────────────────────────────────
+  // Helpers
 
-  void _navigateToChat(BuildContext context, String id, String name) {
-    if (_navigated) return;
-    _navigated = true;
+  void _openChat(BuildContext context, String id, String name) {
+    final chatBloc = context.read<ChatBloc>();
+    final messagingBloc = context.read<MessagingBloc>();
     context.push('/messages/$id', extra: name).then((_) {
-      // Refresh conversations when returning from chat (updates unread counts).
-      if (mounted) {
-        context.read<MessagingBloc>().add(LoadConversations());
+      if (!mounted) return;
+      final chatState = chatBloc.state;
+      if (chatState is ChatLoaded &&
+          chatState.conversation.messages.isNotEmpty) {
+        final last = chatState.conversation.messages.last;
+        messagingBloc.add(BumpConversation(
+          conversationId: id,
+          lastMessage: last.text,
+          lastMessageTime: last.timestamp,
+        ));
       }
+      messagingBloc.add(LoadConversations());
     });
   }
 
-  void _handleTrainerRequests(
-      BuildContext context, List<TrainerRequestModel> requests) {
-    TrainerRequestModel? accepted;
+  void _resolveTrainer(List<TrainerRequestModel> requests) {
     for (final r in requests) {
-      if (r.isAccepted) {
-        accepted = r;
-        break;
+      if (r.isAccepted && r.trainerId != null) {
+        if (mounted) {
+          setState(() {
+            _fallbackTrainerId = r.trainerId;
+            _fallbackTrainerName =
+                r.trainerName ?? r.trainerEmail ?? 'Edző';
+          });
+        }
+        return;
       }
-    }
-    if (accepted == null) return;
-
-    final id = accepted.trainerId;
-    final name = accepted.trainerName ??
-        accepted.trainerEmail ??
-        'Edző';
-
-    if (id != null) {
-      setState(() {
-        _fallbackTrainerId = id;
-        _fallbackTrainerName = name;
-      });
-      _navigateToChat(context, id, name);
     }
   }
 
@@ -102,13 +105,13 @@ class _MessagingPageState extends State<MessagingPage> {
     return _buildAthleteView(context);
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Trainer view — roster list → tap → open chat
-  // ─────────────────────────────────────────────────────────────
+  //
+  // Trainer view - roster list -> tap -> open chat
+  //
 
   Widget _buildTrainerView(BuildContext context) {
     return Scaffold(
-      backgroundColor: DT.gbWhite,
+      backgroundColor: DT.of(context).cardSurface,
       appBar: _AppBar(title: 'Sportolók'),
       body: Column(
         children: [
@@ -125,12 +128,13 @@ class _MessagingPageState extends State<MessagingPage> {
           ),
           Expanded(
             child: BlocBuilder<RosterBloc, RosterState>(
-              builder: (context, state) {
-                if (state is RosterLoading || state is RosterInitial) {
+              builder: (context, rosterState) {
+                if (rosterState is RosterLoading ||
+                    rosterState is RosterInitial) {
                   return const Center(
                       child: CircularProgressIndicator(color: DT.metricBlue));
                 }
-                if (state is RosterError) {
+                if (rosterState is RosterError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -138,7 +142,7 @@ class _MessagingPageState extends State<MessagingPage> {
                         Icon(Icons.error_outline,
                             size: 48, color: DT.of(context).iconLightGrey),
                         const SizedBox(height: DT.s3),
-                        Text(state.message,
+                        Text(rosterState.message,
                             style: TextStyle(
                                 color: DT.of(context).textSecondary)),
                         const SizedBox(height: DT.s4),
@@ -157,41 +161,77 @@ class _MessagingPageState extends State<MessagingPage> {
                     ),
                   );
                 }
-                if (state is RosterLoaded) {
-                  final lq = _searchQuery.toLowerCase();
-                  final athletes = _searchQuery.isEmpty
-                      ? state.athletes
-                      : state.athletes
-                          .where((a) =>
-                              a.fullName.toLowerCase().contains(lq) ||
-                              a.email.toLowerCase().contains(lq))
-                          .toList();
+                if (rosterState is RosterLoaded) {
+                  return BlocBuilder<MessagingBloc, MessagingState>(
+                    builder: (context, msgState) {
+                      // Build normalised-id->conversation map.
+                      // Lowercase both keys and lookups to handle GUID casing
+                      // differences between roster and conversations endpoints.
+                      final convMap = <String, ConversationModel>{};
+                      if (msgState is MessagingLoaded) {
+                        for (final c in msgState.conversations) {
+                          convMap[c.id.toLowerCase()] = c;
+                        }
+                      }
 
-                  if (athletes.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.people_outline,
-                              size: 64, color: DT.of(context).iconLightGrey),
-                          const SizedBox(height: DT.s4),
-                          Text(
-                            _searchQuery.isEmpty
-                                ? 'Még nincs sportoló a csapatodban.'
-                                : 'Nincs találat.',
-                            style: TextStyle(
-                                color: DT.of(context).textSecondary,
-                                fontSize: 15),
+                      final lq = _searchQuery.toLowerCase();
+                      var athletes = _searchQuery.isEmpty
+                          ? rosterState.athletes.toList()
+                          : rosterState.athletes
+                              .where((a) =>
+                                  a.fullName.toLowerCase().contains(lq) ||
+                                  a.email.toLowerCase().contains(lq))
+                              .toList();
+
+                      // Sort: athletes with conversations first (newest on top),
+                      // then athletes with no conversation yet.
+                      athletes.sort((a, b) {
+                        final ta = convMap[a.id.toLowerCase()]?.lastMessageTime;
+                        final tb = convMap[b.id.toLowerCase()]?.lastMessageTime;
+                        if (ta == null && tb == null) return 0;
+                        if (ta == null) return 1;
+                        if (tb == null) return -1;
+                        return tb.compareTo(ta);
+                      });
+
+                      if (athletes.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.people_outline,
+                                  size: 64,
+                                  color: DT.of(context).iconLightGrey),
+                              const SizedBox(height: DT.s4),
+                              Text(
+                                _searchQuery.isEmpty
+                                    ? 'Még nincs sportoló a csapatodban.'
+                                    : 'Nincs találat.',
+                                style: TextStyle(
+                                    color: DT.of(context).textSecondary,
+                                    fontSize: 15),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }
+                        );
+                      }
 
-                  return ListView.builder(
-                    itemCount: athletes.length,
-                    itemBuilder: (context, i) =>
-                        _AthleteContactTile(athlete: athletes[i]),
+                      return ListView.builder(
+                        itemCount: athletes.length,
+                        itemBuilder: (context, i) {
+                          final athlete = athletes[i];
+                          final conv = convMap[athlete.id.toLowerCase()];
+                          if (conv != null) {
+                            return _ConversationTile(
+                              conversation: conv,
+                              onTap: () => _openChat(
+                                  context, athlete.id, athlete.fullName),
+                            );
+                          }
+                          return _AthleteContactTile(athlete: athlete);
+                        },
+                      );
+                    },
                   );
                 }
                 return const SizedBox.shrink();
@@ -203,151 +243,141 @@ class _MessagingPageState extends State<MessagingPage> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Athlete view — auto-navigate to the (single) trainer chat
-  // ─────────────────────────────────────────────────────────────
+  //
+  // Athlete view
+  //
 
   Widget _buildAthleteView(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        // Primary: conversations API gives us the trainer's ID + name.
         BlocListener<MessagingBloc, MessagingState>(
           listener: (context, state) {
-            if (state is MessagingLoaded) {
-              if (state.conversations.isNotEmpty && !_navigated) {
-                final conv = state.conversations.first;
-                _navigateToChat(context, conv.id, conv.contactName);
-              } else if (state.conversations.isEmpty &&
-                  !_trainerFallbackStarted) {
-                // No messages yet — look up the trainer from the accepted request.
-                _trainerFallbackStarted = true;
-                final reqState = context.read<TrainerRequestBloc>().state;
-                if (reqState is TrainerRequestsLoaded) {
-                  // Data already loaded, use it immediately.
-                  _handleTrainerRequests(context, reqState.requests);
-                } else {
-                  context
-                      .read<TrainerRequestBloc>()
-                      .add(LoadMyRequests());
-                }
+            if (state is! MessagingLoaded) return;
+
+            if (state.conversations.isNotEmpty && !_autoNavDone) {
+              // Auto-navigate once to the trainer chat. Scheduling via
+              // addPostFrameCallback avoids navigating mid-build and ensures
+              // _autoNavDone is committed before the next listener fires.
+              _autoNavDone = true;
+              final conv = state.conversations.first;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                _openChat(context, conv.id, conv.contactName);
+              });
+            } else if (state.conversations.isEmpty &&
+                !_trainerLookupStarted) {
+              // No conversation history yet - find the trainer via requests.
+              _trainerLookupStarted = true;
+              final reqState = context.read<TrainerRequestBloc>().state;
+              if (reqState is TrainerRequestsLoaded) {
+                _resolveTrainer(reqState.requests);
+              } else {
+                context.read<TrainerRequestBloc>().add(LoadMyRequests());
               }
             }
           },
         ),
-        // Fallback: accepted trainer request gives us the trainer's user ID.
         BlocListener<TrainerRequestBloc, TrainerRequestState>(
           listener: (context, state) {
-            if (state is TrainerRequestsLoaded && _trainerFallbackStarted) {
-              _handleTrainerRequests(context, state.requests);
+            if (state is! TrainerRequestsLoaded) return;
+            _resolveTrainer(state.requests);
+            // If auto-nav hasn't fired yet and we just resolved a trainer,
+            // navigate to that trainer's chat now (first-time user path).
+            if (!_autoNavDone && _fallbackTrainerId != null) {
+              _autoNavDone = true;
+              final id = _fallbackTrainerId!;
+              final name = _fallbackTrainerName ?? 'Edző';
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                _openChat(context, id, name);
+              });
             }
           },
         ),
       ],
       child: BlocBuilder<MessagingBloc, MessagingState>(
         builder: (context, state) {
-          // After auto-navigation the athlete may press back.
-          // Show the conversation list so they can tap to reopen the chat.
-          if (_navigated) {
-            return _buildAthleteConversationList(context, state);
+          if (state is MessagingLoading || state is MessagingInitial) {
+            return Scaffold(
+              backgroundColor: DT.of(context).cardSurface,
+              appBar: _AppBar(title: 'Üzenetek'),
+              body: const Center(
+                  child: CircularProgressIndicator(color: DT.metricBlue)),
+            );
           }
 
-          // Still resolving — show a spinner.
           if (state is MessagingError) {
             return Scaffold(
-              backgroundColor: DT.gbWhite,
+              backgroundColor: DT.of(context).cardSurface,
               appBar: _AppBar(title: 'Üzenetek'),
               body: _ErrorView(
                 message: state.message,
                 onRetry: () {
-                  setState(() {
-                    _navigated = false;
-                    _trainerFallbackStarted = false;
-                  });
+                  setState(() => _trainerLookupStarted = false);
                   context.read<MessagingBloc>().add(LoadConversations());
                 },
               ),
             );
           }
 
+          // MessagingLoaded - show conversation list.
+          final loaded = state is MessagingLoaded ? state : null;
+          List<ConversationModel> convs =
+              loaded?.conversations.isNotEmpty == true
+                  ? loaded!.conversations
+                  : _fallbackTrainerId != null
+                      ? [
+                          ConversationModel(
+                            id: _fallbackTrainerId!,
+                            contactName: _fallbackTrainerName ?? 'Edző',
+                            contactAvatarUrl: '',
+                            lastMessage: 'Kezdj el üzenetet küldeni...',
+                            lastMessageTime: DateTime.now(),
+                            unreadCount: 0,
+                            isOnline: false,
+                            messages: const [],
+                          )
+                        ]
+                      : [];
+
           return Scaffold(
-            backgroundColor: DT.gbWhite,
+            backgroundColor: DT.of(context).cardSurface,
             appBar: _AppBar(title: 'Üzenetek'),
-            body: const Center(
-                child: CircularProgressIndicator(color: DT.metricBlue)),
+            body: convs.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.chat_bubble_outline,
+                            size: 64, color: DT.of(context).iconLightGrey),
+                        const SizedBox(height: DT.s4),
+                        Text(
+                          'Még nincs üzeneted az edződdel.',
+                          style: TextStyle(
+                              color: DT.of(context).textSecondary,
+                              fontSize: 15),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: convs.length,
+                    itemBuilder: (ctx, i) => _ConversationTile(
+                      conversation: convs[i],
+                      onTap: () =>
+                          _openChat(ctx, convs[i].id, convs[i].contactName),
+                    ),
+                  ),
           );
         },
       ),
     );
   }
-
-  /// Builds the athlete's "back to trainer" list shown after returning from chat.
-  Widget _buildAthleteConversationList(
-      BuildContext context, MessagingState state) {
-    // Prefer live conversations from the API; fall back to resolved trainer info.
-    List<ConversationModel> convs = [];
-    if (state is MessagingLoaded && state.conversations.isNotEmpty) {
-      convs = state.conversations;
-    } else if (_fallbackTrainerId != null) {
-      convs = [
-        ConversationModel(
-          id: _fallbackTrainerId!,
-          contactName: _fallbackTrainerName ?? 'Edző',
-          contactAvatarUrl: '',
-          lastMessage: 'Kezdj el üzenetet küldeni...',
-          lastMessageTime: DateTime.now(),
-          unreadCount: 0,
-          isOnline: false,
-          messages: const [],
-        ),
-      ];
-    }
-
-    return Scaffold(
-      backgroundColor: DT.gbWhite,
-      appBar: _AppBar(title: 'Üzenetek'),
-      body: convs.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.chat_bubble_outline,
-                      size: 64, color: DT.of(context).iconLightGrey),
-                  const SizedBox(height: DT.s4),
-                  Text(
-                    'Még nincs üzeneted az edződdel.',
-                    style: TextStyle(
-                        color: DT.of(context).textSecondary, fontSize: 15),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              itemCount: convs.length,
-              itemBuilder: (context, i) => _ConversationTile(
-                conversation: convs[i],
-                onTap: () {
-                  setState(() => _navigated = false);
-                  context
-                      .push('/messages/${convs[i].id}',
-                          extra: convs[i].contactName)
-                      .then((_) {
-                    if (mounted) {
-                      setState(() => _navigated = true);
-                      context
-                          .read<MessagingBloc>()
-                          .add(LoadConversations());
-                    }
-                  });
-                },
-              ),
-            ),
-    );
-  }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AppBar
-// ─────────────────────────────────────────────────────────────
+//
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -359,7 +389,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: DT.gbWhite,
+      backgroundColor: DT.of(context).cardSurface,
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
@@ -380,9 +410,9 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // Search bar
-// ─────────────────────────────────────────────────────────────
+//
 
 class _SearchBar extends StatelessWidget {
   final TextEditingController controller;
@@ -429,9 +459,9 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // Conversation tile
-// ─────────────────────────────────────────────────────────────
+//
 
 class _ConversationTile extends StatelessWidget {
   final ConversationModel conversation;
@@ -464,7 +494,7 @@ class _ConversationTile extends StatelessWidget {
               horizontal: DT.s4, vertical: 10),
           child: Row(
             children: [
-              // ── Avatar ──────────────────────────────────
+              // Avatar
               Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -481,7 +511,7 @@ class _ConversationTile extends StatelessWidget {
                           color: Colors.green,
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: DT.gbWhite, width: 2.5),
+                              color: DT.of(context).textOnAccent, width: 2.5),
                         ),
                       ),
                     ),
@@ -489,7 +519,7 @@ class _ConversationTile extends StatelessWidget {
               ),
               const SizedBox(width: DT.s3),
 
-              // ── Text content ─────────────────────────────
+              // Text content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -578,9 +608,9 @@ class _ConversationTile extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // Error view
-// ─────────────────────────────────────────────────────────────
+//
 
 class _ErrorView extends StatelessWidget {
   final String message;
@@ -616,36 +646,9 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Small helpers
-// ─────────────────────────────────────────────────────────────
-
-class _CircleBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _CircleBtn({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: DT.of(context).bg,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: DT.of(context).textPrimary, size: 20),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
+//
 // Athlete contact tile (trainer view)
-// ─────────────────────────────────────────────────────────────
+//
 
 class _AthleteContactTile extends StatelessWidget {
   final AthleteModel athlete;
@@ -700,9 +703,36 @@ class _AthleteContactTile extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// AvatarWidget — PUBLIC so chat_page.dart can import it
-// ─────────────────────────────────────────────────────────────
+//
+// Small helpers
+//
+
+class _CircleBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _CircleBtn({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: DT.of(context).bg,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: DT.of(context).textPrimary, size: 20),
+      ),
+    );
+  }
+}
+
+//
+// AvatarWidget - PUBLIC so chat_page.dart can import it
+//
 
 class AvatarWidget extends StatelessWidget {
   final String name;
@@ -722,8 +752,12 @@ class AvatarWidget extends StatelessWidget {
   Color get _color => _palette[name.codeUnitAt(0) % _palette.length];
 
   String get _initials {
-    final parts = name.trim().split(' ');
-    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}';
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return '?';
+    final parts = trimmed.split(' ');
+    if (parts.length >= 2 && parts[1].isNotEmpty) {
+      return '${parts[0][0]}${parts[1][0]}';
+    }
     return parts[0][0];
   }
 

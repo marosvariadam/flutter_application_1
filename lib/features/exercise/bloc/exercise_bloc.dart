@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
 import 'package:flutter_application_1/features/exercise/data/repositories/exercise_repository.dart';
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// Events
 abstract class ExerciseEvent {}
 
 class LoadExercises extends ExerciseEvent {
@@ -25,7 +25,7 @@ class DeleteExercise extends ExerciseEvent {
   DeleteExercise(this.id);
 }
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 abstract class ExerciseState {}
 
 class ExerciseInitial extends ExerciseState {}
@@ -43,7 +43,7 @@ class ExerciseError extends ExerciseState {
   ExerciseError(this.message);
 }
 
-// ── BLoC ──────────────────────────────────────────────────────────────────────
+// BLoC
 class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final ExerciseRepository _repo;
   List<ExerciseModel> _exercises = [];

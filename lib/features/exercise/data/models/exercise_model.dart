@@ -6,6 +6,10 @@ class ExerciseModel {
   final String? equipment;
   final String? createdByTrainerId;
 
+  /// How many times this exercise was assigned to a specific athlete.
+  /// Only populated by the for-athlete endpoint; null otherwise.
+  final int? usageCount;
+
   const ExerciseModel({
     required this.id,
     required this.name,
@@ -13,6 +17,7 @@ class ExerciseModel {
     this.description,
     this.equipment,
     this.createdByTrainerId,
+    this.usageCount,
   });
 
   /// Custom exercises were created by a specific trainer.
@@ -25,6 +30,7 @@ class ExerciseModel {
         description: j['description'] as String?,
         equipment: j['equipment'] as String?,
         createdByTrainerId: j['createdByTrainerId'] as String?,
+        usageCount: (j['usageCount'] as num?)?.toInt(),
       );
 }
 

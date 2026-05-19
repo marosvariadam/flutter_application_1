@@ -12,10 +12,12 @@ class MessageRepository {
 
   Future<List<ConversationModel>> getConversations() async {
     final res = await _client.dio.get(ApiConstants.conversations);
-    return (res.data as List)
-        .map((e) =>
-            ConversationModel.fromJson(e as Map<String, dynamic>))
+    final rawList = _toList(res.data);
+    final list = rawList
+        .map((e) => ConversationModel.fromJson(e as Map<String, dynamic>))
         .toList();
+    list.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+    return list;
   }
 
   Future<List<MessageModel>> getThread(String otherId, {int page = 1}) async {
@@ -23,15 +25,30 @@ class MessageRepository {
       ApiConstants.messageThread(otherId),
       queryParameters: {'page': page},
     );
-    return (res.data as List).map((e) {
+    final rawList = _toList(res.data);
+    return rawList.map((e) {
       final m = e as Map<String, dynamic>;
       return MessageModel(
-        id: m['id'] as String,
-        text: m['content'] as String,
-        timestamp: DateTime.parse(m['createdAt'] as String),
-        isSentByMe: m['senderId'] as String == _myUserId,
+        id: m['id']?.toString() ?? '',
+        text: m['content']?.toString() ?? m['text']?.toString() ?? '',
+        timestamp: DateTime.tryParse(m['createdAt']?.toString() ?? '') ??
+            DateTime.tryParse(m['timestamp']?.toString() ?? '') ??
+            DateTime.now(),
+        isSentByMe: m['senderId']?.toString() == _myUserId,
       );
     }).toList();
+  }
+
+  /// Safely extracts a list from a raw Dio response body.
+  /// Handles bare arrays, wrapper objects ({ "items": [...] }, etc.) and nulls.
+  static List<dynamic> _toList(dynamic data) {
+    if (data is List) return data;
+    if (data is Map) {
+      for (final key in const ['items', 'messages', 'conversations', 'data']) {
+        if (data[key] is List) return data[key] as List<dynamic>;
+      }
+    }
+    return const [];
   }
 
   Future<void> sendMessage(String recipientId, String text) async {

@@ -176,7 +176,7 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
   }
 }
 
-// ── List item helpers ─────────────────────────────────────────────────────────
+// List item helpers
 
 class _SectionHeader {
   final String title;
@@ -229,7 +229,7 @@ class _SectionHeaderTile extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+//
 
 class _SessionCard extends StatelessWidget {
   final WorkoutModel workout;
@@ -253,7 +253,7 @@ class _SessionCard extends StatelessWidget {
     return Opacity(
       opacity: isCompleted ? 0.65 : 1.0,
       child: Material(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.s5),
         child: InkWell(
           onTap: onTap,

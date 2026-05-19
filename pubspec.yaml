@@ -23,6 +23,9 @@ dependencies:
   intl: ^0.20.2
   rive: ^0.13.20
   dio: ^5.7.0
+  fl_chart: ^0.70.2
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
 
 dev_dependencies:
   flutter_test:

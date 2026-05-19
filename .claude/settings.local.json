@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(flutter analyze lib/features/register/athlete_survey_page.dart lib/features/register/register_page.dart lib/features/profiles/presentation/profiles_page.dart lib/app/app_router.dart)",
-      "Bash(flutter analyze)"
-    ]
-  }
-}

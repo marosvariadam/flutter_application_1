@@ -338,7 +338,7 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: DT.gbWhite,
+      backgroundColor: DT.of(context).cardSurfaceElevated,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -496,7 +496,7 @@ class _ExerciseFormCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: DT.s3),
       padding: const EdgeInsets.all(DT.s3),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
       ),
       child: Row(

@@ -12,6 +12,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
       : _repo = repo,
         super(MessagingInitial()) {
     on<LoadConversations>(_onLoadConversations);
+    on<BumpConversation>(_onBumpConversation);
   }
 
   Future<void> _onLoadConversations(
@@ -25,5 +26,27 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     } catch (_) {
       emit(MessagingError('Nem sikerült betölteni az üzeneteket.'));
     }
+  }
+
+  void _onBumpConversation(
+    BumpConversation event,
+    Emitter<MessagingState> emit,
+  ) {
+    final current = state;
+    if (current is! MessagingLoaded) return;
+
+    final id = event.conversationId.toLowerCase();
+    final updated = current.conversations.map((c) {
+      if (c.id.toLowerCase() == id) {
+        return c.copyWith(
+          lastMessage: event.lastMessage,
+          lastMessageTime: event.lastMessageTime,
+        );
+      }
+      return c;
+    }).toList()
+      ..sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+
+    emit(MessagingLoaded(updated));
   }
 }

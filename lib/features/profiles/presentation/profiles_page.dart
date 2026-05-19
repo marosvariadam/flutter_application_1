@@ -8,6 +8,7 @@ import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/user/data/models/user_model.dart';
 import 'package:flutter_application_1/features/user/data/repositories/user_repository.dart';
 import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
+import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 
 class ProfilesPage extends StatelessWidget {
   const ProfilesPage({super.key});
@@ -56,7 +57,7 @@ class ProfilesPage extends StatelessWidget {
   }
 }
 
-// ── Profile header ─────────────────────────────────────────────────────────
+// Profile header
 
 class _UserProfileSection extends StatelessWidget {
   final UserModel? user;
@@ -78,14 +79,14 @@ class _UserProfileSection extends StatelessWidget {
           height: 64,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: DT.metricBlue.withOpacity(0.15),
+            color: DT.of(context).accentPrimary.withValues(alpha: 0.15),
             border: Border.all(color: DT.of(context).borderGrey, width: 2),
           ),
           child: Center(
             child: Text(
               _initials(name),
-              style: const TextStyle(
-                  color: DT.metricBlue,
+              style: TextStyle(
+                  color: DT.of(context).accentPrimary,
                   fontWeight: FontWeight.w700,
                   fontSize: DT.s4),
             ),
@@ -110,12 +111,12 @@ class _UserProfileSection extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: DT.s2, vertical: 2),
                 decoration: BoxDecoration(
-                  color: DT.metricBlue.withOpacity(0.12),
+                  color: DT.of(context).accentPrimary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(role,
-                    style: const TextStyle(
-                        color: DT.metricBlue,
+                    style: TextStyle(
+                        color: DT.of(context).accentPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w600)),
               ),
@@ -147,7 +148,7 @@ class _ProfileActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: DT.of(context).iconLight.withOpacity(0.1),
+      color: DT.of(context).iconLight.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(DT.s2),
       child: InkWell(
         onTap: onTap,
@@ -162,7 +163,7 @@ class _ProfileActionButton extends StatelessWidget {
   }
 }
 
-// ── Metrics row (athlete only) ─────────────────────────────────────────────
+// Metrics row (athlete only)
 
 class _MetricsRow extends StatefulWidget {
   final UserModel? user;
@@ -215,7 +216,7 @@ class _MetricsRowState extends State<_MetricsRow> {
           children: [
             Expanded(
               child: _MetricCard(
-                color: DT.metricGreen,
+                accent: DT.of(context).accentSuccess,
                 title: 'Testsúly',
                 value: weight,
               ),
@@ -223,7 +224,7 @@ class _MetricsRowState extends State<_MetricsRow> {
             const SizedBox(width: DT.s3),
             Expanded(
               child: _MetricCard(
-                color: DT.metricBlue,
+                accent: DT.of(context).accentPrimary,
                 title: 'Edzés (hét)',
                 value: weeklyCount,
               ),
@@ -231,7 +232,7 @@ class _MetricsRowState extends State<_MetricsRow> {
             const SizedBox(width: DT.s3),
             Expanded(
               child: _MetricCard(
-                color: DT.metricOrange,
+                accent: DT.of(context).accentWarning,
                 title: 'Magasság',
                 value: '— cm',
               ),
@@ -243,12 +244,15 @@ class _MetricsRowState extends State<_MetricsRow> {
   }
 }
 
+/// Metric tile used in the athlete profile. Uses an alpha-blended accent
+/// background so the same text colors (textSecondary / textPrimary) stay
+/// readable in both light and dark themes.
 class _MetricCard extends StatelessWidget {
   final String title;
   final String value;
-  final Color color;
+  final Color accent;
   const _MetricCard(
-      {required this.title, required this.value, required this.color});
+      {required this.title, required this.value, required this.accent});
 
   @override
   Widget build(BuildContext context) {
@@ -256,8 +260,11 @@ class _MetricCard extends StatelessWidget {
       padding: const EdgeInsets.all(DT.s3),
       constraints: const BoxConstraints(minHeight: 72),
       decoration: BoxDecoration(
-        color: color,
+        // Tinted background (12% accent) - stays subtle and works in both
+        // themes since it picks up the bg behind it.
+        color: accent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(DT.rCardSmall),
+        border: Border.all(color: accent.withValues(alpha: 0.30)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +285,7 @@ class _MetricCard extends StatelessWidget {
   }
 }
 
-// ── Menu section ───────────────────────────────────────────────────────────
+// Menu section
 
 class _MenuSection extends StatelessWidget {
   final UserModel? user;
@@ -366,7 +373,7 @@ class _MenuSection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: DT.of(context).bg,
+        backgroundColor: DT.of(context).cardSurfaceElevated,
         title: Text('Edző elhagyása',
             style: TextStyle(color: DT.of(context).textPrimary)),
         content: Text(
@@ -408,7 +415,7 @@ class _MenuSection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: DT.of(context).bg,
+        backgroundColor: DT.of(context).cardSurfaceElevated,
         title: Text('Fiók törlése',
             style: TextStyle(color: DT.of(context).textPrimary)),
         content: Text(
@@ -431,7 +438,7 @@ class _MenuSection extends StatelessWidget {
   }
 }
 
-// ── Dark mode toggle ────────────────────────────────────────────────────────
+// Dark mode toggle
 
 class _DarkModeToggle extends StatelessWidget {
   @override
@@ -452,7 +459,7 @@ class _DarkModeToggle extends StatelessWidget {
                   height: 36,
                   width: 36,
                   decoration: BoxDecoration(
-                    color: DT.of(context).iconLight.withOpacity(0.1),
+                    color: DT.of(context).iconLight.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Icon(
@@ -475,7 +482,7 @@ class _DarkModeToggle extends StatelessWidget {
                 Switch(
                   value: isDark,
                   onChanged: (_) => context.read<ThemeCubit>().toggle(),
-                  activeColor: DT.metricBlue,
+                  activeThumbColor: DT.of(context).accentPrimary,
                 ),
               ],
             ),
@@ -510,19 +517,27 @@ class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final VoidCallback onTap;
-  final Color iconColor;
-  final Color textColor;
+  /// Override icon color (e.g. cardRed for destructive actions). Null = theme default.
+  final Color? iconColor;
+  /// Override text color (e.g. cardRed for destructive actions). Null = theme default.
+  final Color? textColor;
 
   const _MenuItem({
     required this.icon,
     required this.title,
     required this.onTap,
-    this.iconColor = DT.iconLight,
-    this.textColor = DT.textPrimary,
+    this.iconColor,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Resolve theme-aware defaults at build time so menu items flip with the
+    // theme (the static DT.iconLight / DT.textPrimary fallbacks would stay
+    // near-black on a dark background -> invisible).
+    final iconCol = iconColor ?? DT.of(context).iconLight;
+    final textCol = textColor ?? DT.of(context).textPrimary;
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -537,10 +552,10 @@ class _MenuItem extends StatelessWidget {
               height: 36,
               width: 36,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconCol.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Icon(icon, color: iconColor, size: 18),
+              child: Icon(icon, color: iconCol, size: 18),
             ),
             const SizedBox(width: DT.s3),
             Expanded(
@@ -548,7 +563,7 @@ class _MenuItem extends StatelessWidget {
                   style: TextStyle(
                       fontSize: DT.s3,
                       fontWeight: FontWeight.w500,
-                      color: textColor)),
+                      color: textCol)),
             ),
             Icon(Icons.arrow_forward_ios,
                 color: DT.of(context).textGrey, size: 14),
@@ -559,7 +574,7 @@ class _MenuItem extends StatelessWidget {
   }
 }
 
-// ── Logout ─────────────────────────────────────────────────────────────────
+// Logout
 
 class _LogoutButton extends StatelessWidget {
   @override
@@ -586,7 +601,7 @@ class _LogoutButton extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: DT.of(context).bg,
+        backgroundColor: DT.of(context).cardSurfaceElevated,
         title: Text('Kijelentkezés',
             style: TextStyle(color: DT.of(context).textPrimary)),
         content: Text('Biztosan ki szeretnél jelentkezni?',

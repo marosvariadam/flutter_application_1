@@ -103,7 +103,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
             Container(
               width: 40, height: 40,
               decoration: BoxDecoration(
-                color: DT.gbWhite,
+                color: DT.of(context).cardSurface,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
                 boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 10, offset: const Offset(0, 2))],
               ),
@@ -123,8 +123,6 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _CurrentBlockPill(),
-                  _DailyChallengeCard(),
-                  const SizedBox(height: DT.s5),
                   Text('Ezen a héten', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
                   const SizedBox(height: DT.s3),
                   _WeeklyStrip(
@@ -142,8 +140,6 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                   _StatsEntryCard(),
                   const SizedBox(height: DT.s3),
                   _PredictionEntryCard(),
-                  const SizedBox(height: DT.s5),
-                  _SocialCard(),
                 ],
               ),
             ),
@@ -179,23 +175,28 @@ class _WeeklyStrip extends StatelessWidget {
               width: 48,
               margin: const EdgeInsets.only(right: DT.s3),
               decoration: BoxDecoration(
-                color: isSelected ? DT.gbBlack : DT.gbWhite,
+                // Selected pill: brand accent (high contrast in both themes).
+                // Unselected pill: cardSurface - white on lavender (light) or
+                // elevated dark surface on bg (dark).
+                color: isSelected
+                    ? DT.of(context).accentPrimary
+                    : DT.of(context).cardSurface,
                 borderRadius: BorderRadius.circular(DT.rCardSmall),
                 boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 8, offset: const Offset(0, 2))],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(DateFormat('E').format(date), style: TextStyle(fontSize: DT.s3, color: isSelected ? DT.gbWhite : DT.of(context).textSecondary, fontWeight: FontWeight.w500)),
+                  Text(DateFormat('E').format(date), style: TextStyle(fontSize: DT.s3, color: isSelected ? DT.of(context).textOnAccent : DT.of(context).textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
-                  Text(DateFormat('d').format(date), style: TextStyle(fontSize: DT.s4, color: isSelected ? DT.gbWhite : DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
+                  Text(DateFormat('d').format(date), style: TextStyle(fontSize: DT.s4, color: isSelected ? DT.of(context).textOnAccent : DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     width: 6, height: 6,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: hasWorkout ? (isSelected ? DT.gbWhite : DT.metricBlue) : Colors.transparent,
+                      color: hasWorkout ? (isSelected ? DT.of(context).textOnAccent : DT.of(context).accentPrimary) : Colors.transparent,
                     ),
                   ),
                 ],
@@ -300,7 +301,7 @@ class _RestDayCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(DT.s5),
       decoration: BoxDecoration(
-        color: DT.gbWhite,
+        color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
         boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 10, offset: const Offset(0, 2))],
       ),
@@ -313,69 +314,6 @@ class _RestDayCard extends StatelessWidget {
           Text('Erre a napra nincs ütemezett edzés.', style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary), textAlign: TextAlign.center),
         ],
       ),
-    );
-  }
-}
-
-class _DailyChallengeCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(DT.s5),
-      decoration: BoxDecoration(
-        color: DT.gbWhite,
-        borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 20, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Napi kihívás', style: TextStyle(fontSize: DT.s5, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
-          const SizedBox(height: DT.s2),
-          Text('Csináld meg az edzést 9:00 előtt', style: TextStyle(fontSize: DT.s4, color: DT.of(context).textSecondary)),
-          const SizedBox(height: DT.s3),
-          Row(
-            children: [
-              _UserChip(),
-              Transform.translate(offset: const Offset(-DT.s2, 0), child: _UserChip()),
-              Transform.translate(offset: const Offset(-DT.s4, 0), child: _UserChip()),
-              Transform.translate(
-                offset: const Offset(-DT.s6, 0),
-                child: Container(
-                  width: 32, height: 32,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: DT.of(context).bg, border: Border.all(color: DT.gbWhite, width: 2)),
-                  child: Center(child: Text('+12', style: TextStyle(fontSize: 9, color: DT.of(context).textSecondary, fontWeight: FontWeight.w600))),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: DT.s4),
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(DT.rCardSmall),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s2),
-              decoration: BoxDecoration(color: DT.gbBlack, borderRadius: BorderRadius.circular(DT.rCardSmall)),
-              child: const Text('Csatlakozz →', style: TextStyle(color: DT.gbWhite, fontSize: DT.s3, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserChip extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32, height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: DT.metricBlue.withOpacity(0.15),
-        border: Border.all(color: DT.gbWhite, width: 2),
-      ),
-      child: const Icon(Icons.person, size: 18, color: DT.metricBlue),
     );
   }
 }
@@ -437,35 +375,6 @@ class _StatsEntryCard extends StatelessWidget {
                     size: 14, color: DT.of(context).textSecondary),
               ],
             ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SocialCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Közösség', style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w700, color: DT.of(context).textPrimary)),
-        const SizedBox(height: DT.s3),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: DT.s4, horizontal: DT.s5),
-          decoration: BoxDecoration(
-            color: DT.gbWhite,
-            borderRadius: BorderRadius.circular(DT.rCard),
-            boxShadow: [BoxShadow(color: DT.of(context).shadowLight, blurRadius: 16, offset: const Offset(0, 4))],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _SocialItem(icon: Icons.camera_alt, color: DT.socialPink, label: 'Kamera', onTap: () {}),
-              _SocialItem(icon: Icons.play_circle_outline, color: DT.socialRed, label: 'Videó', onTap: () {}),
-              _SocialItem(icon: Icons.chat_bubble_outline, color: DT.socialBlue, label: 'Üzenet', onTap: () => context.go('/messages')),
-            ],
           ),
         ),
       ],
@@ -603,32 +512,3 @@ class _CurrentBlockPillState extends State<_CurrentBlockPill> {
   }
 }
 
-class _SocialItem extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final VoidCallback? onTap;
-  const _SocialItem({required this.icon, required this.color, required this.label, this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(DT.rCard),
-      child: Padding(
-        padding: const EdgeInsets.all(DT.s2),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 48, height: 48,
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: DT.s5),
-            ),
-            const SizedBox(height: DT.s1),
-            Text(label, style: TextStyle(fontSize: DT.s3, color: DT.of(context).textSecondary, fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-}

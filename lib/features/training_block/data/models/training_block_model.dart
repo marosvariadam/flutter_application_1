@@ -1,8 +1,8 @@
 /// A trainer-scheduled date-ranged program phase for one athlete.
 ///
 /// Backend constraints (enforced server-side, surfaced as errors here):
-///   • endDate >= startDate
-///   • blocks for the same athlete must not overlap
+///   - endDate >= startDate
+///   - blocks for the same athlete must not overlap
 class TrainingBlockModel {
   final String id;
   final String athleteId;

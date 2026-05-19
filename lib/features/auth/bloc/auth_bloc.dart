@@ -4,7 +4,7 @@ import 'package:flutter_application_1/features/auth/data/repositories/auth_repos
 import 'package:flutter_application_1/features/user/data/models/user_model.dart';
 import 'package:flutter_application_1/features/user/data/repositories/user_repository.dart';
 
-// ── Events ───────────────────────────────────────────────────────────────────
+// Events
 abstract class AuthEvent {}
 
 class AppStarted extends AuthEvent {}
@@ -23,10 +23,10 @@ class AuthUserUpdated extends AuthEvent {
   AuthUserUpdated(this.user);
 }
 
-// ── States ───────────────────────────────────────────────────────────────────
+// States
 abstract class AuthState {}
 
-/// App just launched; token check in progress — router must not redirect yet.
+/// App just launched; token check in progress - router must not redirect yet.
 class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
@@ -43,7 +43,7 @@ class AuthError extends AuthState {
   AuthError(this.message);
 }
 
-// ── BLoC ─────────────────────────────────────────────────────────────────────
+// BLoC
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepo;
   final UserRepository _userRepo;

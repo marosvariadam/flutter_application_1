@@ -53,7 +53,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
         return '/home';
       }
 
-      // Authenticated athlete on an app route — enforce the gate.
+      // Authenticated athlete on an app route - enforce the gate.
       if (authState is AuthAuthenticated &&
           authState.user.isAthlete &&
           !_athleteGateRoutes.contains(loc)) {
@@ -63,7 +63,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
       return null;
     },
     routes: [
-      // ── Auth ────────────────────────────────────────────────────────────────
+      // Auth
       GoRoute(
         path: '/login',
         pageBuilder: (_, __) =>
@@ -76,14 +76,14 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
             const NoTransitionPage(child: RegisterPage()),
       ),
 
-      // ── Athlete onboarding gate ──────────────────────────────────────────────
+      // Athlete onboarding gate
       GoRoute(
         path: '/waiting',
         pageBuilder: (_, __) =>
             const NoTransitionPage(child: AthleteWaitingPage()),
       ),
 
-      // ── Profile sub-routes ───────────────────────────────────────────────────
+      // Profile sub-routes
       GoRoute(
         path: '/profile/edit',
         pageBuilder: (_, __) =>
@@ -95,7 +95,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
             const MaterialPage(child: ChangePasswordPage()),
       ),
 
-      // ── Onboarding ───────────────────────────────────────────────────────────
+      // Onboarding
       GoRoute(
         path: '/onboarding/form-builder',
         pageBuilder: (_, __) =>
@@ -112,7 +112,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
             const MaterialPage(child: AthleteSurveyPage()),
       ),
 
-      // ── Trainer tools ────────────────────────────────────────────────────────
+      // Trainer tools
       GoRoute(
         path: '/roster',
         pageBuilder: (_, __) => const MaterialPage(child: RosterPage()),
@@ -128,14 +128,14 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
             const MaterialPage(child: AthleteRequestsPage()),
       ),
 
-      // ── Notifications ────────────────────────────────────────────────────────
+      // Notifications
       GoRoute(
         path: '/notifications',
         pageBuilder: (_, __) =>
             const MaterialPage(child: NotificationsPage()),
       ),
 
-      // ── Full-screen routes (outside shell) ──────────────────────────────────
+      // Full-screen routes (outside shell)
       GoRoute(
         path: '/workout-detail',
         pageBuilder: (context, state) {
@@ -184,12 +184,12 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
         },
       ),
 
-      // ── Main shell with bottom nav ───────────────────────────────────────────
+      // Main shell with bottom nav
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
             BottomNavScaffold(shell: shell),
         branches: [
-          // Tab 0 — Home (athlete) / Overview (coach)
+          // Tab 0 - Home (athlete) / Overview (coach)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -199,7 +199,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
               ),
             ],
           ),
-          // Tab 1 — Sessions (athlete) / Athletes (coach)
+          // Tab 1 - Sessions (athlete) / Athletes (coach)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -216,7 +216,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
               ),
             ],
           ),
-          // Tab 2 — Messages
+          // Tab 2 - Messages
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -237,7 +237,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
               ),
             ],
           ),
-          // Tab 3 — Profile
+          // Tab 3 - Profile
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -258,7 +258,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
 String? _athleteRedirect(AthleteStatusCubit cubit, String currentLoc) {
   final status = cubit.state;
 
-  // Still loading — send to waiting (which shows a spinner).
+  // Still loading - send to waiting (which shows a spinner).
   if (status is AthleteStatusInitial || status is AthleteStatusLoading) {
     if (currentLoc != '/waiting') return '/waiting';
     return null;
@@ -274,11 +274,11 @@ String? _athleteRedirect(AthleteStatusCubit cubit, String currentLoc) {
     return null;
   }
 
-  // AthleteStatusReady — let the original navigation proceed.
+  // AthleteStatusReady - let the original navigation proceed.
   return null;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Helpers
 
 /// Makes GoRouter re-evaluate redirect whenever any of the given streams emit.
 class _CombinedListenable extends ChangeNotifier {

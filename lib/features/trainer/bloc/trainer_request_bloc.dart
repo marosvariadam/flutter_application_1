@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/trainer_request_repository.dart';
 
-// ── Events ────────────────────────────────────────────────────────────────────
+// Events
 abstract class TrainerRequestEvent {}
 
 class LoadPendingRequests extends TrainerRequestEvent {}
@@ -31,7 +31,7 @@ class SendTrainerRequest extends TrainerRequestEvent {
   SendTrainerRequest(this.trainerEmail, {this.note});
 }
 
-// ── States ────────────────────────────────────────────────────────────────────
+// States
 abstract class TrainerRequestState {}
 
 class TrainerRequestInitial extends TrainerRequestState {}
@@ -53,7 +53,7 @@ class TrainerRequestSuccess extends TrainerRequestState {
   TrainerRequestSuccess(this.message);
 }
 
-// ── BLoC ──────────────────────────────────────────────────────────────────────
+// BLoC
 class TrainerRequestBloc
     extends Bloc<TrainerRequestEvent, TrainerRequestState> {
   final TrainerRequestRepository _repo;

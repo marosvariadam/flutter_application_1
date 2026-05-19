@@ -6,7 +6,7 @@ class WorkoutRepository {
   final ApiClient _client;
   WorkoutRepository(this._client);
 
-  // ── Trainer ────────────────────────────────────────────────────────────────
+  // Trainer
 
   Future<WorkoutModel> createWorkout({
     required String title,
@@ -53,7 +53,7 @@ class WorkoutRepository {
     return PaginatedWorkouts.fromList(res.data as List);
   }
 
-  // ── Athlete ────────────────────────────────────────────────────────────────
+  // Athlete
 
   Future<PaginatedWorkouts> getMyWorkouts(
       {int page = 1, int pageSize = 20}) async {
@@ -68,7 +68,7 @@ class WorkoutRepository {
         if (feedback != null && feedback.isNotEmpty) 'feedback': feedback
       },
     );
-    // Backend returns 204 No Content on success — return fetched workout
+    // Backend returns 204 No Content on success - return fetched workout
     if (res.statusCode == 204 || res.data == null) {
       return getWorkout(id);
     }
@@ -150,7 +150,7 @@ class WorkoutRepository {
         .toList();
   }
 
-  // ── Shared ─────────────────────────────────────────────────────────────────
+  // Shared
 
   Future<WorkoutModel> getWorkout(String id) async {
     final res = await _client.dio.get(ApiConstants.workoutById(id));

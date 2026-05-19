@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/features/prediction/data/models/prediction_models.dart';
 import 'package:flutter_application_1/features/prediction/data/repositories/prediction_repository.dart';
 
-// ── States ───────────────────────────────────────────────────────────────────
+// States
 abstract class PredictionState {
   const PredictionState();
 }
@@ -15,7 +15,7 @@ class PredictionLoading extends PredictionState {
   const PredictionLoading();
 }
 
-/// Empty state — backend returned 404 (no completed sessions for this exercise).
+/// Empty state - backend returned 404 (no completed sessions for this exercise).
 class PredictionEmpty extends PredictionState {
   final String exerciseName;
   const PredictionEmpty(this.exerciseName);
@@ -36,7 +36,7 @@ class PredictionError extends PredictionState {
   const PredictionError(this.message);
 }
 
-// ── Cubit ────────────────────────────────────────────────────────────────────
+// Cubit
 class PredictionCubit extends Cubit<PredictionState> {
   final PredictionRepository _repo;
 
