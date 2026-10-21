@@ -57,8 +57,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (success) {
         if (_isAthlete) {
-          // Athletes go through the onboarding survey before logging in
-          context.push('/athlete-survey');
+          // Athletes go through the structured profile survey before login.
+          context.push('/profile-survey');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Sikeres regisztráció! Jelentkezz be.')),

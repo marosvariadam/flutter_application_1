@@ -11,6 +11,7 @@ import 'package:flutter_application_1/features/messaging/presentation/chat_page.
 import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart';
 import 'package:flutter_application_1/features/notifications/presentation/notifications_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
+import 'package:flutter_application_1/features/register/athlete_profile_survey_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
@@ -42,7 +43,11 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
       if (authState is AuthInitial) return null;
 
       final loc = state.matchedLocation;
-      final isPublic = loc == '/login' || loc == '/register';
+      // The profile survey runs after register, before login - treat it as
+      // public so the push from the register page doesn't bounce to /login.
+      final isPublic = loc == '/login' ||
+          loc == '/register' ||
+          loc == '/profile-survey';
 
       if (authState is! AuthAuthenticated && !isPublic) return '/login';
 
@@ -93,6 +98,15 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
         path: '/profile/change-password',
         pageBuilder: (_, __) =>
             const MaterialPage(child: ChangePasswordPage()),
+      ),
+
+      // Structured athlete-profile survey (register and post-login refill).
+      // Public because the user can land here mid-registration, before the
+      // auth token is issued — the page then falls back to local storage.
+      GoRoute(
+        path: '/profile-survey',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: AthleteProfileSurveyPage()),
       ),
 
       // Onboarding

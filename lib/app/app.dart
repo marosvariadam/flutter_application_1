@@ -9,6 +9,8 @@ import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/core/api/api_client.dart';
 import 'package:flutter_application_1/core/notifications/local_notification_service.dart';
 import 'package:flutter_application_1/core/storage/token_storage.dart';
+import 'package:flutter_application_1/features/athlete_profile/bloc/athlete_profile_cubit.dart';
+import 'package:flutter_application_1/features/athlete_profile/data/repositories/athlete_profile_repository.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter_application_1/features/exercise/bloc/exercise_bloc.dart';
@@ -63,6 +65,7 @@ class _AppState extends State<App> {
   late final ExerciseStatsRepository _exerciseStatsRepo;
   late final PredictionRepository _predictionRepo;
   late final TrainingBlockRepository _trainingBlockRepo;
+  late final AthleteProfileRepository _athleteProfileRepo;
   late final AthleteStatusCubit _athleteStatusCubit;
 
   StreamSubscription<Map<String, dynamic>>? _chatHubNotifSub;
@@ -98,6 +101,7 @@ class _AppState extends State<App> {
     _exerciseStatsRepo = ExerciseStatsRepository(_apiClient);
     _predictionRepo = PredictionRepository(_apiClient);
     _trainingBlockRepo = TrainingBlockRepository(_apiClient);
+    _athleteProfileRepo = AthleteProfileRepository(_apiClient);
 
     _authBloc = AuthBloc(authRepo: _authRepo, userRepo: _userRepo);
     _athleteStatusCubit =
@@ -169,6 +173,7 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _exerciseStatsRepo),
         RepositoryProvider.value(value: _predictionRepo),
         RepositoryProvider.value(value: _trainingBlockRepo),
+        RepositoryProvider.value(value: _athleteProfileRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -191,6 +196,7 @@ class _AppState extends State<App> {
           BlocProvider(create: (_) => ExerciseStatsCubit(_exerciseStatsRepo)),
           BlocProvider(create: (_) => PredictionCubit(_predictionRepo)),
           BlocProvider(create: (_) => TrainingBlockBloc(_trainingBlockRepo)),
+          BlocProvider(create: (_) => AthleteProfileCubit(_athleteProfileRepo)),
         ],
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) async {

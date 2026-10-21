@@ -42,13 +42,13 @@ class ApiConstants {
   static String exercisesForAthlete(String athleteId) =>
       '/api/exercise/for-athlete/$athleteId';
 
-  // Notifications (not yet in backend - kept for future)
+  // Notifications
   static const String notifications = '/api/notification';
   static const String unreadCount = '/api/notification/unread-count';
   static String markNotifRead(String id) => '/api/notification/$id/read';
   static const String markAllRead = '/api/notification/mark-all-read';
 
-  // Messaging (not yet in backend - kept for future)
+  // Messaging
   static const String conversations = '/api/message/conversations';
   static String messageThread(String otherId) => '/api/message/$otherId';
   static String sendMessage(String recipientId) => '/api/message/$recipientId';
@@ -80,11 +80,20 @@ class ApiConstants {
   static String trainingBlocksForAthlete(String athleteId) =>
       '/api/trainingblock/athlete/$athleteId';
 
+  // Athlete profile (structured profile the AI plan generator reads).
+  /// GET returns the signed-in athlete's profile or 404 when none is saved.
+  /// PUT upserts it. The payload matches `AthleteProfileRequest` on the
+  /// backend.
+  static const String athleteProfileMine = '/api/athleteprofile/me';
+  /// Trainer-of-athlete view (403 if the trainer isn't linked).
+  static String athleteProfileForAthlete(String athleteId) =>
+      '/api/athleteprofile/$athleteId';
+
   // SignalR Hubs
   static const String chatHub = '/hubs/chat';
   static const String notificationHub = '/hubs/notifications';
 
-  // Onboarding (not yet in backend - kept for future)
+  // Onboarding (trainer-authored custom intake form)
   static const String onboardingForm = '/api/onboarding-form';
   static const String onboardingMine = '/api/onboarding-form/mine';
   static const String onboardingResponses = '/api/onboarding-form/responses';

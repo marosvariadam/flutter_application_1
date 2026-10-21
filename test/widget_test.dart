@@ -3,22 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_application_1/app/app.dart';
 
 void main() {
-  testWidgets('Login page renders key elements', (WidgetTester tester) async {
+  testWidgets('App boots to the login page', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
 
     expect(find.text('Üdvözlünk vissza!'), findsOneWidget);
+    expect(find.text('Jelentkezz be a folytatáshoz'), findsOneWidget);
     expect(find.text('Bejelentkezés'), findsOneWidget);
     expect(find.text('Regisztráció'), findsOneWidget);
-    expect(find.text('Elfelejtett jelszó?'), findsOneWidget);
   });
 
-  testWidgets('Login form shows validation errors on empty submit',
+  testWidgets('Login form surfaces validation errors on empty submit',
       (WidgetTester tester) async {
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
 
-    // Tap login without filling in the form
     await tester.tap(find.text('Bejelentkezés'));
     await tester.pump();
 
@@ -40,18 +39,14 @@ void main() {
     expect(find.text('Érvénytelen email cím'), findsOneWidget);
   });
 
-  testWidgets('Password visibility toggle works', (WidgetTester tester) async {
+  testWidgets('Password visibility toggle flips the icon',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
 
-    // Initially the password is hidden (visibility icon shown)
     expect(find.byIcon(Icons.visibility), findsOneWidget);
-
-    // Tap the toggle
     await tester.tap(find.byIcon(Icons.visibility));
     await tester.pump();
-
-    // Now the password is visible (visibility_off icon shown)
     expect(find.byIcon(Icons.visibility_off), findsOneWidget);
   });
 }

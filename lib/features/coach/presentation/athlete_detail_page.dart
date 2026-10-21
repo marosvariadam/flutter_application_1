@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/features/athlete_profile/presentation/widgets/athlete_profile_card.dart';
 import 'package:flutter_application_1/features/trainer/bloc/roster_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/training_block/presentation/training_blocks_section.dart';
@@ -212,6 +213,8 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
                 ),
               ],
             ),
+            const SizedBox(height: DT.s5),
+            TrainerAthleteProfileCard(athleteId: widget.athleteId),
             const SizedBox(height: DT.s5),
             TrainingBlocksSection(athleteId: widget.athleteId),
             const SizedBox(height: DT.s5),
