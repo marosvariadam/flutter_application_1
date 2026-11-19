@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/design/dt_colors.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
 
 /// Light theme. Soft lavender background, white cards, blue accent.
 ThemeData buildTheme() {
@@ -25,10 +26,7 @@ ThemeData buildTheme() {
     scaffoldBackgroundColor: DTColors.light.bg,
     canvasColor: DTColors.light.bg,
     dividerColor: DTColors.light.borderLight,
-    textTheme: base.textTheme.apply(
-      bodyColor: DTColors.light.textPrimary,
-      displayColor: DTColors.light.textPrimary,
-    ),
+    textTheme: _textTheme(base.textTheme, DTColors.light),
     iconTheme: IconThemeData(color: DTColors.light.iconLight),
     cardTheme: CardThemeData(
       color: DTColors.light.cardSurface,
@@ -96,10 +94,7 @@ ThemeData buildDarkTheme() {
     scaffoldBackgroundColor: DTColors.dark.bg,
     canvasColor: DTColors.dark.bg,
     dividerColor: DTColors.dark.borderLight,
-    textTheme: base.textTheme.apply(
-      bodyColor: DTColors.dark.textPrimary,
-      displayColor: DTColors.dark.textPrimary,
-    ),
+    textTheme: _textTheme(base.textTheme, DTColors.dark),
     iconTheme: IconThemeData(color: DTColors.dark.iconLight),
     cardTheme: CardThemeData(
       color: DTColors.dark.cardSurface,
@@ -141,5 +136,20 @@ ThemeData buildDarkTheme() {
       hintStyle: TextStyle(color: DTColors.dark.textGrey),
     ),
     extensions: const [DTColors.dark],
+  );
+}
+
+/// Material's text theme with the DT colors, and `bodyMedium` — what a bare
+/// `Text` uses — set to [DTText.body]. Its size and weight equal Material 3's
+/// default, so existing screens render exactly as before; the other DTText
+/// tokens are applied explicitly rather than remapping Material slots that
+/// framework widgets (AppBar, ListTile, buttons) already rely on.
+TextTheme _textTheme(TextTheme base, DTColors c) {
+  final colored = base.apply(
+    bodyColor: c.textPrimary,
+    displayColor: c.textPrimary,
+  );
+  return colored.copyWith(
+    bodyMedium: colored.bodyMedium?.merge(DTText.fromColors(c).body),
   );
 }

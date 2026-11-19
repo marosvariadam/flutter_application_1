@@ -33,6 +33,14 @@ void main() {
     );
   });
 
+  test('403 says the user is not allowed', () {
+    expect(
+      friendlyErrorMessage(_dio(DioExceptionType.badResponse, status: 403),
+          fallback: fallback),
+      'Nincs jogosultságod ehhez a művelethez.',
+    );
+  });
+
   test('5xx and 401 responses get their own copy', () {
     expect(
       friendlyErrorMessage(_dio(DioExceptionType.badResponse, status: 503),

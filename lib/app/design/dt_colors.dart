@@ -45,6 +45,22 @@ class DTColors extends ThemeExtension<DTColors> {
     required this.accentDanger,
     required this.accentInfo,
     required this.accentTeal,
+    required this.accentYellow,
+    required this.accentOrange,
+    required this.accentBlueSoft,
+    required this.accentPurple,
+    // Soft tinted backgrounds
+    required this.successSoft,
+    required this.warningSoft,
+    required this.dangerSoft,
+    required this.primarySoft,
+    // Workout difficulty
+    required this.difficultyEasy,
+    required this.difficultyMedium,
+    required this.difficultyHard,
+    required this.difficultyIntense,
+    // Avatars
+    required this.avatarPalette,
   });
 
   // Surfaces
@@ -91,6 +107,28 @@ class DTColors extends ThemeExtension<DTColors> {
   final Color accentDanger;
   final Color accentInfo;
   final Color accentTeal;
+  final Color accentYellow;
+  final Color accentOrange;
+
+  /// Pastel blue used for tinted cards (the old `DT.cardBlue`).
+  final Color accentBlueSoft;
+  final Color accentPurple;
+
+  // Soft backgrounds: ~14 % (light, over white) / ~16 % (dark, over
+  // cardSurface) tints of the matching accent, for chips and pills.
+  final Color successSoft;
+  final Color warningSoft;
+  final Color dangerSoft;
+  final Color primarySoft;
+
+  // Workout difficulty (Easy / Moderate / Hard / Intense).
+  final Color difficultyEasy;
+  final Color difficultyMedium;
+  final Color difficultyHard;
+  final Color difficultyIntense;
+
+  /// Six avatar colors; `UserAvatar` picks one by a hash of the name.
+  final List<Color> avatarPalette;
 
   // Light palette
   /// Soft lavender background, white cards. Polished, friendly.
@@ -130,6 +168,29 @@ class DTColors extends ThemeExtension<DTColors> {
     accentDanger: Color(0xFFE04D4D),
     accentInfo: Color(0xFF4ECDC4),
     accentTeal: Color(0xFF4ECDC4),
+    accentYellow: Color(0xFFFFC85D),
+    accentOrange: Color(0xFFFF6B35),
+    accentBlueSoft: Color(0xFFBBD2FF),
+    accentPurple: Color(0xFF9B59B6),
+
+    successSoft: Color(0xFFE0F2EA),
+    warningSoft: Color(0xFFFBEEE2),
+    dangerSoft: Color(0xFFFBE6E6),
+    primarySoft: Color(0xFFE4ECFB),
+
+    difficultyEasy: Color(0xFF22A06B),
+    difficultyMedium: Color(0xFFE08530),
+    difficultyHard: Color(0xFFFF6B35),
+    difficultyIntense: Color(0xFFE04D4D),
+
+    avatarPalette: [
+      Color(0xFF428AE9), // blue
+      Color(0xFF4ECDC4), // teal
+      Color(0xFFFF6B35), // orange
+      Color(0xFFFFC85D), // yellow
+      Color(0xFFFF6B6B), // red
+      Color(0xFF9B59B6), // purple
+    ],
   );
 
   // Dark palette
@@ -176,6 +237,29 @@ class DTColors extends ThemeExtension<DTColors> {
     accentDanger: Color(0xFFFF6B6B),     // existing cardRed works on dark
     accentInfo: Color(0xFF5FD1C8),       // brighter teal
     accentTeal: Color(0xFF5FD1C8),
+    accentYellow: Color(0xFFFFD27A),
+    accentOrange: Color(0xFFFF7A4D),
+    accentBlueSoft: Color(0xFF23324A),   // pastel blue would glare on slate
+    accentPurple: Color(0xFFB983D4),
+
+    successSoft: Color(0xFF1B3732),
+    warningSoft: Color(0xFF3A302C),
+    dangerSoft: Color(0xFF3A282F),
+    primarySoft: Color(0xFF213046),
+
+    difficultyEasy: Color(0xFF3DCB7F),
+    difficultyMedium: Color(0xFFFF9C5C),
+    difficultyHard: Color(0xFFFF7A4D),
+    difficultyIntense: Color(0xFFFF6B6B),
+
+    avatarPalette: [
+      Color(0xFF5FA0FF), // blue
+      Color(0xFF5FD1C8), // teal
+      Color(0xFFFF7A4D), // orange
+      Color(0xFFFFD27A), // yellow
+      Color(0xFFFF6B6B), // red
+      Color(0xFFB983D4), // purple
+    ],
   );
 
   static DTColors of(BuildContext context) =>
@@ -211,6 +295,19 @@ class DTColors extends ThemeExtension<DTColors> {
     Color? accentDanger,
     Color? accentInfo,
     Color? accentTeal,
+    Color? accentYellow,
+    Color? accentOrange,
+    Color? accentBlueSoft,
+    Color? accentPurple,
+    Color? successSoft,
+    Color? warningSoft,
+    Color? dangerSoft,
+    Color? primarySoft,
+    Color? difficultyEasy,
+    Color? difficultyMedium,
+    Color? difficultyHard,
+    Color? difficultyIntense,
+    List<Color>? avatarPalette,
   }) =>
       DTColors(
         bg: bg ?? this.bg,
@@ -245,6 +342,19 @@ class DTColors extends ThemeExtension<DTColors> {
         accentDanger: accentDanger ?? this.accentDanger,
         accentInfo: accentInfo ?? this.accentInfo,
         accentTeal: accentTeal ?? this.accentTeal,
+        accentYellow: accentYellow ?? this.accentYellow,
+        accentOrange: accentOrange ?? this.accentOrange,
+        accentBlueSoft: accentBlueSoft ?? this.accentBlueSoft,
+        accentPurple: accentPurple ?? this.accentPurple,
+        successSoft: successSoft ?? this.successSoft,
+        warningSoft: warningSoft ?? this.warningSoft,
+        dangerSoft: dangerSoft ?? this.dangerSoft,
+        primarySoft: primarySoft ?? this.primarySoft,
+        difficultyEasy: difficultyEasy ?? this.difficultyEasy,
+        difficultyMedium: difficultyMedium ?? this.difficultyMedium,
+        difficultyHard: difficultyHard ?? this.difficultyHard,
+        difficultyIntense: difficultyIntense ?? this.difficultyIntense,
+        avatarPalette: avatarPalette ?? this.avatarPalette,
       );
 
   @override
@@ -286,6 +396,35 @@ class DTColors extends ThemeExtension<DTColors> {
       accentDanger: Color.lerp(accentDanger, other.accentDanger, t)!,
       accentInfo: Color.lerp(accentInfo, other.accentInfo, t)!,
       accentTeal: Color.lerp(accentTeal, other.accentTeal, t)!,
+      accentYellow: Color.lerp(accentYellow, other.accentYellow, t)!,
+      accentOrange: Color.lerp(accentOrange, other.accentOrange, t)!,
+      accentBlueSoft: Color.lerp(accentBlueSoft, other.accentBlueSoft, t)!,
+      accentPurple: Color.lerp(accentPurple, other.accentPurple, t)!,
+      successSoft: Color.lerp(successSoft, other.successSoft, t)!,
+      warningSoft: Color.lerp(warningSoft, other.warningSoft, t)!,
+      dangerSoft: Color.lerp(dangerSoft, other.dangerSoft, t)!,
+      primarySoft: Color.lerp(primarySoft, other.primarySoft, t)!,
+      difficultyEasy: Color.lerp(difficultyEasy, other.difficultyEasy, t)!,
+      difficultyMedium:
+          Color.lerp(difficultyMedium, other.difficultyMedium, t)!,
+      difficultyHard: Color.lerp(difficultyHard, other.difficultyHard, t)!,
+      difficultyIntense:
+          Color.lerp(difficultyIntense, other.difficultyIntense, t)!,
+      avatarPalette: avatarPalette.length == other.avatarPalette.length
+          ? [
+              for (var i = 0; i < avatarPalette.length; i++)
+                Color.lerp(avatarPalette[i], other.avatarPalette[i], t)!,
+            ]
+          : (t < 0.5 ? avatarPalette : other.avatarPalette),
     );
   }
+
+  /// Color for a workout difficulty level 1–4 (Easy … Intense), matching
+  /// the backend's `DifficultyLevel`. Out-of-range values clamp.
+  Color difficulty(int level) => switch (level.clamp(1, 4)) {
+        1 => difficultyEasy,
+        2 => difficultyMedium,
+        3 => difficultyHard,
+        _ => difficultyIntense,
+      };
 }

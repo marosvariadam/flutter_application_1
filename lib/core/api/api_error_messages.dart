@@ -16,6 +16,7 @@ String friendlyErrorMessage(Object error, {required String fallback}) {
     case DioExceptionType.badResponse:
       final code = error.response?.statusCode ?? 0;
       if (code == 401) return 'Lejárt a bejelentkezés. Jelentkezz be újra.';
+      if (code == 403) return 'Nincs jogosultságod ehhez a művelethez.';
       if (code >= 500) {
         return 'A szerver most nem elérhető. Próbáld újra később.';
       }
