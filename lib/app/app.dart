@@ -11,6 +11,7 @@ import 'package:flutter_application_1/core/notifications/local_notification_serv
 import 'package:flutter_application_1/core/storage/token_storage.dart';
 import 'package:flutter_application_1/features/athlete_profile/bloc/athlete_profile_cubit.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/repositories/athlete_profile_repository.dart';
+import 'package:flutter_application_1/features/autoregulation/data/repositories/autoregulation_repository.dart';
 import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter_application_1/features/exercise/bloc/exercise_bloc.dart';
@@ -67,6 +68,7 @@ class _AppState extends State<App> {
   late final PredictionRepository _predictionRepo;
   late final TrainingBlockRepository _trainingBlockRepo;
   late final TrainingPlanRepository _trainingPlanRepo;
+  late final AutoregulationRepository _autoregulationRepo;
   late final AthleteProfileRepository _athleteProfileRepo;
   late final AthleteStatusCubit _athleteStatusCubit;
 
@@ -104,6 +106,7 @@ class _AppState extends State<App> {
     _predictionRepo = PredictionRepository(_apiClient);
     _trainingBlockRepo = TrainingBlockRepository(_apiClient);
     _trainingPlanRepo = TrainingPlanRepository(_apiClient);
+    _autoregulationRepo = AutoregulationRepository(_apiClient);
     _athleteProfileRepo = AthleteProfileRepository(_apiClient);
 
     _authBloc = AuthBloc(authRepo: _authRepo, userRepo: _userRepo);
@@ -177,6 +180,7 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _predictionRepo),
         RepositoryProvider.value(value: _trainingBlockRepo),
         RepositoryProvider.value(value: _trainingPlanRepo),
+        RepositoryProvider.value(value: _autoregulationRepo),
         RepositoryProvider.value(value: _athleteProfileRepo),
       ],
       child: MultiBlocProvider(

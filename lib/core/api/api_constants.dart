@@ -113,6 +113,12 @@ class ApiConstants {
   /// GET → `List<TrainingPlanModel>` (athlete view, accepted only).
   static const String planMine = '/api/plan/me';
 
+  // Autoregulation (trainer-only next-week load suggestions)
+  /// GET → `NextWeekAutoregulationModel`, one suggestion per exercise of the
+  /// athlete's latest accepted plan; empty when no plan is accepted yet.
+  static String autoregulationNextWeek(String athleteId) =>
+      '/api/autoregulation/$athleteId/next-week';
+
   // SignalR Hubs
   static const String chatHub = '/hubs/chat';
   static const String notificationHub = '/hubs/notifications';

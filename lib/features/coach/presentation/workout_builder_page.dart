@@ -2,6 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/features/autoregulation/bloc/autoregulation_cubit.dart';
+import 'package:flutter_application_1/features/autoregulation/data/models/autoregulation_model.dart';
+import 'package:flutter_application_1/features/autoregulation/data/repositories/autoregulation_repository.dart';
+import 'package:flutter_application_1/features/autoregulation/presentation/autoregulation_copy.dart';
+import 'package:flutter_application_1/features/autoregulation/presentation/widgets/autoregulation_banner.dart';
+import 'package:flutter_application_1/features/autoregulation/presentation/widgets/autoregulation_suggestion_chip.dart';
 import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
 import 'package:flutter_application_1/features/exercise/data/repositories/exercise_repository.dart';
 import 'package:flutter_application_1/features/exercise/presentation/widgets/exercise_picker.dart';
@@ -89,10 +95,16 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
   bool _isSaving = false;
   bool _isFetchingPrev = false;
 
+  // Next-week load suggestions for the selected athlete.
+  late final AutoregulationCubit _autoregCubit;
+
   @override
   void initState() {
     super.initState();
     _selectedAthleteId = widget.preselectedAthleteId;
+    _autoregCubit =
+        AutoregulationCubit(context.read<AutoregulationRepository>());
+    if (_selectedAthleteId != null) _autoregCubit.load(_selectedAthleteId!);
     _load();
   }
 
@@ -100,6 +112,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
   void dispose() {
     _titleCtrl.dispose();
     _notesCtrl.dispose();
+    _autoregCubit.close();
     super.dispose();
   }
 
@@ -163,7 +176,12 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
         ex.prevReps = null;
       }
     });
-    if (id != null) _fetchPreviousData(id);
+    if (id != null) {
+      _fetchPreviousData(id);
+      _autoregCubit.load(id);
+    } else {
+      _autoregCubit.reset();
+    }
   }
 
   void _addExercise(ExerciseModel lib) {
@@ -297,6 +315,13 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: _autoregCubit,
+      child: Builder(builder: _buildScaffold),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: DT.of(context).bg,
       appBar: AppBar(
@@ -435,6 +460,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                   ],
                 ),
                 const SizedBox(height: DT.s3),
+                const AutoregulationBanner(),
 
                 ..._exercises.asMap().entries.map((entry) =>
                     _ExerciseBuilderCard(
@@ -541,6 +567,55 @@ class _ExerciseBuilderCardState extends State<_ExerciseBuilderCard> {
 
   bool get _isBodyweight => widget.exercise.equipmentType == _kBodyweight;
 
+  bool _isSuggestionApplied(AutoregulationSuggestionModel s) {
+    final target = s.suggestedWeightKg;
+    final sets = widget.exercise.setEntries;
+    if (target == null || sets.isEmpty) return false;
+    if (s.isDeload && sets.length != s.suggestedSets) return false;
+    return sets.every((e) => e.weightKg == target);
+  }
+
+  /// Writes the suggested load into every set; a deload suggestion also
+  /// trims (or extends) the set count to the suggested number.
+  void _applySuggestion(AutoregulationSuggestionModel s) {
+    final target = s.suggestedWeightKg;
+    if (target == null) return;
+    final ex = widget.exercise;
+    final removed = <TextEditingController>[];
+    setState(() {
+      if (s.isDeload) {
+        while (ex.setEntries.length > s.suggestedSets &&
+            ex.setEntries.length > 1) {
+          ex.setEntries.removeLast();
+          removed
+            ..add(_repsCtrls.removeLast())
+            ..add(_weightCtrls.removeLast());
+        }
+        while (ex.setEntries.length < s.suggestedSets) {
+          final last = ex.setEntries.isNotEmpty ? ex.setEntries.last : null;
+          ex.setEntries.add(_SetEntry(reps: last?.reps));
+          _repsCtrls.add(
+              TextEditingController(text: last?.reps?.toString() ?? ''));
+          _weightCtrls.add(TextEditingController());
+        }
+      }
+      for (var i = 0; i < ex.setEntries.length; i++) {
+        ex.setEntries[i].weightKg = target;
+        _weightCtrls[i].text = formatKg(target);
+      }
+    });
+    // The dropped rows' fields are unmounted by this rebuild; dispose their
+    // controllers once that frame is done.
+    if (removed.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        for (final c in removed) {
+          c.dispose();
+        }
+      });
+    }
+    widget.onChanged();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ex = widget.exercise;
@@ -641,6 +716,16 @@ class _ExerciseBuilderCardState extends State<_ExerciseBuilderCard> {
               }).toList(),
             ),
           ),
+
+          // Next-week autoregulation suggestion (weighted exercises only)
+          if (!_isBodyweight)
+            AutoregulationSuggestionChip(
+              exerciseId: ex.exerciseId,
+              exerciseName: ex.name,
+              isApplied: _isSuggestionApplied,
+              onApply: _applySuggestion,
+              padding: const EdgeInsets.fromLTRB(DT.s4, 0, DT.s4, DT.s2),
+            ),
 
           // Per-set table
           Container(
