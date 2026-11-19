@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/features/athlete_profile/data/models/athlete_profile_model.dart';
 import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
 import 'package:flutter_application_1/features/exercise/data/repositories/exercise_repository.dart';
 
@@ -49,9 +50,10 @@ const List<String> kEquipmentOptions = [kFreeWeight, kMachine, kBodyweight];
 /// the library or create a new custom one. Behaviour and visuals copied from
 /// the previous inline implementation in `workout_builder_page.dart`.
 ///
-/// Extra filters (`equipment`, `movementPattern`) are available for callers
-/// that need them (e.g. the plan editor's "swap, same movement pattern"
-/// flow). When no filter is set the picker behaves exactly as before.
+/// Equipment and movement-pattern chip rows appear once the loaded exercises
+/// carry typed data; callers can also prefill the pattern (e.g. the plan
+/// editor's "swap, same movement pattern" flow). When no filter is set the
+/// picker behaves exactly as before.
 class ExercisePicker extends StatefulWidget {
   final ExerciseRepository exerciseRepo;
   final String? athleteId;
@@ -160,6 +162,12 @@ class _ExercisePickerState extends State<ExercisePicker> {
 
   void _onMuscleFilterChanged(String? muscle) {
     setState(() => _muscleFilter = muscle == _muscleFilter ? null : muscle);
+    _fetchExercises();
+  }
+
+  void _onEquipmentFilterChanged(String equipment) {
+    setState(() => _equipmentFilter =
+        equipment == _equipmentFilter ? null : equipment);
     _fetchExercises();
   }
 
@@ -295,6 +303,30 @@ class _ExercisePickerState extends State<ExercisePicker> {
               },
             ),
           ),
+          // Equipment filter chips (shown when the backend returned typed
+          // equipment lists; stays hidden on legacy free-text data).
+          if (_hasAnyEquipmentData) ...[
+            const SizedBox(height: DT.s2),
+            SizedBox(
+              height: 32,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: DT.s4),
+                itemCount: AthleteProfileEquipment.all.length,
+                separatorBuilder: (_, __) => const SizedBox(width: DT.s2),
+                itemBuilder: (_, i) {
+                  final e = AthleteProfileEquipment.all[i];
+                  return GestureDetector(
+                    onTap: () => _onEquipmentFilterChanged(e),
+                    child: PickerChip(
+                      label: AthleteProfileEquipment.labels[e] ?? e,
+                      selected: e == _equipmentFilter,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
           // Movement pattern filter chips (shown when the backend returned
           // any typed patterns; stays hidden on legacy-only data).
           if (_hasAnyPatternData) ...[
@@ -355,9 +387,18 @@ class _ExercisePickerState extends State<ExercisePicker> {
   /// Pattern chips only make sense once the backend seed is on Phase 0; before
   /// that `movementPattern` is null on every row and the chip strip would
   /// just filter everything to nothing.
+  /// Also true while a pattern is selected, so a filter that matched nothing
+  /// can still be cleared.
   bool get _hasAnyPatternData =>
       _exercises.any((e) => e.movementPattern != null) ||
-      widget.initialMovementPattern != null;
+      widget.initialMovementPattern != null ||
+      _patternFilter != null;
+
+  /// Same rule for equipment: legacy docs only have the free-text
+  /// `equipment` string, so the chip row would just filter to nothing.
+  bool get _hasAnyEquipmentData =>
+      _exercises.any((e) => e.equipmentTypes.isNotEmpty) ||
+      _equipmentFilter != null;
 }
 
 /// Row rendered inside the picker and the plan editor's exercise lists. Shows
@@ -417,10 +458,6 @@ class _ExerciseSubtitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final equipText = exercise.equipment;
-    final patternLabel = exercise.movementPattern == null
-        ? null
-        : kMovementPatternLabels[exercise.movementPattern!] ??
-            exercise.movementPattern!;
 
     return Padding(
       padding: const EdgeInsets.only(top: 2),
@@ -436,23 +473,43 @@ class _ExerciseSubtitle extends StatelessWidget {
             Text('· $equipText',
                 style: TextStyle(
                     color: DT.of(context).textSecondary, fontSize: 11)),
-          if (patternLabel != null) _MetaChip(label: patternLabel),
-          if (exercise.isCompound == true)
-            const _MetaChip(label: 'Összetett', color: DT.metricBlue),
+          ...ExerciseMetaChip.forExercise(exercise),
         ],
       ),
     );
   }
 }
 
-class _MetaChip extends StatelessWidget {
+/// Small tinted badge for exercise metadata (movement pattern, "Összetett").
+/// Shared by the picker tiles and the exercise catalogue.
+class ExerciseMetaChip extends StatelessWidget {
   final String label;
-  final Color? color;
-  const _MetaChip({required this.label, this.color});
+
+  /// Tints the chip with the primary accent instead of teal; used for the
+  /// compound badge so it reads apart from the pattern chip.
+  final bool primary;
+
+  const ExerciseMetaChip({super.key, required this.label, this.primary = false});
+
+  /// Label of the compound badge.
+  static const String compoundLabel = 'Összetett';
+
+  /// Pattern + compound chips for [exercise]. Empty for legacy documents
+  /// that carry neither field.
+  static List<Widget> forExercise(ExerciseModel exercise) {
+    final pattern = exercise.movementPattern;
+    return [
+      if (pattern != null)
+        ExerciseMetaChip(label: kMovementPatternLabels[pattern] ?? pattern),
+      if (exercise.isCompound == true)
+        const ExerciseMetaChip(label: compoundLabel, primary: true),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? DT.cardTeal;
+    final colors = DT.of(context);
+    final c = primary ? colors.accentPrimary : colors.accentTeal;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
@@ -576,20 +633,21 @@ class PickerChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = DT.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(
           horizontal: DT.s2, vertical: DT.s1),
       decoration: BoxDecoration(
-        color: selected ? DT.metricBlue : DT.of(context).bg,
+        color: selected ? colors.accentPrimary : colors.bg,
         borderRadius: BorderRadius.circular(DT.rCardSmall),
         border: Border.all(
-            color: selected ? DT.metricBlue : DT.of(context).borderGrey),
+            color: selected ? colors.accentPrimary : colors.borderGrey),
       ),
       child: Text(label,
           style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : DT.of(context).textSecondary)),
+              color: selected ? colors.textOnAccent : colors.textSecondary)),
     );
   }
 }

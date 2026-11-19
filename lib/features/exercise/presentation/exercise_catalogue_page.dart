@@ -6,6 +6,7 @@ import 'package:flutter_application_1/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter_application_1/features/exercise/bloc/exercise_bloc.dart';
 import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
 import 'package:flutter_application_1/features/exercise/data/repositories/exercise_repository.dart';
+import 'package:flutter_application_1/features/exercise/presentation/widgets/exercise_picker.dart';
 
 class ExerciseCataloguePage extends StatelessWidget {
   /// If true, tapping an exercise returns it to the caller (workout form).
@@ -261,28 +262,32 @@ class _ExerciseTile extends StatelessWidget {
                             color: DT.of(context).textPrimary,
                             fontWeight: FontWeight.w600)),
                     const SizedBox(height: 2),
-                    Row(children: [
-                      Text(exercise.muscleGroup,
-                          style: TextStyle(
-                              color: DT.of(context).textSecondary,
-                              fontSize: DT.s3)),
-                      if (exercise.isCustom) ...[
-                        const SizedBox(width: DT.s2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: DT.s2, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: DT.metricOrange,
-                            borderRadius:
-                                BorderRadius.circular(DT.rChip),
+                    Wrap(
+                      spacing: DT.s2,
+                      runSpacing: 2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(exercise.muscleGroup,
+                            style: TextStyle(
+                                color: DT.of(context).textSecondary,
+                                fontSize: DT.s3)),
+                        if (exercise.isCustom)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: DT.s2, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: DT.metricOrange,
+                              borderRadius:
+                                  BorderRadius.circular(DT.rChip),
+                            ),
+                            child: Text('Egyéni',
+                                style: TextStyle(
+                                    color: DT.of(context).textPrimary,
+                                    fontSize: 10)),
                           ),
-                          child: Text('Egyéni',
-                              style: TextStyle(
-                                  color: DT.of(context).textPrimary,
-                                  fontSize: 10)),
-                        ),
+                        ...ExerciseMetaChip.forExercise(exercise),
                       ],
-                    ]),
+                    ),
                   ],
                 ),
               ),
