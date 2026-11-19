@@ -12,6 +12,7 @@ import 'package:flutter_application_1/features/training_plan/presentation/widget
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_editor_day_tabs.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_editor_refine_bar.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_editor_volume_chart.dart';
+import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_explanation_panel.dart';
 
 /// Trainer-facing plan editor. Owned state (plan, violations, refining
 /// flags, undo snapshot) lives in [PlanEditorBloc]; this file is the UI
@@ -175,6 +176,8 @@ class _EditorBody extends StatelessWidget {
           allViolations: [...state.errors, ...state.warnings],
           highlightedDays: state.highlightedDays,
         ),
+        const SizedBox(height: DT.s4),
+        PlanExplanationPanel(planId: state.plan.id),
         const SizedBox(height: DT.s8),
       ],
     );

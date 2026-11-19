@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/coach/presentation/athletes_page.dart';
+import 'package:flutter_application_1/features/training_plan/bloc/my_plans_cubit.dart';
+import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
+import 'package:flutter_application_1/features/training_plan/presentation/widgets/my_plan_section.dart';
 import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 
@@ -26,16 +29,35 @@ class _AthleteSessionsPage extends StatefulWidget {
 }
 
 class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
+  // Owned here (not by the list item) so scrolling the section out of view
+  // doesn't refetch the plan.
+  late final MyPlansCubit _myPlansCubit;
+
   @override
   void initState() {
     super.initState();
+    _myPlansCubit = MyPlansCubit(context.read<TrainingPlanRepository>())
+      ..load();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<WorkoutBloc>().add(LoadMyWorkouts());
     });
   }
 
   @override
+  void dispose() {
+    _myPlansCubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: _myPlansCubit,
+      child: Builder(builder: _buildScaffold),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: DT.of(context).bg,
       appBar: AppBar(
@@ -58,6 +80,7 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
           }
 
           Future<void> onRefresh() async {
+            _myPlansCubit.load();
             context.read<WorkoutBloc>().add(LoadMyWorkouts());
             await context.read<WorkoutBloc>().stream
                 .firstWhere((s) => s is WorkoutsLoaded || s is WorkoutError);
@@ -68,6 +91,10 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
               onRefresh: onRefresh,
               child: ListView(
                 children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(DT.s5, DT.s5, DT.s5, 0),
+                    child: MyPlanSection(),
+                  ),
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -99,6 +126,10 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
               onRefresh: onRefresh,
               child: ListView(
                 children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(DT.s5, DT.s5, DT.s5, 0),
+                    child: MyPlanSection(),
+                  ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: Column(
@@ -123,6 +154,7 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
           final hasMore = state is WorkoutsLoaded && state.hasMore;
 
           final items = <Object>[
+            const _PlanSectionItem(),
             if (upcoming.isNotEmpty) ...[
               _SectionHeader('Közelgő edzések', upcoming.length),
               ...upcoming,
@@ -149,6 +181,7 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final item = items[index];
+                  if (item is _PlanSectionItem) return const MyPlanSection();
                   if (item is _SectionHeader) {
                     return _SectionHeaderTile(header: item);
                   }
@@ -186,6 +219,10 @@ class _SectionHeader {
 
 class _LoaderItem {
   const _LoaderItem();
+}
+
+class _PlanSectionItem {
+  const _PlanSectionItem();
 }
 
 class _SectionHeaderTile extends StatelessWidget {

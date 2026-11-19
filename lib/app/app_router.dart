@@ -13,6 +13,7 @@ import 'package:flutter_application_1/features/notifications/presentation/notifi
 import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
 import 'package:flutter_application_1/features/register/athlete_profile_survey_page.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
+import 'package:flutter_application_1/features/training_plan/presentation/my_plan_page.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/plan_editor_page.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/plan_generate_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
@@ -211,6 +212,11 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
             child: PlanGeneratePage(athleteId: athleteId),
           );
         },
+      ),
+      // Athlete's read-only view of their accepted plans.
+      GoRoute(
+        path: '/plan/mine',
+        pageBuilder: (_, __) => const MaterialPage(child: MyPlanPage()),
       ),
       // Plan editor — pushed from the generate wizard's result view with the
       // just-saved TrainingPlanModel as `extra`. The backend has no
