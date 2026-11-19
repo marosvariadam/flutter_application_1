@@ -139,8 +139,8 @@ class _AthleteWorkoutView extends StatelessWidget {
                     }
                     return WorkoutCard(
                       workout: state.workouts[i],
-                      onTap: () => context
-                          .push('/workout/${state.workouts[i].id}'),
+                      onTap: () => context.push('/workout-detail',
+                          extra: state.workouts[i].id),
                     );
                   },
                 ),

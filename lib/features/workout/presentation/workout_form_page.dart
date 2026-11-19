@@ -377,7 +377,7 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                   onPressed: () async {
                     Navigator.pop(ctx);
                     final result = await context.push<ExerciseModel>(
-                        '/exercise-catalogue');
+                        '/exercise-catalogue?select=true');
                     if (result != null) {
                       setState(() {
                         _exercises.add(_ExerciseEntry(

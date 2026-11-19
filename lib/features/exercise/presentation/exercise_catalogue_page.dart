@@ -316,7 +316,13 @@ class _ExerciseTile extends StatelessWidget {
                 PopupMenuButton<String>(
                   onSelected: (action) {
                     if (action == 'edit') {
-                      context.push('/exercise/${exercise.id}/edit');
+                      context
+                          .push('/exercise/${exercise.id}/edit',
+                              extra: exercise)
+                          .then((_) {
+                        if (!context.mounted) return;
+                        context.read<ExerciseBloc>().add(LoadExercises());
+                      });
                     } else if (action == 'delete') {
                       context
                           .read<ExerciseBloc>()

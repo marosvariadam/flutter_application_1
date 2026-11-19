@@ -303,7 +303,7 @@ class _DayWorkoutList extends StatelessWidget {
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           child: InkWell(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
-            onTap: () => context.push('/workout/${w.id}'),
+            onTap: () => context.push('/workout-detail', extra: w.id),
             child: Padding(
               padding: const EdgeInsets.all(DT.s4),
               child: Row(

@@ -93,7 +93,13 @@ class WorkoutDetailView extends StatelessWidget {
                     tooltip: 'Szerkesztés',
                     icon: Icon(Icons.edit_outlined,
                         color: DT.of(context).textPrimary),
-                    onPressed: () => context.push('/workout/${w.id}/edit'),
+                    onPressed: () =>
+                        context.push('/workout/${w.id}/edit').then((_) {
+                      if (!context.mounted) return;
+                      context
+                          .read<WorkoutBloc>()
+                          .add(LoadWorkoutDetail(w.id));
+                    }),
                   ),
                 if (isTrainer)
                   IconButton(

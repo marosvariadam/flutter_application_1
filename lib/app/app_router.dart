@@ -29,7 +29,12 @@ import 'package:flutter_application_1/features/user/presentation/change_password
 import 'package:flutter_application_1/features/user/presentation/edit_profile_page.dart';
 import 'package:flutter_application_1/features/exercise_stats/presentation/exercise_stats_page.dart';
 import 'package:flutter_application_1/features/prediction/presentation/prediction_page.dart';
+import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
+import 'package:flutter_application_1/features/exercise/presentation/exercise_catalogue_page.dart';
+import 'package:flutter_application_1/features/exercise/presentation/exercise_form_page.dart';
+import 'package:flutter_application_1/features/workout/presentation/workout_calendar_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
+import 'package:flutter_application_1/features/workout/presentation/workout_form_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
 
 enum Approute { home, session, messages, profile, login, register }
@@ -71,7 +76,13 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
 
       return null;
     },
-    routes: [
+    routes: buildAppRoutes(),
+  );
+}
+
+/// Every route in the app. Split out of [buildRouter] so tests can mount the
+/// real routes without the auth redirect.
+List<RouteBase> buildAppRoutes() => [
       // Auth
       GoRoute(
         path: '/login',
@@ -159,6 +170,53 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
         pageBuilder: (context, state) {
           final workoutId = state.extra as String;
           return MaterialPage(child: WorkoutDetailPage(workoutId: workoutId));
+        },
+      ),
+      GoRoute(
+        path: '/workout/calendar',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: WorkoutCalendarPage()),
+      ),
+      GoRoute(
+        path: '/workout/:id/edit',
+        pageBuilder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return MaterialPage(child: WorkoutFormPage(workoutId: id));
+        },
+      ),
+      // Exercise library. `?select=true` opens it as a picker that pops the
+      // tapped ExerciseModel back to the caller (the workout form).
+      GoRoute(
+        path: '/exercise-catalogue',
+        pageBuilder: (context, state) => MaterialPage(
+          child: ExerciseCataloguePage(
+            selectionMode: state.uri.queryParameters['select'] == 'true',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/exercise/new',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ExerciseFormPage()),
+      ),
+      // Edit form, prefilled from the ExerciseModel passed as `extra`. The
+      // client has no single-exercise fetch, so a push without it goes back
+      // to the catalogue instead of opening an empty form that would
+      // overwrite the exercise on save.
+      GoRoute(
+        path: '/exercise/:id/edit',
+        redirect: (_, state) =>
+            state.extra is ExerciseModel ? null : '/exercise-catalogue',
+        pageBuilder: (context, state) {
+          final exercise = state.extra as ExerciseModel;
+          return MaterialPage(
+            child: ExerciseFormPage(
+              exerciseId: state.pathParameters['id'],
+              initialName: exercise.name,
+              initialMuscleGroup: exercise.muscleGroup,
+              initialDescription: exercise.description,
+            ),
+          );
         },
       ),
       GoRoute(
@@ -298,9 +356,7 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
           ),
         ],
       ),
-    ],
-  );
-}
+    ];
 
 /// Returns the redirect target for an authenticated athlete, or null if they
 /// are already on the right screen.
