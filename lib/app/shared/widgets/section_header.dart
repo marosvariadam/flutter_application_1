@@ -22,33 +22,38 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = DTText.of(context);
+    final row = Row(
+      children: [
+        Expanded(
+          child: Semantics(
+            header: true,
+            child: Text(title, style: t.h2),
+          ),
+        ),
+        if (onAction != null)
+          TextButton(
+            onPressed: onAction,
+            style: TextButton.styleFrom(
+              foregroundColor: DT.of(context).accentPrimary,
+              minimumSize: const Size(DT.minTap, DT.minTap),
+            ),
+            child: Text(actionLabel,
+                style: t.label.copyWith(
+                    color: DT.of(context).accentPrimary,
+                    fontWeight: FontWeight.w600)),
+          ),
+      ],
+    );
+    // The tap-size floor is for the action; a bare title keeps its own
+    // height so section spacing stays as it was.
     return Padding(
       padding: padding,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: DT.minTap),
-        child: Row(
-          children: [
-            Expanded(
-              child: Semantics(
-                header: true,
-                child: Text(title, style: t.h2),
-              ),
+      child: onAction == null
+          ? row
+          : ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: DT.minTap),
+              child: row,
             ),
-            if (onAction != null)
-              TextButton(
-                onPressed: onAction,
-                style: TextButton.styleFrom(
-                  foregroundColor: DT.of(context).accentPrimary,
-                  minimumSize: const Size(DT.minTap, DT.minTap),
-                ),
-                child: Text(actionLabel,
-                    style: t.label.copyWith(
-                        color: DT.of(context).accentPrimary,
-                        fontWeight: FontWeight.w600)),
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

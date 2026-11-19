@@ -48,11 +48,16 @@ void main() {
       await tester.pumpWidget(_host(
           SectionHeader(title: 'Edzések', onAction: () => taps++)));
       expect(tester.widget<Text>(find.text('Edzések')).style?.fontSize, 18);
+      // The action gets the 44 px tap floor (plus the bottom padding)...
+      expect(tester.getSize(find.byType(SectionHeader)).height,
+          greaterThanOrEqualTo(44));
       await tester.tap(find.text('Összes'));
       expect(taps, 1);
 
+      // ...a bare title keeps its natural height.
       await tester.pumpWidget(_host(const SectionHeader(title: 'Edzések')));
       expect(find.text('Összes'), findsNothing);
+      expect(tester.getSize(find.byType(SectionHeader)).height, lessThan(44));
     });
   });
 
