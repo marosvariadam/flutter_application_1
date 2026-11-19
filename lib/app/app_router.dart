@@ -12,6 +12,8 @@ import 'package:flutter_application_1/features/messaging/presentation/messaging_
 import 'package:flutter_application_1/features/notifications/presentation/notifications_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
 import 'package:flutter_application_1/features/register/athlete_profile_survey_page.dart';
+import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
+import 'package:flutter_application_1/features/training_plan/presentation/plan_editor_page.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/plan_generate_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
@@ -208,6 +210,27 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
           return MaterialPage(
             child: PlanGeneratePage(athleteId: athleteId),
           );
+        },
+      ),
+      // Plan editor — pushed from the generate wizard's result view with the
+      // just-saved TrainingPlanModel as `extra`. The backend has no
+      // GET /api/plan/{id} endpoint yet, so deep-linking without a plan
+      // argument falls back to an error page.
+      GoRoute(
+        path: '/plan/:id/edit',
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+          if (extra is! TrainingPlanModel) {
+            return const MaterialPage(
+              child: Scaffold(
+                body: Center(
+                  child: Text(
+                      'A szerkesztő megnyitásához a terv adatai szükségesek.'),
+                ),
+              ),
+            );
+          }
+          return MaterialPage(child: PlanEditorPage(plan: extra));
         },
       ),
 

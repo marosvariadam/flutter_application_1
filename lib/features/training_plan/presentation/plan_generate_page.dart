@@ -125,10 +125,9 @@ class _PlanGenerateViewState extends State<_PlanGenerateView> {
                 context.read<PlanGenerateCubit>().reset();
                 setState(() => _inlineError = null);
               },
-              onOpenEditor: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('A szerkesztő a következő fázisban készül el.'),
-                ),
+              onOpenEditor: () => context.push(
+                '/plan/${state.result.plan.id}/edit',
+                extra: state.result.plan,
               ),
             );
           }
