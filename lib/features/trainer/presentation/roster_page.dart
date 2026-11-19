@@ -105,7 +105,7 @@ class _AthleteCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: DT.metricBlue.withOpacity(0.15),
+                backgroundColor: DT.metricBlue.withValues(alpha: 0.15),
                 child: Text(
                   athlete.firstName.isNotEmpty
                       ? athlete.firstName[0].toUpperCase()

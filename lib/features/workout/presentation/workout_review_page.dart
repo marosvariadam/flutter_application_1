@@ -134,7 +134,7 @@ class _ReviewCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(DT.s3),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.08),
+                    color: Colors.green.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(DT.rCardSmall),
                   ),
                   child: Row(

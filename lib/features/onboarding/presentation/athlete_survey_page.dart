@@ -394,21 +394,25 @@ class _MultipleChoiceAnswer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: options
-          .map(
-            (o) => RadioListTile<String>(
-              value: o,
-              groupValue: current,
-              onChanged: (v) => onChanged(v ?? o),
-              title: Text(o,
-                  style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s3)),
-              activeColor: DT.metricBlue,
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-            ),
-          )
-          .toList(),
+    return RadioGroup<String>(
+      groupValue: current,
+      onChanged: (v) {
+        if (v != null) onChanged(v);
+      },
+      child: Column(
+        children: options
+            .map(
+              (o) => RadioListTile<String>(
+                value: o,
+                title: Text(o,
+                    style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s3)),
+                activeColor: DT.metricBlue,
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 }

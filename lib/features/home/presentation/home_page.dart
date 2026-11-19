@@ -78,7 +78,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
                 ),
                 child: ClipOval(
                   child: Container(
-                    color: DT.metricBlue.withOpacity(0.15),
+                    color: DT.metricBlue.withValues(alpha: 0.15),
                     child: const Icon(Icons.person, color: DT.metricBlue),
                   ),
                 ),
@@ -227,7 +227,7 @@ class _WorkoutCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final diffColor = _diffColor(workout.difficulty);
     return Material(
-      color: workout.color.withOpacity(0.25),
+      color: workout.color.withValues(alpha: 0.25),
       borderRadius: BorderRadius.circular(DT.rCardSmall),
       child: InkWell(
         onTap: onTap,

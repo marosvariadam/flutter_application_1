@@ -250,7 +250,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: isSelected ? DT.metricBlue.withOpacity(0.1) : Colors.white,
+          color: isSelected ? DT.metricBlue.withValues(alpha: 0.1) : Colors.white,
           border: Border.all(
             color: isSelected ? DT.metricBlue : Colors.grey.shade300,
             width: 2,

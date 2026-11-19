@@ -229,7 +229,7 @@ class WorkoutCard extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
+                      color: statusColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(DT.rChip),
                     ),
                     child: Icon(Icons.arrow_forward_ios,
@@ -280,7 +280,7 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(
           horizontal: DT.s2, vertical: DT.s1),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(DT.rChip),
       ),
       child: Text(label,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 import 'dart:convert';
@@ -17,7 +18,7 @@ class ChatService {
     final token = await _storage.read(key: 'jwt_token');
     
     if (token == null) {
-      print("No token found. Cannot connect to chat.");
+      debugPrint("No token found. Cannot connect to chat.");
       return;
     }
 
@@ -37,16 +38,16 @@ class ChatService {
     // 3. Start Connection
     try {
       await _hubConnection?.start();
-      print("SignalR Connected!");
+      debugPrint("SignalR Connected!");
     } catch (e) {
-      print("SignalR Connection Error: $e");
+      debugPrint("SignalR Connection Error: $e");
     }
   }
 
   void _handleIncomingMessage(List<dynamic>? args) {
     if (args != null && args.isNotEmpty) {
       final messageData = args[0];
-      print("New Message: $messageData");
+      debugPrint("New Message: $messageData");
       
       // Notify the UI if a callback is registered
       if (onMessageReceived != null) {
@@ -61,21 +62,21 @@ class ChatService {
       try {
         await _hubConnection?.invoke("SendMessage", args: [receiverId, content]);
       } catch (e) {
-        print("Error sending message: $e");
+        debugPrint("Error sending message: $e");
       }
     } else {
-      print("Cannot send. Chat is disconnected.");
+      debugPrint("Cannot send. Chat is disconnected.");
     }
   }
 
   Future<List<dynamic>> getInbox() async {
-    print("Inbox: Starting request..."); // Debug 1
+    debugPrint("Inbox: Starting request..."); // Debug 1
     
     final token = await _storage.read(key: 'jwt_token');
-    print("Inbox: Token found? ${token != null}"); // Debug 2
+    debugPrint("Inbox: Token found? ${token != null}"); // Debug 2
 
     final url = Uri.parse('http://10.0.2.2:5233/api/chat/inbox'); 
-    print("Inbox: Calling URL $url"); // Debug 3
+    debugPrint("Inbox: Calling URL $url"); // Debug 3
 
     try {
       final response = await http.get(
@@ -86,7 +87,7 @@ class ChatService {
         },
       );
       
-      print("Inbox: Response ${response.statusCode}"); // Debug 4
+      debugPrint("Inbox: Response ${response.statusCode}"); // Debug 4
       
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -94,7 +95,7 @@ class ChatService {
         throw Exception('Failed to load inbox: ${response.statusCode}');
       }
     } catch (e) {
-      print("Inbox Error: $e"); // Debug 5
+      debugPrint("Inbox Error: $e"); // Debug 5
       rethrow;
     }
   }

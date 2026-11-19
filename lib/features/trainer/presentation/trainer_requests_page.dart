@@ -119,7 +119,7 @@ class _IncomingRequestCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: DT.metricBlue.withOpacity(0.15),
+                  backgroundColor: DT.metricBlue.withValues(alpha: 0.15),
                   child: Text(
                     request.athleteFirstName.isNotEmpty
                         ? request.athleteFirstName[0].toUpperCase()

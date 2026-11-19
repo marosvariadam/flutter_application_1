@@ -133,7 +133,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: DT.s2),
               DropdownButtonFormField<String>(
-                value: _muscleGroup,
+                initialValue: _muscleGroup,
                 items: _muscleGroups
                     .map((mg) => DropdownMenuItem(
                         value: mg, child: Text(mg)))

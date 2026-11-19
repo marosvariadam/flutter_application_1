@@ -39,7 +39,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/mock/
     - assets/images/motivationpic.png
     - assets\images\8904-17031-weightlifting-competition.riv
 

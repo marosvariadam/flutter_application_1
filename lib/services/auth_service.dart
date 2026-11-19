@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -68,8 +69,8 @@ class AuthService {
           'assignedTrainerId': null, // Default to null
         }),
       );
-      print("Server Response Code: ${response.statusCode}");
-      print("Server Response Body: ${response.body}");
+      debugPrint("Server Response Code: ${response.statusCode}");
+      debugPrint("Server Response Body: ${response.body}");
 
       if (response.statusCode == 201) {
         // Cache name + email so the profile page can show real data

@@ -75,6 +75,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
               icon: Icon(Icons.add, color: DT.of(context).textPrimary),
               onPressed: () =>
                   context.push('/exercise/new').then((_) {
+                if (!context.mounted) return;
                 context
                     .read<ExerciseBloc>()
                     .add(LoadExercises());
@@ -246,7 +247,7 @@ class _ExerciseTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: DT.metricBlue.withOpacity(0.12),
+                  color: DT.metricBlue.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.fitness_center,

@@ -222,7 +222,7 @@ class _CalendarGrid extends StatelessWidget {
                     color: isSelected
                         ? DT.metricBlue
                         : isToday
-                            ? DT.metricBlue.withOpacity(0.15)
+                            ? DT.metricBlue.withValues(alpha: 0.15)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -311,7 +311,7 @@ class _DayWorkoutList extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: DT.s2, vertical: DT.s1),
                     decoration: BoxDecoration(
-                      color: DT.metricBlue.withOpacity(0.15),
+                      color: DT.metricBlue.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(DT.rChip),
                     ),
                     child: Text(w.status.label,

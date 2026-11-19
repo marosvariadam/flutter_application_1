@@ -23,7 +23,6 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
   WorkoutDifficulty _difficulty = WorkoutDifficulty.moderate;
   DateTime _scheduledDate = DateTime.now().add(const Duration(days: 1));
   String? _selectedAthleteId;
-  String? _selectedAthleteName;
   List<AthleteModel> _athletes = [];
   List<_ExerciseEntry> _exercises = [];
   bool _loading = false;
@@ -65,7 +64,6 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
         _difficulty = w.difficulty;
         _scheduledDate = w.scheduledDate;
         _selectedAthleteId = w.athleteId;
-        _selectedAthleteName = w.athleteName;
         _exercises = w.exercises
             .map((e) => _ExerciseEntry(
                   exerciseId: e.exerciseId,
@@ -237,7 +235,7 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                               fontWeight: FontWeight.w600)),
                       const SizedBox(height: DT.s2),
                       DropdownButtonFormField<String>(
-                        value: _selectedAthleteId,
+                        initialValue: _selectedAthleteId,
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.person_outline),
                         ),
@@ -248,12 +246,7 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                                 ))
                             .toList(),
                         onChanged: (v) {
-                          setState(() {
-                            _selectedAthleteId = v;
-                            _selectedAthleteName = _athletes
-                                .firstWhere((a) => a.id == v)
-                                .fullName;
-                          });
+                          setState(() => _selectedAthleteId = v);
                         },
                         hint: const Text('Válassz sportolót'),
                       ),
