@@ -80,11 +80,19 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
   }
 
   Future<void> _pickDate() async {
+    final today = DateUtils.dateOnly(DateTime.now());
+    final lastDate = today.add(const Duration(days: 365));
+    // A workout being edited can be dated outside the pickable range (a
+    // planned one that was missed). showDatePicker asserts on that, so the
+    // picker opens on the nearest allowed day instead.
+    var initialDate = DateUtils.dateOnly(_scheduledDate);
+    if (initialDate.isBefore(today)) initialDate = today;
+    if (initialDate.isAfter(lastDate)) initialDate = lastDate;
     final picked = await showDatePicker(
       context: context,
-      initialDate: _scheduledDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: initialDate,
+      firstDate: today,
+      lastDate: lastDate,
     );
     if (picked != null) setState(() => _scheduledDate = picked);
   }
