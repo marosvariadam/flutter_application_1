@@ -246,13 +246,26 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
             const SizedBox(height: DT.s3),
             _ActivityHeatmap(workouts: _workouts),
             const SizedBox(height: DT.s5),
-            Text(
-              'Edzések',
-              style: TextStyle(
-                fontSize: DT.s4,
-                fontWeight: FontWeight.w700,
-                color: DT.of(context).textPrimary,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Edzések',
+                    style: TextStyle(
+                      fontSize: DT.s4,
+                      fontWeight: FontWeight.w700,
+                      color: DT.of(context).textPrimary,
+                    ),
+                  ),
+                ),
+                if (completed.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () => context
+                        .push('/athlete-detail/${widget.athleteId}/review'),
+                    icon: const Icon(Icons.rate_review_outlined, size: 18),
+                    label: const Text('Visszajelzések'),
+                  ),
+              ],
             ),
             const SizedBox(height: DT.s3),
             if (_workouts.isEmpty)

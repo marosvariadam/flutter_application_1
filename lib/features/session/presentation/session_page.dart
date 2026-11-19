@@ -72,6 +72,14 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Naptár',
+            icon: Icon(Icons.calendar_month_outlined,
+                color: DT.of(context).textPrimary),
+            onPressed: () => context.push('/workout/calendar'),
+          ),
+        ],
       ),
       body: BlocBuilder<WorkoutBloc, WorkoutState>(
         builder: (context, state) {

@@ -39,7 +39,6 @@ import 'package:flutter_application_1/features/user/presentation/edit_profile_pa
 import 'package:flutter_application_1/features/workout/presentation/workout_calendar_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_form_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_review_page.dart';
 
 import 'page_fixtures.dart';
@@ -56,7 +55,6 @@ final List<_Page> _pages = [
   // Athlete
   ('Kezdőlap (sportoló)', Role.athlete, () => const HomePage()),
   ('Edzéseim', Role.athlete, () => const SessionsPage()),
-  ('Edzéslista', Role.athlete, () => const WorkoutsHubPage()),
   ('Edzésnaptár', Role.athlete, () => const WorkoutCalendarPage()),
   ('Edzés – folyamatban', Role.athlete,
       () => const WorkoutDetailPage(workoutId: 'w-today')),

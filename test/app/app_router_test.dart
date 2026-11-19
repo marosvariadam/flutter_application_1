@@ -6,13 +6,16 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:flutter_application_1/app/app_router.dart';
+import 'package:flutter_application_1/features/coach/presentation/athlete_detail_page.dart';
 import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
 import 'package:flutter_application_1/features/exercise/presentation/exercise_catalogue_page.dart';
 import 'package:flutter_application_1/features/exercise/presentation/exercise_form_page.dart';
+import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
+import 'package:flutter_application_1/features/session/presentation/session_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_calendar_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_form_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
+import 'package:flutter_application_1/features/workout/presentation/workout_review_page.dart';
 
 import '../a11y/page_harness.dart';
 
@@ -101,22 +104,51 @@ void main() {
       expect(find.byType(ExerciseFormPage), findsNothing);
       expect(find.byType(ExerciseCataloguePage), findsOneWidget);
     });
+
+    testWidgets('/athlete-detail/:id/review', (tester) async {
+      await _open(tester, '/athlete-detail/a1/review');
+      expect(_page<WorkoutReviewPage>(tester).athleteId, 'a1');
+    });
   });
 
   group('belépési pontok', () {
-    testWidgets('edzéslista: kártya és naptár', (tester) async {
-      await _open(tester, '/',
-          role: Role.athlete, start: const AthleteWorkoutListPage());
+    testWidgets('Edzés fül: naptár ikon', (tester) async {
+      await _open(tester, '/', role: Role.athlete, start: const SessionsPage());
 
-      await tester.tap(find.byType(WorkoutCard).first);
-      await settleData(tester);
-      expect(_page<WorkoutDetailPage>(tester).workoutId, 'w-today');
-
-      _router(tester).pop();
-      await settleData(tester);
       await tester.tap(find.byTooltip('Naptár'));
       await settleData(tester);
       expect(find.byType(WorkoutCalendarPage), findsOneWidget);
+    });
+
+    testWidgets('naptár: edzés kártya a részletekre visz', (tester) async {
+      await _open(tester, '/workout/calendar', role: Role.athlete);
+
+      // The fixture has a workout today ('w-today'); select today's cell.
+      await tester.tap(find.text('${DateTime.now().day}').first);
+      await settleData(tester);
+      await tester.tap(
+          find.text('Alsótest – erő és robbanékonyság fejlesztése').first);
+      await settleData(tester);
+      expect(_page<WorkoutDetailPage>(tester).workoutId, 'w-today');
+    });
+
+    testWidgets('atléta adatlap: visszajelzések gomb', (tester) async {
+      await _open(tester, '/',
+          start: const AthleteDetailPage(athleteId: 'a1'));
+
+      await tester.ensureVisible(find.text('Visszajelzések'));
+      await tester.tap(find.text('Visszajelzések'));
+      await settleData(tester);
+      expect(_page<WorkoutReviewPage>(tester).athleteId, 'a1');
+    });
+
+    testWidgets('edző profil: gyakorlatkönyvtár', (tester) async {
+      await _open(tester, '/', start: const ProfilesPage());
+
+      await tester.ensureVisible(find.text('Gyakorlatkönyvtár'));
+      await tester.tap(find.text('Gyakorlatkönyvtár'));
+      await settleData(tester);
+      expect(_page<ExerciseCataloguePage>(tester).selectionMode, isFalse);
     });
 
     testWidgets('edzés részletei: szerkesztés gomb (edző)', (tester) async {

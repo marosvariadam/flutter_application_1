@@ -35,7 +35,7 @@ import 'package:flutter_application_1/features/exercise/presentation/exercise_fo
 import 'package:flutter_application_1/features/workout/presentation/workout_calendar_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_detail_page.dart';
 import 'package:flutter_application_1/features/workout/presentation/workout_form_page.dart';
-import 'package:flutter_application_1/features/workout/presentation/workout_list_page.dart';
+import 'package:flutter_application_1/features/workout/presentation/workout_review_page.dart';
 
 enum Approute { home, session, messages, profile, login, register }
 
@@ -226,6 +226,15 @@ List<RouteBase> buildAppRoutes() => [
           return MaterialPage(child: AthleteDetailPage(athleteId: id));
         },
       ),
+      // Trainer's view of an athlete's completed workouts with their
+      // feedback and logged RPE.
+      GoRoute(
+        path: '/athlete-detail/:id/review',
+        pageBuilder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return MaterialPage(child: WorkoutReviewPage(athleteId: id));
+        },
+      ),
       GoRoute(
         path: '/workout-builder',
         pageBuilder: (context, state) {
@@ -313,13 +322,6 @@ List<RouteBase> buildAppRoutes() => [
                 path: '/session',
                 pageBuilder: (_, __) =>
                     const NoTransitionPage(child: SessionsPage()),
-                routes: [
-                  GoRoute(
-                    path: 'workouts',
-                    pageBuilder: (_, __) =>
-                        const NoTransitionPage(child: WorkoutsHubPage()),
-                  ),
-                ],
               ),
             ],
           ),

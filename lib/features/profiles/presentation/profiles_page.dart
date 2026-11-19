@@ -324,6 +324,11 @@ class _MenuSection extends StatelessWidget {
             onTap: () => context.push('/trainer-requests'),
           ),
           _MenuItem(
+            icon: Icons.fitness_center_outlined,
+            title: 'Gyakorlatkönyvtár',
+            onTap: () => context.push('/exercise-catalogue'),
+          ),
+          _MenuItem(
             icon: Icons.assignment_outlined,
             title: 'Felmérő szerkesztő',
             onTap: () => context.push('/onboarding/form-builder'),
