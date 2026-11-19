@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
 import 'package:flutter_application_1/features/athlete_profile/bloc/athlete_profile_cubit.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/repositories/athlete_profile_repository.dart';
 import 'package:flutter_application_1/features/training_plan/bloc/plan_editor_bloc.dart';
@@ -20,12 +21,33 @@ import 'package:flutter_application_1/features/training_plan/presentation/widget
 ///
 /// Expected entry: `/plan/:id/edit` with the plan passed in as a go_router
 /// `extra`. The route is pushed from the generate wizard's result view.
+/// The backend has no GET-by-id endpoint, so a deep link without the plan
+/// ([plan] null) shows an explanation instead of the editor.
 class PlanEditorPage extends StatelessWidget {
-  final TrainingPlanModel plan;
+  final TrainingPlanModel? plan;
   const PlanEditorPage({super.key, required this.plan});
 
   @override
   Widget build(BuildContext context) {
+    final plan = this.plan;
+    if (plan == null) {
+      final c = DT.of(context);
+      return Scaffold(
+        backgroundColor: c.bg,
+        appBar: AppBar(
+          backgroundColor: c.bg,
+          elevation: 0,
+          leading: BackButton(color: c.textPrimary),
+        ),
+        body: EmptyState(
+          icon: Icons.link_off,
+          title: 'A terv nem nyitható meg',
+          message: 'A szerkesztő a tervgenerálás eredményéből nyitható meg.',
+          actionLabel: 'Vissza',
+          onAction: () => Navigator.of(context).maybePop(),
+        ),
+      );
+    }
     return MultiBlocProvider(
       providers: [
         // The volume chart draws MEV/MRV lines for the athlete's
@@ -64,14 +86,9 @@ class _PlanEditorView extends StatelessWidget {
       ),
       builder: (sheet) => PlanEditorAcceptSheet(
         needsAcceptFirst: needsAccept,
-        onConfirm: (date) async {
+        onConfirm: (date) {
           Navigator.of(sheet).pop();
-          if (needsAccept) {
-            bloc.add(const PlanEditorAccept());
-          }
-          // Give the accept a short chance to flip plan.status; the
-          // bloc guards materialize internally so an error there still
-          // surfaces via lastErrorMessage.
+          // Accepts a draft first, then schedules (one sequential handler).
           bloc.add(PlanEditorMaterialize(date));
         },
       ),
@@ -98,9 +115,12 @@ class _PlanEditorView extends StatelessWidget {
           BlocBuilder<PlanEditorBloc, PlanEditorState>(
             buildWhen: (p, c) =>
                 c is PlanEditorReady &&
-                (p is! PlanEditorReady || p.isSaving != c.isSaving),
+                (p is! PlanEditorReady ||
+                    p.isSaving != c.isSaving ||
+                    p.isValidating != c.isValidating),
             builder: (context, state) {
-              if (state is! PlanEditorReady || !state.isSaving) {
+              if (state is! PlanEditorReady ||
+                  !(state.isSaving || state.isValidating)) {
                 return const SizedBox.shrink();
               }
               return const Padding(

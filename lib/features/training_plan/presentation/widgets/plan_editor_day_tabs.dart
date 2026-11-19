@@ -81,7 +81,8 @@ class _PlanEditorDayTabsState extends State<PlanEditorDayTabs>
           borderRadius: BorderRadius.circular(DT.rCardSmall),
         ),
         child: Text(
-          'A terv üres. Használd a finomítást alul, vagy adj hozzá napokat.',
+          'A terv még nem tartalmaz edzésnapokat. Írd le alul a finomításban, '
+          'mit szeretnél, és az AI összeállítja őket.',
           style: TextStyle(color: DT.of(context).textSecondary),
         ),
       );

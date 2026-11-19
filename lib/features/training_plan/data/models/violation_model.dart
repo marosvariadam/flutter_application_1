@@ -20,6 +20,24 @@ class ViolationCodes {
   static const invalidPrescription = 'INVALID_PRESCRIPTION';
   static const patternImbalance = 'PATTERN_IMBALANCE';
   static const duplicateInDay = 'DUPLICATE_IN_DAY';
+
+  /// Hungarian rule names. The backend's `message` adds the specifics
+  /// (muscle, numbers) in English, so the UI leads with these.
+  static const Map<String, String> labels = {
+    unknownExercise: 'Ismeretlen gyakorlat',
+    equipmentUnavailable: 'Nem elérhető eszköz',
+    stressTagConflict: 'Kerülendő terhelés',
+    excludedExercise: 'Kizárt gyakorlat',
+    levelTooHigh: 'Túl nehéz a sportoló szintjéhez',
+    volumeBelowMev: 'Heti volumen a minimum (MEV) alatt',
+    volumeAboveMrv: 'Heti volumen a maximum (MRV) felett',
+    sessionTooLong: 'Túl hosszú edzés',
+    dayCountMismatch: 'Eltérő napszám a profilhoz képest',
+    frequencyTooLow: 'Ritka izomcsoport-terhelés',
+    invalidPrescription: 'Hibás előírás (szett / ismétlés / RPE)',
+    patternImbalance: 'Toló–húzó egyensúly eltér',
+    duplicateInDay: 'Ismétlődő gyakorlat egy napon',
+  };
 }
 
 /// A single rule-violation reported by `PlanValidator`. `dayIndex` and
@@ -42,6 +60,11 @@ class ViolationModel {
 
   bool get isError => severity == ViolationSeverity.error;
   bool get isWarning => severity == ViolationSeverity.warning;
+
+  /// Hungarian rule name; generic wording for codes this client predates.
+  String get label =>
+      ViolationCodes.labels[code] ??
+      (isError ? 'Szabálysértés' : 'Figyelmeztetés');
 
   factory ViolationModel.fromJson(Map<String, dynamic> j) => ViolationModel(
         code: j['code'] as String? ?? '',

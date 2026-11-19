@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter_application_1/core/api/api_error_messages.dart';
+import 'package:flutter_application_1/features/training_plan/bloc/plan_messages.dart';
+
 import 'package:flutter_application_1/features/training_plan/bloc/plan_editor_events.dart';
 import 'package:flutter_application_1/features/training_plan/bloc/plan_editor_state.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
@@ -52,8 +55,13 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
 
   // ── Handlers ──
 
-  void _onLoad(PlanEditorLoad e, Emitter<PlanEditorState> emit) {
-    emit(PlanEditorReady(plan: e.plan, profile: e.profile));
+  /// Shows the plan immediately and validates it, so violations (and the
+  /// disabled Accept button) are right from the first frame after opening.
+  Future<void> _onLoad(
+      PlanEditorLoad e, Emitter<PlanEditorState> emit) async {
+    emit(PlanEditorReady(
+        plan: e.plan, profile: e.profile, isValidating: true));
+    await _runValidation(emit);
   }
 
   void _onEdit(PlanEditorEditExercise e, Emitter<PlanEditorState> emit) {
@@ -190,11 +198,15 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
         isSaving: false,
       ));
     } on PlanConflictException catch (ex) {
-      _emitError(emit, isSaving: false, message: ex.message);
-    } catch (_) {
       _emitError(emit,
           isSaving: false,
-          message: 'Nem sikerült menteni a változtatást.');
+          message: planServerMessageHu(ex.message,
+              fallback: 'A terv már nem szerkeszthető.'));
+    } catch (e) {
+      _emitError(emit,
+          isSaving: false,
+          message: friendlyErrorMessage(e,
+              fallback: 'Nem sikerült menteni a változtatást.'));
     }
   }
 
@@ -202,7 +214,13 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
       PlanEditorValidate e, Emitter<PlanEditorState> emit) async {
     final s = state;
     if (s is! PlanEditorReady) return;
-    emit(s.copyWith(clearError: true));
+    emit(s.copyWith(isValidating: true, clearError: true));
+    await _runValidation(emit);
+  }
+
+  Future<void> _runValidation(Emitter<PlanEditorState> emit) async {
+    final s = state;
+    if (s is! PlanEditorReady) return;
     try {
       final res = await _repo.validate(s.plan.id);
       final latest = state;
@@ -210,9 +228,13 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
       emit(latest.copyWith(
         warnings: res.warnings,
         errors: res.errors,
+        isValidating: false,
       ));
-    } catch (_) {
-      _emitError(emit, message: 'Nem sikerült az ellenőrzés.');
+    } catch (e) {
+      _emitError(emit,
+          isValidating: false,
+          message:
+              friendlyErrorMessage(e, fallback: 'Nem sikerült az ellenőrzés.'));
     }
   }
 
@@ -254,13 +276,20 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
           isRefining: false,
           message:
               'Túl sok refine kérés — próbáld újra egy perc múlva.');
-    } on PlanLlmUnavailableException catch (ex) {
+    } on PlanLlmUnavailableException {
       _emitError(emit,
           isRefining: false,
-          message: 'Az LLM nem elérhető: ${ex.message}');
-    } catch (_) {
+          message: 'Az AI finomítás most nem érhető el. Próbáld újra később.');
+    } on PlanValidationException catch (ex) {
       _emitError(emit,
-          isRefining: false, message: 'A finomítás nem sikerült.');
+          isRefining: false,
+          message: planServerMessageHu(ex.message,
+              fallback: 'A finomítás nem sikerült.'));
+    } catch (e) {
+      _emitError(emit,
+          isRefining: false,
+          message:
+              friendlyErrorMessage(e, fallback: 'A finomítás nem sikerült.'));
     }
   }
 
@@ -288,9 +317,11 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
         highlightedDays: const {},
         clearRefineUndo: true,
       ));
-    } catch (_) {
+    } catch (e) {
       _emitError(emit,
-          isSaving: false, message: 'A visszavonás nem sikerült.');
+          isSaving: false,
+          message:
+              friendlyErrorMessage(e, fallback: 'A visszavonás nem sikerült.'));
     }
   }
 
@@ -314,34 +345,57 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
       if (latest is! PlanEditorReady) return;
       emit(latest.copyWith(plan: accepted, isAccepting: false));
     } on PlanConflictException catch (ex) {
-      _emitError(emit, isAccepting: false, message: ex.message);
-    } catch (_) {
       _emitError(emit,
-          isAccepting: false, message: 'Az elfogadás nem sikerült.');
+          isAccepting: false,
+          message: planServerMessageHu(ex.message,
+              fallback: 'A terv már nem fogadható el.'));
+    } catch (e) {
+      _emitError(emit,
+          isAccepting: false,
+          message:
+              friendlyErrorMessage(e, fallback: 'Az elfogadás nem sikerült.'));
     }
   }
 
+  /// Schedules the plan. A draft is accepted first, in the same handler:
+  /// separate Accept + Materialize events would run concurrently and the
+  /// materialize request could reach the server before the acceptance.
   Future<void> _onMaterialize(
       PlanEditorMaterialize e, Emitter<PlanEditorState> emit) async {
     final s = state;
     if (s is! PlanEditorReady) return;
+    final isDraft = s.plan.status == PlanStatuses.draft;
+    if (isDraft ? !s.canAccept : !s.canMaterialize) return;
     emit(s.copyWith(isAccepting: true, clearError: true));
+    var plan = s.plan;
     try {
+      if (isDraft) plan = await _repo.accept(plan.id);
       final res = await _repo.materialize(
-        planId: s.plan.id,
+        planId: plan.id,
         startDate: e.startDate,
       );
       emit(PlanEditorMaterialized(
-        plan: s.plan.copyWith(status: PlanStatuses.materialized),
+        plan: plan.copyWith(status: PlanStatuses.materialized),
         result: res,
       ));
     } on PlanConflictException catch (ex) {
-      _emitError(emit, isAccepting: false, message: ex.message);
-    } on PlanValidationException catch (ex) {
-      _emitError(emit, isAccepting: false, message: ex.message);
-    } catch (_) {
       _emitError(emit,
-          isAccepting: false, message: 'Az ütemezés nem sikerült.');
+          plan: plan,
+          isAccepting: false,
+          message: planServerMessageHu(ex.message,
+              fallback: 'A terv már nem ütemezhető.'));
+    } on PlanValidationException catch (ex) {
+      _emitError(emit,
+          plan: plan,
+          isAccepting: false,
+          message: planServerMessageHu(ex.message,
+              fallback: 'Az ütemezés nem sikerült.'));
+    } catch (e) {
+      _emitError(emit,
+          plan: plan,
+          isAccepting: false,
+          message:
+              friendlyErrorMessage(e, fallback: 'Az ütemezés nem sikerült.'));
     }
   }
 
@@ -353,16 +407,20 @@ class PlanEditorBloc extends Bloc<PlanEditorEvent, PlanEditorState> {
   void _emitError(
     Emitter<PlanEditorState> emit, {
     required String message,
+    TrainingPlanModel? plan,
     bool? isSaving,
     bool? isRefining,
     bool? isAccepting,
+    bool? isValidating,
   }) {
     final latest = state;
     if (latest is! PlanEditorReady) return;
     emit(latest.copyWith(
+      plan: plan,
       isSaving: isSaving,
       isRefining: isRefining,
       isAccepting: isAccepting,
+      isValidating: isValidating,
       lastErrorMessage: message,
     ));
   }

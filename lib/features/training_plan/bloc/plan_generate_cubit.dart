@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_1/core/api/api_error_messages.dart';
+import 'package:flutter_application_1/features/training_plan/bloc/plan_messages.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/plan_results.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
@@ -80,15 +82,17 @@ class PlanGenerateCubit extends Cubit<PlanGenerateState> {
       );
       emit(PlanGenerateSuccess(result));
     } on PlanValidationException catch (e) {
-      emit(PlanGenerateValidationError(e.message));
+      emit(PlanGenerateValidationError(planServerMessageHu(e.message,
+          fallback: 'A szerver elutasította a kérést.')));
     } on PlanForbiddenException {
       emit(const PlanGenerateForbidden());
     } on PlanRateLimitedException {
       emit(const PlanGenerateRateLimited());
     } on PlanLlmUnavailableException catch (e) {
       emit(PlanGenerateLlmUnavailable(e.message));
-    } catch (_) {
-      emit(const PlanGenerateError('Nem sikerült a terv generálása.'));
+    } catch (e) {
+      emit(PlanGenerateError(friendlyErrorMessage(e,
+          fallback: 'Nem sikerült a terv generálása.')));
     }
   }
 

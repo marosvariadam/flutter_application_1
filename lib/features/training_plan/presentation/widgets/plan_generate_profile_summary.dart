@@ -42,8 +42,27 @@ class PlanGenerateProfileSummary extends StatelessWidget {
       );
     }
     if (state is AthleteProfileForbidden) {
-      return Text('Nincs jogosultság.',
+      return Text('Nincs jogosultságod a sportoló profiljához.',
           style: TextStyle(color: DT.of(context).textSecondary));
+    }
+    if (state is AthleteProfileError) {
+      final c = DT.of(context);
+      return Row(
+        children: [
+          Icon(Icons.error_outline, color: c.accentDanger),
+          const SizedBox(width: DT.s2),
+          Expanded(
+            child: Text(state.message,
+                style: TextStyle(color: c.textPrimary)),
+          ),
+          TextButton(
+            onPressed: () => context
+                .read<AthleteProfileCubit>()
+                .loadForAthlete(athleteId),
+            child: Text('Újra', style: TextStyle(color: c.accentPrimary)),
+          ),
+        ],
+      );
     }
     if (state is AthleteProfileMissing) {
       return Row(
@@ -63,11 +82,8 @@ class PlanGenerateProfileSummary extends StatelessWidget {
         ],
       );
     }
-    if (state is AthleteProfileLoaded ||
-        state is AthleteProfileSaving) {
-      final profile = state is AthleteProfileLoaded
-          ? state.profile
-          : (state as AthleteProfileSaving).pending;
+    final profile = state.visibleProfile;
+    if (profile != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

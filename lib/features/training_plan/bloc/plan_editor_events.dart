@@ -105,9 +105,10 @@ class PlanEditorAccept extends PlanEditorEvent {
   const PlanEditorAccept();
 }
 
-/// Materialize the accepted plan into concrete Workouts starting on
-/// [startDate]. Terminal transition: moves the bloc to
-/// `PlanEditorMaterialized` which the page observes to navigate away.
+/// Materialize the plan into concrete Workouts starting on [startDate],
+/// accepting it first if it is still a draft. Terminal transition: moves
+/// the bloc to `PlanEditorMaterialized`, which the page observes to
+/// navigate away.
 class PlanEditorMaterialize extends PlanEditorEvent {
   final DateTime startDate;
   const PlanEditorMaterialize(this.startDate);

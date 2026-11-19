@@ -3,6 +3,15 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 
+/// The Monday after [from] (a week later when [from] is a Monday), at
+/// midnight. Uses calendar days rather than 24-hour durations so a DST
+/// change can't land on the previous day.
+DateTime nextMondayAfter(DateTime from) {
+  // DateTime.weekday: Monday = 1 … Sunday = 7.
+  final add = (8 - from.weekday) % 7;
+  return DateTime(from.year, from.month, from.day + (add == 0 ? 7 : add));
+}
+
 /// Bottom sheet shown by the Accept → Materialize flow. Trainer picks a
 /// start date (defaults to the next Monday) and either accepts first or
 /// materializes directly if the plan is already accepted.
@@ -30,15 +39,7 @@ class _PlanEditorAcceptSheetState extends State<PlanEditorAcceptSheet> {
   @override
   void initState() {
     super.initState();
-    _startDate = _nextMonday(DateTime.now());
-  }
-
-  static DateTime _nextMonday(DateTime from) {
-    // DateTime.weekday: Monday = 1 … Sunday = 7.
-    final add = (8 - from.weekday) % 7;
-    final target = add == 0 ? 7 : add; // always jump at least to next Monday
-    final d = from.add(Duration(days: target));
-    return DateTime(d.year, d.month, d.day);
+    _startDate = nextMondayAfter(DateTime.now());
   }
 
   Future<void> _pickDate() async {

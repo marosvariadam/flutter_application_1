@@ -94,16 +94,20 @@ class _ViolationDetailSheet extends StatelessWidget {
           ),
           const SizedBox(height: DT.s3),
           Text(
-            violation.message,
+            violation.label,
             style: TextStyle(
-                color: DT.of(context).textPrimary, fontSize: DT.s4),
+                color: DT.of(context).textPrimary,
+                fontSize: DT.s4,
+                fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: DT.s2),
-          Text(
-            'Kód: ${violation.code}',
-            style: TextStyle(
-                color: DT.of(context).textSecondary, fontSize: DT.s3),
-          ),
+          if (violation.message.isNotEmpty) ...[
+            const SizedBox(height: DT.s2),
+            Text(
+              'Részletek: ${violation.message}',
+              style: TextStyle(
+                  color: DT.of(context).textSecondary, fontSize: DT.s3),
+            ),
+          ],
           const SizedBox(height: DT.s4),
           Align(
             alignment: Alignment.centerRight,

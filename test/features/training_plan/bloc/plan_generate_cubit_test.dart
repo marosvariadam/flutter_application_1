@@ -64,22 +64,41 @@ void main() {
     );
 
     blocTest<PlanGenerateCubit, PlanGenerateState>(
-      'emits ValidationError when backend returns 400',
+      'translates a 400 from the backend into Hungarian',
       build: () {
         when(() => repo.generate(
               athleteId: any(named: 'athleteId'),
               mode: any(named: 'mode'),
               weeks: any(named: 'weeks'),
               trainingBlockId: any(named: 'trainingBlockId'),
-            )).thenThrow(
-            const PlanValidationException('Athlete has no AthleteProfile'));
+            )).thenThrow(const PlanValidationException(
+            'Athlete has no AthleteProfile - fill it in before generating.'));
         return PlanGenerateCubit(repo);
       },
       act: (c) => c.generate(athleteId: 'a1', mode: 'Hybrid', weeks: 4),
       expect: () => [
         isA<PlanGenerateRunning>(),
-        isA<PlanGenerateValidationError>().having(
-            (s) => s.message, 'message', 'Athlete has no AthleteProfile'),
+        isA<PlanGenerateValidationError>().having((s) => s.message, 'message',
+            'A sportolónak még nincs profilja — töltsd ki a generálás előtt.'),
+      ],
+    );
+
+    blocTest<PlanGenerateCubit, PlanGenerateState>(
+      'never shows an unknown English 400 message',
+      build: () {
+        when(() => repo.generate(
+              athleteId: any(named: 'athleteId'),
+              mode: any(named: 'mode'),
+              weeks: any(named: 'weeks'),
+              trainingBlockId: any(named: 'trainingBlockId'),
+            )).thenThrow(const PlanValidationException('Something new.'));
+        return PlanGenerateCubit(repo);
+      },
+      act: (c) => c.generate(athleteId: 'a1', mode: 'Hybrid', weeks: 4),
+      expect: () => [
+        isA<PlanGenerateRunning>(),
+        isA<PlanGenerateValidationError>().having((s) => s.message, 'message',
+            'A szerver elutasította a kérést.'),
       ],
     );
 

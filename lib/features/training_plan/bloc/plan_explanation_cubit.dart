@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_1/core/api/api_error_messages.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/plan_results.dart';
 import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
 
@@ -67,10 +68,10 @@ class PlanExplanationCubit extends Cubit<PlanExplanationState> {
       if (!isClosed) emit(const PlanExplanationForbidden());
     } on PlanNotFoundException {
       if (!isClosed) emit(const PlanExplanationError('A terv nem található.'));
-    } catch (_) {
+    } catch (e) {
       if (!isClosed) {
-        emit(const PlanExplanationError(
-            'Nem sikerült betölteni a magyarázatot.'));
+        emit(PlanExplanationError(friendlyErrorMessage(e,
+            fallback: 'Nem sikerült betölteni a magyarázatot.')));
       }
     }
   }

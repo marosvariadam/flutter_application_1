@@ -226,17 +226,10 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
         path: '/plan/:id/edit',
         pageBuilder: (context, state) {
           final extra = state.extra;
-          if (extra is! TrainingPlanModel) {
-            return const MaterialPage(
-              child: Scaffold(
-                body: Center(
-                  child: Text(
-                      'A szerkesztő megnyitásához a terv adatai szükségesek.'),
-                ),
-              ),
-            );
-          }
-          return MaterialPage(child: PlanEditorPage(plan: extra));
+          return MaterialPage(
+            child: PlanEditorPage(
+                plan: extra is TrainingPlanModel ? extra : null),
+          );
         },
       ),
 

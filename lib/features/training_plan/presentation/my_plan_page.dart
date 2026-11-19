@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
 import 'package:flutter_application_1/features/training_plan/bloc/my_plans_cubit.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
@@ -57,16 +59,15 @@ class _MyPlanViewState extends State<_MyPlanView> {
       body: BlocBuilder<MyPlansCubit, MyPlansState>(
         builder: (context, state) {
           if (state is MyPlansEmpty) {
-            return const _CenteredMessage(
+            return const EmptyState(
               icon: Icons.event_note,
               title: 'Még nincs elfogadott edzésterved.',
               message: 'Amint az edződ elfogad egy tervet, itt megjelenik.',
             );
           }
           if (state is MyPlansError) {
-            return _CenteredMessage(
-              icon: Icons.error_outline,
-              title: state.message,
+            return ErrorState(
+              message: state.message,
               onRetry: () => context.read<MyPlansCubit>().load(),
             );
           }
@@ -232,73 +233,6 @@ class _PlanHeader extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CenteredMessage extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String? message;
-  final VoidCallback? onRetry;
-
-  const _CenteredMessage({
-    required this.icon,
-    required this.title,
-    this.message,
-    this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = DT.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(DT.s6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: c.accentPrimary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: c.accentPrimary, size: 30),
-            ),
-            const SizedBox(height: DT.s4),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: c.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            if (message != null) ...[
-              const SizedBox(height: DT.s2),
-              Text(
-                message!,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: c.textSecondary, fontSize: 14),
-              ),
-            ],
-            if (onRetry != null) ...[
-              const SizedBox(height: DT.s4),
-              OutlinedButton(
-                onPressed: onRetry,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: c.accentPrimary,
-                  side: BorderSide(color: c.accentPrimary),
-                ),
-                child: const Text('Újra'),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }

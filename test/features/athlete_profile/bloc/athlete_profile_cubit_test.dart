@@ -122,7 +122,7 @@ void main() {
     );
 
     blocTest<AthleteProfileCubit, AthleteProfileState>(
-      'emits Error when the server rejects the save',
+      'emits SaveFailed when the server rejects the save',
       build: () {
         when(() => repo.upsertMine(any())).thenThrow(Exception('boom'));
         return AthleteProfileCubit(repo);
@@ -130,7 +130,10 @@ void main() {
       act: (c) => c.saveMine(_profile()),
       expect: () => [
         isA<AthleteProfileSaving>(),
-        isA<AthleteProfileError>(),
+        isA<AthleteProfileSaveFailed>()
+            .having((s) => s.profile, 'profile', isNull)
+            .having((s) => s.message, 'message',
+                'Nem sikerült menteni a profilt.'),
       ],
     );
   });

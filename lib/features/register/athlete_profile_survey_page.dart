@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/models/athlete_profile_model.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/repositories/athlete_profile_repository.dart';
+import 'package:flutter_application_1/features/athlete_profile/data/survey_profile_mapper.dart';
+import 'package:flutter_application_1/features/register/widgets/survey_widgets.dart';
 
 /// Structured athlete-profile intake survey. Collects the subset of
 /// `AthleteProfile` the plan generator needs — weight, goal, experience,
@@ -54,69 +56,9 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
   // Step 8 - Equipment (Hungarian labels)
   final Set<String> _selectedEquipment = {};
 
-  static const _goals = [
-    'Fogyás',
-    'Izomépítés',
-    'Állóképesség',
-    'Erőnlét',
-    'Általános fitness',
-    'Sportspecifikus cél',
-  ];
-
-  static const _injuryOptions = [
-    'Nincs korábbi sérülés',
-    'Térd',
-    'Váll',
-    'Derék / Hát',
-    'Boka',
-    'Könyök',
-    'Csípő',
-    'Csukló',
-    'Egyéb',
-  ];
-
-  static const _equipmentOptions = [
-    'Kézisúlyok',
-    'Rúd + tárcsák',
-    'Húzódzkodó rúd',
-    'Ellenálló szalagok',
-    'Edzőgépek',
-    'Kardió eszközök',
-    'Saját testsúly (nincs eszköz)',
-  ];
-
-  // Hungarian survey labels → backend enum / tag values.
-  static const _goalToEnum = {
-    'Izomépítés': AthleteProfileGoals.hypertrophy,
-    'Erőnlét': AthleteProfileGoals.strength,
-    'Fogyás': AthleteProfileGoals.fatLoss,
-    // The rest fall back to GeneralFitness.
-    'Állóképesség': AthleteProfileGoals.generalFitness,
-    'Általános fitness': AthleteProfileGoals.generalFitness,
-    'Sportspecifikus cél': AthleteProfileGoals.generalFitness,
-  };
-
-  static const _injuryToStressTag = {
-    'Térd': AthleteProfileStressTags.knee,
-    'Váll': AthleteProfileStressTags.shoulder,
-    'Derék / Hát': AthleteProfileStressTags.lowerBack,
-    'Boka': AthleteProfileStressTags.ankle,
-    'Könyök': AthleteProfileStressTags.elbow,
-    'Csípő': AthleteProfileStressTags.hip,
-    'Csukló': AthleteProfileStressTags.wrist,
-    // 'Nincs korábbi sérülés' and 'Egyéb' map to nothing on purpose.
-  };
-
-  static const _equipmentToEnum = {
-    'Kézisúlyok': AthleteProfileEquipment.dumbbell,
-    'Rúd + tárcsák': AthleteProfileEquipment.barbell,
-    'Húzódzkodó rúd': AthleteProfileEquipment.bodyweight,
-    'Ellenálló szalagok': AthleteProfileEquipment.band,
-    'Edzőgépek': AthleteProfileEquipment.machine,
-    'Saját testsúly (nincs eszköz)': AthleteProfileEquipment.bodyweight,
-    // Kardió eszközök intentionally has no mapping — the plan generator does
-    // not use cardio equipment yet.
-  };
+  static const _goals = AthleteSurveyOptions.goals;
+  static const _injuryOptions = AthleteSurveyOptions.injuries;
+  static const _equipmentOptions = AthleteSurveyOptions.equipment;
 
   int get _totalPages => 8;
 
@@ -131,8 +73,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
   bool _canProceed() {
     switch (_currentPage) {
       case 0:
-        final w = double.tryParse(_weightController.text.trim());
-        return w != null && w > 0;
+        return parseSurveyWeight(_weightController.text) != null;
       case 1:
         return _selectedGoal != null;
       case 4:
@@ -147,7 +88,11 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
   void _next() {
     if (!_canProceed()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kérjük, válassz legalább egy lehetőséget!')),
+        SnackBar(
+          content: Text(_currentPage == 0
+              ? 'Add meg a testsúlyodat kilogrammban (pl. 72,5).'
+              : 'Kérjük, válassz legalább egy lehetőséget!'),
+        ),
       );
       return;
     }
@@ -172,34 +117,16 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
     }
   }
 
-  AthleteProfileModel _buildProfile() {
-    final weight = double.tryParse(_weightController.text.trim());
-    final goal = _goalToEnum[_selectedGoal] ?? AthleteProfileGoals.generalFitness;
-    final stressTags = _selectedInjuries
-        .map((inj) => _injuryToStressTag[inj])
-        .whereType<String>()
-        .toSet()
-        .toList();
-    final equipment = _selectedEquipment
-        .map((eq) => _equipmentToEnum[eq])
-        .whereType<String>()
-        .toSet()
-        .toList();
-
-    return AthleteProfileModel(
-      athleteId: '', // server derives it from the JWT.
-      goal: goal,
-      experienceLevel: _experienceLevel,
-      daysPerWeek: _gymFrequency.clamp(2, 6),
-      sessionMinutes: _sessionMinutes.clamp(30, 120),
-      availableEquipment: equipment,
-      avoidStressTags: stressTags,
-      weightKg: weight,
-      sportHistory: _sportHistoryController.text.trim().isEmpty
-          ? null
-          : _sportHistoryController.text.trim(),
-    );
-  }
+  AthleteProfileModel _buildProfile() => profileFromSurvey(
+        weightText: _weightController.text,
+        goalLabel: _selectedGoal,
+        experienceLevel: _experienceLevel,
+        sportHistory: _sportHistoryController.text,
+        injuryLabels: _selectedInjuries,
+        daysPerWeek: _gymFrequency,
+        sessionMinutes: _sessionMinutes,
+        equipmentLabels: _selectedEquipment,
+      );
 
   Future<void> _finish() async {
     final profile = _buildProfile();
@@ -432,7 +359,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
         child: Column(
           children: _goals.map((goal) {
             final isSelected = _selectedGoal == goal;
-            return _OptionRow(
+            return SurveyOptionRow(
               label: goal,
               selected: isSelected,
               onTap: () => setState(() => _selectedGoal = goal),
@@ -447,7 +374,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
         child: Column(
           children: AthleteProfileExperienceLevels.all.map((lvl) {
             final isSelected = _experienceLevel == lvl;
-            return _OptionRow(
+            return SurveyOptionRow(
               label: AthleteProfileExperienceLevels.labels[lvl] ?? lvl,
               selected: isSelected,
               onTap: () => setState(() => _experienceLevel = lvl),
@@ -492,16 +419,16 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
           runSpacing: DT.s2,
           children: _injuryOptions.map((injury) {
             final isSelected = _selectedInjuries.contains(injury);
-            return _ChipOption(
+            return SurveyChipOption(
               label: injury,
               selected: isSelected,
               onTap: () => setState(() {
-                if (injury == 'Nincs korábbi sérülés') {
+                if (injury == AthleteSurveyOptions.noInjury) {
                   _selectedInjuries
                     ..clear()
                     ..add(injury);
                 } else {
-                  _selectedInjuries.remove('Nincs korábbi sérülés');
+                  _selectedInjuries.remove(AthleteSurveyOptions.noInjury);
                   if (isSelected) {
                     _selectedInjuries.remove(injury);
                   } else {
@@ -517,129 +444,30 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
   Widget _buildGymFrequencyStep() => _buildStepWrapper(
         title: 'Edzés gyakorisága',
         subtitle: 'Hányszor tudsz hetente edzeni?',
-        child: Column(
-          children: [
-            const SizedBox(height: DT.s5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  '$_gymFrequency',
-                  style: const TextStyle(
-                    color: DT.metricBlue,
-                    fontSize: 72,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(width: DT.s2),
-                Text(
-                  'x / hét',
-                  style: TextStyle(
-                    color: DT.of(context).textSecondary,
-                    fontSize: DT.s5,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: DT.s5),
-            SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: DT.metricBlue,
-                inactiveTrackColor: DT.of(context).borderGrey,
-                thumbColor: DT.metricBlue,
-                overlayColor: DT.metricBlue.withValues(alpha: 0.1),
-                trackHeight: 6,
-              ),
-              child: Slider(
-                value: _gymFrequency.toDouble(),
-                min: 2,
-                max: 6,
-                divisions: 4,
-                onChanged: (val) => setState(() => _gymFrequency = val.round()),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: DT.s2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('2x',
-                      style:
-                          TextStyle(color: DT.of(context).textSecondary)),
-                  Text('6x',
-                      style:
-                          TextStyle(color: DT.of(context).textSecondary)),
-                ],
-              ),
-            ),
-          ],
+        child: SurveyNumberSlider(
+          value: _gymFrequency,
+          min: 2,
+          max: 6,
+          divisions: 4,
+          unit: 'x / hét',
+          minLabel: '2x',
+          maxLabel: '6x',
+          onChanged: (v) => setState(() => _gymFrequency = v),
         ),
       );
 
   Widget _buildSessionMinutesStep() => _buildStepWrapper(
         title: 'Egy edzés hossza',
         subtitle: 'Mennyi időt tudsz egy edzésre szánni?',
-        child: Column(
-          children: [
-            const SizedBox(height: DT.s5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  '$_sessionMinutes',
-                  style: const TextStyle(
-                    color: DT.metricBlue,
-                    fontSize: 72,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(width: DT.s2),
-                Text(
-                  'perc',
-                  style: TextStyle(
-                    color: DT.of(context).textSecondary,
-                    fontSize: DT.s5,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: DT.s5),
-            SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: DT.metricBlue,
-                inactiveTrackColor: DT.of(context).borderGrey,
-                thumbColor: DT.metricBlue,
-                overlayColor: DT.metricBlue.withValues(alpha: 0.1),
-                trackHeight: 6,
-              ),
-              child: Slider(
-                value: _sessionMinutes.toDouble(),
-                min: 30,
-                max: 120,
-                divisions: 18,
-                onChanged: (val) =>
-                    setState(() => _sessionMinutes = val.round()),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: DT.s2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('30 perc',
-                      style:
-                          TextStyle(color: DT.of(context).textSecondary)),
-                  Text('120 perc',
-                      style:
-                          TextStyle(color: DT.of(context).textSecondary)),
-                ],
-              ),
-            ),
-          ],
+        child: SurveyNumberSlider(
+          value: _sessionMinutes,
+          min: 30,
+          max: 120,
+          divisions: 18,
+          unit: 'perc',
+          minLabel: '30 perc',
+          maxLabel: '120 perc',
+          onChanged: (v) => setState(() => _sessionMinutes = v),
         ),
       );
 
@@ -652,7 +480,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
           runSpacing: DT.s2,
           children: _equipmentOptions.map((equipment) {
             final isSelected = _selectedEquipment.contains(equipment);
-            return _ChipOption(
+            return SurveyChipOption(
               label: equipment,
               selected: isSelected,
               onTap: () => setState(() {
@@ -666,92 +494,4 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
           }).toList(),
         ),
       );
-}
-
-class _OptionRow extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _OptionRow({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: DT.s3),
-        padding:
-            const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s4),
-        decoration: BoxDecoration(
-          color: selected ? DT.metricBlue.withValues(alpha: 0.08) : Colors.white,
-          border: Border.all(
-            color: selected ? DT.metricBlue : DT.of(context).borderGrey,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(DT.rCardSmall),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              color: selected ? DT.metricBlue : DT.of(context).iconLight,
-            ),
-            const SizedBox(width: DT.s3),
-            Text(
-              label,
-              style: TextStyle(
-                color: selected ? DT.metricBlue : DT.of(context).textPrimary,
-                fontSize: DT.s4,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ChipOption extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _ChipOption({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s3),
-        decoration: BoxDecoration(
-          color: selected ? DT.metricBlue.withValues(alpha: 0.08) : Colors.white,
-          border: Border.all(
-            color: selected ? DT.metricBlue : DT.of(context).borderGrey,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(DT.rChip),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? DT.metricBlue : DT.of(context).textPrimary,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-          ),
-        ),
-      ),
-    );
-  }
 }

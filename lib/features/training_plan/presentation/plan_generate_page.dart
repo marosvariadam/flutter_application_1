@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
 import 'package:flutter_application_1/features/athlete_profile/bloc/athlete_profile_cubit.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/repositories/athlete_profile_repository.dart';
 import 'package:flutter_application_1/features/training_block/bloc/training_block_bloc.dart';
@@ -24,6 +25,20 @@ class PlanGeneratePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (athleteId.isEmpty) {
+      return Scaffold(
+        backgroundColor: DT.of(context).bg,
+        appBar: AppBar(
+          backgroundColor: DT.of(context).bg,
+          elevation: 0,
+          leading: BackButton(color: DT.of(context).textPrimary),
+        ),
+        body: const ErrorState(
+          title: 'Nincs kiválasztott sportoló',
+          message: 'Az AI edzésterv a sportoló adatlapjáról indítható.',
+        ),
+      );
+    }
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -106,7 +121,8 @@ class _PlanGenerateViewState extends State<_PlanGenerateView> {
                 'Túl sok kérés — próbáld újra egy perc múlva.');
           } else if (state is PlanGenerateLlmUnavailable) {
             setState(() => _inlineError =
-                'Az LLM nem elérhető: ${state.message}');
+                'A tervgenerálás most nem érhető el. Próbáld újra később, '
+                'vagy válaszd a „Csak szabályalapú” módot.');
           } else if (state is PlanGenerateError) {
             setState(() => _inlineError = state.message);
           }

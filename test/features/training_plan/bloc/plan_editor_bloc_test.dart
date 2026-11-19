@@ -92,13 +92,43 @@ void main() {
 
   group('PlanEditorBloc', () {
     blocTest<PlanEditorBloc, PlanEditorState>(
-      'load seeds a Ready state with the plan',
+      'load shows the plan, then validates it before Accept is allowed',
+      setUp: () => when(() => repo.validate('p1')).thenAnswer((_) async =>
+          ValidationResultModel(warnings: const [], errors: const [
+            ViolationModel(
+              code: ViolationCodes.sessionTooLong,
+              severity: ViolationSeverity.error,
+              message: 'Day 0 estimated 95 min, limit 60 min.',
+              dayIndex: 0,
+            ),
+          ])),
       build: () => PlanEditorBloc(repo, debounce: Duration.zero),
       act: (b) => b.add(PlanEditorLoad(plan: seed)),
       expect: () => [
         isA<PlanEditorReady>()
             .having((s) => s.plan.id, 'id', 'p1')
-            .having((s) => s.plan.days.length, 'days', 2),
+            .having((s) => s.plan.days.length, 'days', 2)
+            .having((s) => s.isValidating, 'validating', true)
+            .having((s) => s.canAccept, 'canAccept', false),
+        isA<PlanEditorReady>()
+            .having((s) => s.isValidating, 'validating', false)
+            .having((s) => s.errors.single.code, 'error',
+                ViolationCodes.sessionTooLong)
+            .having((s) => s.canAccept, 'canAccept', false),
+      ],
+    );
+
+    blocTest<PlanEditorBloc, PlanEditorState>(
+      'a failed validation on open still lets the trainer edit',
+      setUp: () => when(() => repo.validate('p1')).thenThrow(Exception('x')),
+      build: () => PlanEditorBloc(repo, debounce: Duration.zero),
+      act: (b) => b.add(PlanEditorLoad(plan: seed)),
+      expect: () => [
+        isA<PlanEditorReady>().having((s) => s.isValidating, 'v', true),
+        isA<PlanEditorReady>()
+            .having((s) => s.isValidating, 'validating', false)
+            .having((s) => s.lastErrorMessage, 'message',
+                'Nem sikerült az ellenőrzés.'),
       ],
     );
 

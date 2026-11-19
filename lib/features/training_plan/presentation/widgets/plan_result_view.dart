@@ -268,13 +268,30 @@ class _ViolationsCard extends StatelessWidget {
           ),
           const SizedBox(height: DT.s2),
           ...violations.map((v) => Padding(
-                padding: const EdgeInsets.only(bottom: DT.s1),
-                child: Text(
-                  v.dayIndex != null
-                      ? '• ${v.dayIndex! + 1}. nap — ${v.message}'
-                      : '• ${v.message}',
-                  style: TextStyle(
-                      color: DT.of(context).textPrimary, fontSize: DT.s3),
+                padding: const EdgeInsets.only(bottom: DT.s2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      v.dayIndex != null
+                          ? '• ${v.dayIndex! + 1}. nap — ${v.label}'
+                          : '• ${v.label}',
+                      style: TextStyle(
+                          color: DT.of(context).textPrimary,
+                          fontSize: DT.s3,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    if (v.message.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: DT.s3),
+                        child: Text(
+                          v.message,
+                          style: TextStyle(
+                              color: DT.of(context).textSecondary,
+                              fontSize: 12),
+                        ),
+                      ),
+                  ],
                 ),
               )),
         ],
@@ -296,7 +313,9 @@ class _DaysPreview extends StatelessWidget {
           color: DT.of(context).cardSurface,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
         ),
-        child: Text('A terv üres.',
+        child: Text(
+            'A generált terv nem tartalmaz edzésnapokat. Próbáld újra '
+            'másik móddal vagy más hétszámmal.',
             style: TextStyle(color: DT.of(context).textSecondary)),
       );
     }

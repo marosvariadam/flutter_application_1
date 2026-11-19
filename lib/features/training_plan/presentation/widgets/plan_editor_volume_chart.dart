@@ -22,7 +22,7 @@ class PlanEditorVolumeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sets = _weeklySetsPerGroup(plan);
+    final sets = weeklySetsPerMuscleGroup(plan);
     final level = profile?.experienceLevel ??
         AthleteProfileExperienceLevels.beginner;
     final maxValue = _computeChartMax(sets, level);
@@ -134,16 +134,6 @@ class PlanEditorVolumeChart extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Map<String, int> _weeklySetsPerGroup(TrainingPlanModel plan) {
-    final totals = <String, int>{};
-    for (final d in plan.days) {
-      for (final e in d.exercises) {
-        totals.update(e.muscleGroup, (v) => v + e.sets, ifAbsent: () => e.sets);
-      }
-    }
-    return totals;
   }
 
   double _computeChartMax(Map<String, int> sets, String level) {

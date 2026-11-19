@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_application_1/core/api/api_error_messages.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
 
@@ -53,9 +54,10 @@ class MyPlansCubit extends Cubit<MyPlansState> {
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       if (isClosed) return;
       emit(plans.isEmpty ? const MyPlansEmpty() : MyPlansLoaded(plans));
-    } catch (_) {
+    } catch (e) {
       if (!isClosed) {
-        emit(const MyPlansError('Nem sikerült betölteni az edzéstervet.'));
+        emit(MyPlansError(friendlyErrorMessage(e,
+            fallback: 'Nem sikerült betölteni az edzéstervet.')));
       }
     }
   }

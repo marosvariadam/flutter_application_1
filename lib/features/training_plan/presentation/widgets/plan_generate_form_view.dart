@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/features/athlete_profile/bloc/athlete_profile_cubit.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_generate_mode_option.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_generate_profile_summary.dart';
@@ -56,6 +58,7 @@ class PlanGenerateFormView extends StatelessWidget {
         const SizedBox(height: DT.s4),
         _SectionTitle('Tréningblokk (opcionális)'),
         PlanGenerateTrainingBlockPicker(
+          athleteId: athleteId,
           selectedId: trainingBlockId,
           onSelected: onTrainingBlockChanged,
         ),
@@ -83,28 +86,58 @@ class PlanGenerateFormView extends StatelessWidget {
           ),
         ],
         const SizedBox(height: DT.s5),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton.icon(
-            onPressed: onSubmit,
-            icon: const Icon(Icons.auto_awesome),
-            label: const Text(
-              'Generálás',
-              style: TextStyle(
-                  fontSize: DT.s4, fontWeight: FontWeight.w600),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: DT.metricBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(DT.rCardSmall),
-              ),
-            ),
-          ),
+        BlocBuilder<AthleteProfileCubit, AthleteProfileState>(
+          builder: (context, profileState) {
+            final ready = profileState.visibleProfile != null;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SubmitButton(onSubmit: ready ? onSubmit : null),
+                if (profileState is AthleteProfileMissing) ...[
+                  const SizedBox(height: DT.s2),
+                  Text(
+                    'A generáláshoz előbb töltsd ki a sportoló profilját '
+                    'az adatlapján.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: DT.of(context).textSecondary, fontSize: 13),
+                  ),
+                ],
+              ],
+            );
+          },
         ),
         const SizedBox(height: DT.s8),
       ],
+    );
+  }
+}
+
+class _SubmitButton extends StatelessWidget {
+  final VoidCallback? onSubmit;
+  const _SubmitButton({required this.onSubmit});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = DT.of(context);
+    return SizedBox(
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: onSubmit,
+        icon: const Icon(Icons.auto_awesome),
+        label: const Text(
+          'Generálás',
+          style: TextStyle(fontSize: DT.s4, fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: c.accentPrimary,
+          foregroundColor: c.textOnAccent,
+          disabledBackgroundColor: c.borderGrey,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DT.rCardSmall),
+          ),
+        ),
+      ),
     );
   }
 }

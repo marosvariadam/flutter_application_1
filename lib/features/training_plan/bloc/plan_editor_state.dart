@@ -28,6 +28,10 @@ class PlanEditorReady extends PlanEditorState {
   /// True while `/accept` or `/materialize` is in flight.
   final bool isAccepting;
 
+  /// True while `/validate` runs (on open and on explicit re-checks).
+  /// Accept stays disabled until the violations are known.
+  final bool isValidating;
+
   /// Days whose rows should pulse after the latest refine (3 s window).
   /// Empty outside of refine animations.
   final Set<int> highlightedDays;
@@ -48,23 +52,18 @@ class PlanEditorReady extends PlanEditorState {
     this.isSaving = false,
     this.isRefining = false,
     this.isAccepting = false,
+    this.isValidating = false,
     this.highlightedDays = const {},
     this.refineUndo,
     this.lastErrorMessage,
   });
 
-  bool get canAccept =>
-      errors.isEmpty &&
-      !isSaving &&
-      !isRefining &&
-      !isAccepting &&
-      plan.status == PlanStatuses.draft;
+  bool get _idle => !isSaving && !isRefining && !isAccepting && !isValidating;
 
-  bool get canMaterialize =>
-      !isSaving &&
-      !isRefining &&
-      !isAccepting &&
-      plan.status == PlanStatuses.accepted;
+  bool get canAccept =>
+      errors.isEmpty && _idle && plan.status == PlanStatuses.draft;
+
+  bool get canMaterialize => _idle && plan.status == PlanStatuses.accepted;
 
   PlanEditorReady copyWith({
     TrainingPlanModel? plan,
@@ -74,6 +73,7 @@ class PlanEditorReady extends PlanEditorState {
     bool? isSaving,
     bool? isRefining,
     bool? isAccepting,
+    bool? isValidating,
     Set<int>? highlightedDays,
     RefineSnapshot? refineUndo,
     bool clearRefineUndo = false,
@@ -88,6 +88,7 @@ class PlanEditorReady extends PlanEditorState {
         isSaving: isSaving ?? this.isSaving,
         isRefining: isRefining ?? this.isRefining,
         isAccepting: isAccepting ?? this.isAccepting,
+        isValidating: isValidating ?? this.isValidating,
         highlightedDays: highlightedDays ?? this.highlightedDays,
         refineUndo:
             clearRefineUndo ? null : (refineUndo ?? this.refineUndo),

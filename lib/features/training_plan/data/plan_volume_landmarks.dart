@@ -1,4 +1,5 @@
 import 'package:flutter_application_1/features/athlete_profile/data/models/athlete_profile_model.dart';
+import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 
 /// Weekly working-set targets per muscle group per experience level. Mirrors
 /// `Planning/VolumeLandmarks.cs` on the backend — kept client-side so the
@@ -71,4 +72,17 @@ const Map<String, Map<String, VolumeRange>> _table = {
 VolumeRange rangeFor(String muscleGroup, String experienceLevel) {
   final level = _table[experienceLevel] ?? _table[AthleteProfileExperienceLevels.beginner]!;
   return level[muscleGroup] ?? const VolumeRange(0, 0, 999);
+}
+
+/// Weekly working sets per primary muscle group across one microcycle.
+/// Primary muscles only: planned rows don't carry the exercise's secondary
+/// muscles, so this is the lower bound of the server-side total.
+Map<String, int> weeklySetsPerMuscleGroup(TrainingPlanModel plan) {
+  final totals = <String, int>{};
+  for (final d in plan.days) {
+    for (final e in d.exercises) {
+      totals.update(e.muscleGroup, (v) => v + e.sets, ifAbsent: () => e.sets);
+    }
+  }
+  return totals;
 }
