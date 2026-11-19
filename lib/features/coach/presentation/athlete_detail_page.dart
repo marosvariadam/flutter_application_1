@@ -122,7 +122,7 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
+              Icon(Icons.error_outline, size: 48, color: DT.of(context).accentDanger),
               const SizedBox(height: DT.s3),
               Text(_error!,
                   style: TextStyle(color: DT.of(context).textSecondary)),
@@ -185,8 +185,8 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
                     icon: const Icon(Icons.show_chart),
                     label: const Text('Statisztikák'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: DT.metricBlue,
-                      side: const BorderSide(color: DT.metricBlue),
+                      foregroundColor: DT.of(context).accentPrimary,
+                      side: BorderSide(color: DT.of(context).accentPrimary),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(DT.rCardSmall)),
                       padding: const EdgeInsets.symmetric(vertical: DT.s3),
@@ -203,8 +203,8 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
                     icon: const Icon(Icons.timeline),
                     label: const Text('Fejlődés'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: DT.metricBlue,
-                      side: const BorderSide(color: DT.metricBlue),
+                      foregroundColor: DT.of(context).accentPrimary,
+                      side: BorderSide(color: DT.of(context).accentPrimary),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(DT.rCardSmall)),
                       padding: const EdgeInsets.symmetric(vertical: DT.s3),
@@ -222,8 +222,8 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
                 icon: const Icon(Icons.auto_awesome),
                 label: const Text('AI edzésterv'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: DT.metricBlue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: DT.of(context).accentPrimary,
+                  foregroundColor: DT.of(context).textOnAccent,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DT.rCardSmall)),
                   padding: const EdgeInsets.symmetric(vertical: DT.s3),
@@ -318,8 +318,8 @@ class _HeaderCard extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [DT.metricBlue, Color(0xFF1565C0)],
+              gradient: LinearGradient(
+                colors: [DT.of(context).accentPrimary, DT.of(context).accentPrimaryDeep],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -327,10 +327,10 @@ class _HeaderCard extends StatelessWidget {
             child: Center(
               child: Text(
                 initials,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: DT.s6,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: DT.of(context).textOnAccent,
                 ),
               ),
             ),
@@ -401,7 +401,7 @@ class _StatsRow extends StatelessWidget {
           icon: Icons.fitness_center,
           value: '$total',
           label: 'Összes',
-          color: DT.metricBlue,
+          color: DT.of(context).accentPrimary,
         )),
         const SizedBox(width: DT.s3),
         Expanded(
@@ -409,7 +409,7 @@ class _StatsRow extends StatelessWidget {
           icon: Icons.check_circle_outline,
           value: '$completed',
           label: 'Teljesített',
-          color: Colors.green,
+          color: DT.of(context).accentSuccess,
         )),
         const SizedBox(width: DT.s3),
         Expanded(
@@ -417,7 +417,7 @@ class _StatsRow extends StatelessWidget {
           icon: Icons.calendar_today_outlined,
           value: '$thisWeek',
           label: 'Ezen a héten',
-          color: DT.cardOrange,
+          color: DT.of(context).accentOrange,
         )),
         const SizedBox(width: DT.s3),
         Expanded(
@@ -425,7 +425,7 @@ class _StatsRow extends StatelessWidget {
           icon: Icons.local_fire_department,
           value: '$streak',
           label: 'Sorozat',
-          color: Colors.deepOrange,
+          color: DT.of(context).accentOrange,
         )),
       ],
     );
@@ -611,15 +611,15 @@ class _ActivityHeatmap extends StatelessWidget {
           }),
           const SizedBox(height: DT.s3),
           // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: DT.s3,
+            runSpacing: DT.s1,
             children: [
-              _LegendDot(color: Colors.green.shade500, label: 'Teljesített'),
-              const SizedBox(width: DT.s3),
-              _LegendDot(color: DT.cardOrange, label: 'Folyamatban'),
-              const SizedBox(width: DT.s3),
+              _LegendDot(color: DT.of(context).accentSuccess, label: 'Teljesített'),
+              _LegendDot(color: DT.of(context).accentOrange, label: 'Folyamatban'),
               _LegendDot(
-                  color: DT.metricBlue.withValues(alpha: 0.4),
+                  color: DT.of(context).accentPrimary.withValues(alpha: 0.4),
                   label: 'Tervezett'),
             ],
           ),
@@ -649,14 +649,14 @@ class _HeatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Color fill;
     if (status == WorkoutStatus.completed) {
-      fill = Colors.green.shade500;
+      fill = DT.of(context).accentSuccess;
     } else if (status == WorkoutStatus.inProgress) {
-      fill = DT.cardOrange;
+      fill = DT.of(context).accentOrange;
     } else if (status == WorkoutStatus.planned && isFuture) {
-      fill = DT.metricBlue.withValues(alpha: 0.35);
+      fill = DT.of(context).accentPrimary.withValues(alpha: 0.35);
     } else if (status == WorkoutStatus.planned && isPast) {
       // Planned but never started - missed
-      fill = DT.cardRed.withValues(alpha: 0.25);
+      fill = DT.of(context).accentDanger.withValues(alpha: 0.25);
     } else {
       // Rest day
       fill = DT.of(context).bg;
@@ -667,7 +667,7 @@ class _HeatCell extends StatelessWidget {
         color: fill,
         borderRadius: BorderRadius.circular(4),
         border: isToday
-            ? Border.all(color: DT.metricBlue, width: 1.5)
+            ? Border.all(color: DT.of(context).accentPrimary, width: 1.5)
             : null,
       ),
     );
@@ -710,9 +710,9 @@ class _WorkoutRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = switch (workout.status) {
-      WorkoutStatus.completed => Colors.green,
-      WorkoutStatus.inProgress => DT.cardOrange,
-      WorkoutStatus.planned => DT.metricBlue,
+      WorkoutStatus.completed => DT.of(context).accentSuccess,
+      WorkoutStatus.inProgress => DT.of(context).accentOrange,
+      WorkoutStatus.planned => DT.of(context).accentPrimary,
     };
     final statusLabel = switch (workout.status) {
       WorkoutStatus.completed => 'Teljesítve',
@@ -788,7 +788,7 @@ class _WorkoutRow extends StatelessWidget {
                 ),
                 const SizedBox(height: DT.s2),
                 Icon(Icons.arrow_forward_ios,
-                    size: 12, color: DT.of(context).textGrey),
+                    size: 12, color: DT.of(context).textSecondary),
               ],
             ),
           ],

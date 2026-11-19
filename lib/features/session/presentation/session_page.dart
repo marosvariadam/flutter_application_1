@@ -99,7 +99,7 @@ class _AthleteSessionsPageState extends State<_AthleteSessionsPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
+                        Icon(Icons.error_outline, size: 48, color: DT.of(context).accentDanger),
                         const SizedBox(height: DT.s4),
                         Text(
                           state.message,
@@ -280,12 +280,12 @@ class _SessionCard extends StatelessWidget {
     final isInProgress = workout.status == WorkoutStatus.inProgress;
 
     final difficultyColor = switch (workout.difficulty) {
-      WorkoutDifficulty.easy => DT.difficultyLight,
-      WorkoutDifficulty.hard || WorkoutDifficulty.intense => DT.difficultyHard,
-      _ => DT.difficultyMedium,
+      WorkoutDifficulty.easy => DT.of(context).difficultyEasy,
+      WorkoutDifficulty.hard || WorkoutDifficulty.intense => DT.of(context).difficultyHard,
+      _ => DT.of(context).difficultyMedium,
     };
 
-    final accentColor = isCompleted ? const Color(0xFF4CAF50) : workout.color;
+    final accentColor = isCompleted ? DT.of(context).accentSuccess : workout.color;
 
     return Opacity(
       opacity: isCompleted ? 0.65 : 1.0,
@@ -338,8 +338,8 @@ class _SessionCard extends StatelessWidget {
                               ),
                               child: Text(
                                 workout.difficulty.label,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: DT.of(context).textOnAccent,
                                   fontSize: DT.s3,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -364,15 +364,14 @@ class _SessionCard extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(height: DT.s2),
-                        Row(
+                        Wrap(
+                          spacing: DT.s3,
+                          runSpacing: DT.s1,
                           children: [
                             _InfoChip(icon: Icons.access_time, text: workout.estimatedDuration),
-                            const SizedBox(width: DT.s3),
                             _InfoChip(icon: Icons.local_fire_department, text: workout.kcal),
-                            if (isInProgress) ...[
-                              const SizedBox(width: DT.s3),
+                            if (isInProgress)
                               _InfoChip(icon: Icons.play_circle_outline, text: 'Folyamatban'),
-                            ],
                           ],
                         ),
                       ],

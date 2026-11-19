@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/onboarding/bloc/onboarding_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/models/onboarding_models.dart';
+import 'package:flutter/services.dart';
 
 class TrainerFormBuilderPage extends StatefulWidget {
   const TrainerFormBuilderPage({super.key});
@@ -132,8 +133,8 @@ class _TrainerFormBuilderPageState extends State<TrainerFormBuilderPage> {
               else
                 TextButton(
                   onPressed: _save,
-                  child: const Text('Mentés',
-                      style: TextStyle(color: DT.metricBlue)),
+                  child: Text('Mentés',
+                      style: TextStyle(color: DT.of(context).accentPrimary)),
                 ),
             ],
           ),
@@ -166,8 +167,8 @@ class _TrainerFormBuilderPageState extends State<TrainerFormBuilderPage> {
                 icon: const Icon(Icons.add),
                 label: const Text('Új kérdés'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: DT.metricBlue,
-                  side: const BorderSide(color: DT.metricBlue),
+                  foregroundColor: DT.of(context).accentPrimary,
+                  side: BorderSide(color: DT.of(context).accentPrimary),
                   padding: const EdgeInsets.symmetric(vertical: DT.s3),
                 ),
               ),
@@ -284,10 +285,9 @@ class _QuestionCard extends StatelessWidget {
                       color: DT.of(context).textSecondary, fontSize: DT.s3)),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.delete_outline, color: DT.cardRed),
+                tooltip: 'Kérdés törlése',
+                icon: Icon(Icons.delete_outline, color: DT.of(context).accentDanger),
                 onPressed: onRemove,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -307,11 +307,16 @@ class _QuestionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: DT.s3),
-          Row(
+          Wrap(
+            spacing: DT.s1,
+            runSpacing: DT.s2,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('Típus:',
-                  style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3)),
-              const SizedBox(width: DT.s2),
+              Padding(
+                padding: const EdgeInsets.only(right: DT.s1),
+                child: Text('Típus:',
+                    style: TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s3)),
+              ),
               _TypeChip(
                 label: 'Szöveg',
                 selected: draft.type == QuestionType.text,
@@ -320,7 +325,6 @@ class _QuestionCard extends StatelessWidget {
                   onChanged();
                 },
               ),
-              const SizedBox(width: DT.s1),
               _TypeChip(
                 label: 'Választós',
                 selected: draft.type == QuestionType.multipleChoice,
@@ -329,7 +333,6 @@ class _QuestionCard extends StatelessWidget {
                   onChanged();
                 },
               ),
-              const SizedBox(width: DT.s1),
               _TypeChip(
                 label: 'Skála',
                 selected: draft.type == QuestionType.scale,
@@ -371,6 +374,7 @@ class _QuestionCard extends StatelessWidget {
                     ),
                     if (draft.optionCtrls.length > 2)
                       IconButton(
+                        tooltip: 'Válaszlehetőség törlése',
                         icon: Icon(Icons.remove_circle_outline,
                             color: DT.of(context).textSecondary, size: 18),
                         onPressed: () {
@@ -390,7 +394,7 @@ class _QuestionCard extends StatelessWidget {
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Lehetőség hozzáadása'),
               style: TextButton.styleFrom(
-                foregroundColor: DT.metricBlue,
+                foregroundColor: DT.of(context).accentPrimary,
                 padding: EdgeInsets.zero,
               ),
             ),
@@ -416,20 +420,23 @@ class _TypeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: Container(
         padding:
             const EdgeInsets.symmetric(horizontal: DT.s2, vertical: DT.s1),
         decoration: BoxDecoration(
-          color: selected ? DT.metricBlue : DT.of(context).bg,
+          color: selected ? DT.of(context).accentPrimary : DT.of(context).bg,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           border:
-              Border.all(color: selected ? DT.metricBlue : DT.of(context).borderGrey),
+              Border.all(color: selected ? DT.of(context).accentPrimary : DT.of(context).borderGrey),
         ),
         child: Text(
           label,
           style: TextStyle(
-              color: selected ? Colors.white : DT.of(context).textSecondary,
+              color: selected ? DT.of(context).textOnAccent : DT.of(context).textSecondary,
               fontSize: 11,
               fontWeight: FontWeight.w500),
         ),

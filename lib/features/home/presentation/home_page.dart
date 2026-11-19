@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
 import 'package:flutter_application_1/app/shared/widgets/section_header.dart';
 import 'package:flutter_application_1/app/user_session.dart';
 import 'package:flutter_application_1/features/coach/presentation/coach_home_page.dart';
@@ -79,8 +80,12 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
     return null;
   }
 
-  Set<String> get _workoutDateKeys =>
-      _workouts.map((w) => WeeklyStrip.dayKey(w.scheduledDate)).toSet();
+  /// Day → completed, for the strip's dots.
+  Map<String, bool> get _workoutDays => {
+        for (final w in _workouts)
+          WeeklyStrip.dayKey(w.scheduledDate):
+              w.status == WorkoutStatus.completed,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -93,15 +98,16 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
         toolbarHeight: 80,
         title: const HomeHeader(),
       ),
-      body: _body(context),
+      body: FadeSwitcher(child: _body(context)),
     );
   }
 
   Widget _body(BuildContext context) {
-    if (_isLoading) return const HomeSkeleton();
+    if (_isLoading) return const HomeSkeleton(key: ValueKey('loading'));
     final error = _error;
     if (error != null) {
       return ErrorState(
+        key: const ValueKey('error'),
         error: error,
         title: 'Nem sikerült betölteni az edzéseidet',
         onRetry: _loadWorkouts,
@@ -110,6 +116,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
     final c = DT.of(context);
     final workout = _workout;
     return RefreshIndicator(
+      key: const ValueKey('content'),
       onRefresh: _loadWorkouts,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -121,7 +128,7 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
             const SectionHeader(title: 'Ezen a héten'),
             WeeklyStrip(
               selected: _selected,
-              workoutDateKeys: _workoutDateKeys,
+              workoutDays: _workoutDays,
               onDateSelected: (date) => setState(() => _selected = date),
             ),
             const SizedBox(height: DT.s5),
@@ -129,7 +136,8 @@ class _AthleteHomePageState extends State<AthleteHomePage> {
             workout != null
                 ? TodayWorkoutCard(
                     workout: workout,
-                    onTap: () => context.push('/workout-detail', extra: workout),
+                    onTap: () =>
+                        context.push('/workout-detail', extra: workout.id),
                   )
                 : const RestDayCard(),
             const SizedBox(height: DT.s5),

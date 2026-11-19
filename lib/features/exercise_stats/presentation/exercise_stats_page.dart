@@ -7,6 +7,8 @@ import 'package:flutter_application_1/features/exercise/data/models/exercise_mod
 import 'package:flutter_application_1/features/exercise_stats/bloc/exercise_stats_cubit.dart';
 import 'package:flutter_application_1/features/exercise_stats/data/models/exercise_stat_point.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application_1/app/shared/chart_style.dart';
+import 'package:flutter/services.dart';
 
 /// Metric shown on the chart.
 enum _ChartMetric { weight, reps, sets }
@@ -238,7 +240,8 @@ class _MetricToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      runSpacing: DT.s2,
       children: _ChartMetric.values.map((m) {
         final isActive = m == selected;
         final label = switch (m) {
@@ -261,7 +264,10 @@ class _MetricToggle extends StatelessWidget {
             ),
             backgroundColor: DT.of(context).cardSurface,
             side: BorderSide(color: DT.of(context).borderGrey),
-            onSelected: (_) => onChanged(m),
+            onSelected: (_) {
+              HapticFeedback.selectionClick();
+              onChanged(m);
+            },
           ),
         );
       }).toList(),
@@ -315,24 +321,11 @@ class _StatsChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: [
-          BoxShadow(
-            color: DT.of(context).shadowLight,
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: DT.shadowCard(context),
       ),
       child: LineChart(
         LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (_) => FlLine(
-              color: DT.of(context).borderLight,
-              strokeWidth: 1,
-            ),
-          ),
+          gridData: DTChart.grid(context),
           titlesData: FlTitlesData(
             topTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -341,9 +334,12 @@ class _StatsChart extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 28,
+                reservedSize: DTChart.reserved(context, 28),
                 interval: _xInterval(sorted.length),
                 getTitlesWidget: (value, meta) {
+                  if (DTChart.isOffStepEdge(value, meta)) {
+                    return const SizedBox.shrink();
+                  }
                   final idx = value.toInt();
                   if (idx < 0 || idx >= sorted.length) {
                     return const SizedBox.shrink();
@@ -352,10 +348,7 @@ class _StatsChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: DT.s2),
                     child: Text(
                       DateFormat('MM.dd').format(sorted[idx].date),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: DT.of(context).textSecondary,
-                      ),
+                      style: DTChart.axisLabel(context),
                     ),
                   );
                 },
@@ -364,14 +357,14 @@ class _StatsChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 42,
+                reservedSize: DTChart.reserved(context, 48),
                 getTitlesWidget: (value, meta) {
+                  if (DTChart.isOffStepEdge(value, meta)) {
+                    return const SizedBox.shrink();
+                  }
                   return Text(
                     '${value.toInt()} $_yLabel',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: DT.of(context).textSecondary,
-                    ),
+                    style: DTChart.axisLabel(context),
                   );
                 },
               ),
@@ -379,34 +372,32 @@ class _StatsChart extends StatelessWidget {
           ),
           borderData: FlBorderData(show: false),
           lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
+            touchTooltipData: DTChart.tooltip(
+              context,
               getTooltipItems: (spots) => spots.map((s) {
                 final color =
-                    s.barIndex == 0 ? DT.metricBlue : DT.cardTeal;
+                    s.barIndex == 0 ? DT.of(context).accentPrimary : DT.of(context).accentTeal;
                 final idx = s.x.toInt();
                 final dateStr = idx >= 0 && idx < sorted.length
                     ? DateFormat('MM.dd').format(sorted[idx].date)
                     : '';
                 return LineTooltipItem(
                   '$dateStr\n${s.y.toStringAsFixed(1)} $_yLabel',
-                  TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w600,
-                      fontSize: DT.s3),
+                  DTChart.tooltipText(context, color),
                 );
               }).toList(),
             ),
           ),
           lineBarsData: [
-            _line(actualSpots, DT.metricBlue),
-            if (showTarget) _line(targetSpots, DT.cardTeal, dashed: true),
+            _line(context, actualSpots, DT.of(context).accentPrimary),
+            if (showTarget) _line(context, targetSpots, DT.of(context).accentTeal, dashed: true),
           ],
         ),
       ),
     );
   }
 
-  LineChartBarData _line(List<FlSpot> spots, Color color,
+  LineChartBarData _line(BuildContext context, List<FlSpot> spots, Color color,
       {bool dashed = false}) {
     return LineChartBarData(
       spots: spots,
@@ -414,20 +405,10 @@ class _StatsChart extends StatelessWidget {
       preventCurveOverShooting: true,
       color: color,
       barWidth: 3,
-      dotData: FlDotData(
-        show: true,
-        getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
-          radius: 3,
-          color: color,
-          strokeColor: Colors.white,
-          strokeWidth: 1.5,
-        ),
-      ),
+      dotData: DTChart.dots(context, color),
       dashArray: dashed ? [8, 4] : null,
-      belowBarData: BarAreaData(
-        show: !dashed,
-        color: color.withValues(alpha: 0.08),
-      ),
+      belowBarData:
+          dashed ? BarAreaData(show: false) : DTChart.gradientFill(color),
     );
   }
 
@@ -453,13 +434,7 @@ class _Placeholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: [
-          BoxShadow(
-            color: DT.of(context).shadowLight,
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: DT.shadowCard(context),
       ),
       child: Center(
         child: Column(

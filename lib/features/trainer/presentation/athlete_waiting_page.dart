@@ -91,13 +91,13 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                           height: 120,
                           decoration: BoxDecoration(
                             color:
-                                DT.metricBlue.withValues(alpha: 0.12),
+                                DT.of(context).accentPrimary.withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.hourglass_top_rounded,
                             size: 56,
-                            color: DT.metricBlue,
+                            color: DT.of(context).accentPrimary,
                           ),
                         ),
                       ),
@@ -141,7 +141,7 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: DT.s4, vertical: DT.s2),
                         decoration: BoxDecoration(
-                          color: DT.cardYellow.withValues(alpha: 0.2),
+                          color: DT.of(context).accentYellow.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(DT.rChip),
                         ),
                         child: Row(
@@ -150,8 +150,8 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                             Container(
                               width: 8,
                               height: 8,
-                              decoration: const BoxDecoration(
-                                color: DT.cardYellow,
+                              decoration: BoxDecoration(
+                                color: DT.of(context).accentYellow,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -176,18 +176,18 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                       height: 50,
                       child: ElevatedButton.icon(
                         onPressed: () => context.push('/athlete-requests'),
-                        icon: const Icon(Icons.person_search_outlined,
-                            color: Colors.white),
-                        label: const Text(
+                        icon: Icon(Icons.person_search_outlined,
+                            color: DT.of(context).textOnAccent),
+                        label: Text(
                           'Edzőhöz csatlakozás',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: DT.of(context).textOnAccent,
                             fontWeight: FontWeight.w600,
                             fontSize: DT.s4,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: DT.metricBlue,
+                          backgroundColor: DT.of(context).accentPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(DT.rCardSmall),
                           ),
@@ -211,10 +211,10 @@ class _AthleteWaitingPageState extends State<AthleteWaitingPage>
                     TextButton(
                       onPressed: () =>
                           context.read<AuthBloc>().add(LogoutRequested()),
-                      child: const Text(
+                      child: Text(
                         'Kijelentkezés',
                         style: TextStyle(
-                          color: DT.cardRed,
+                          color: DT.of(context).accentDanger,
                           fontSize: DT.s3,
                           fontWeight: FontWeight.w500,
                         ),

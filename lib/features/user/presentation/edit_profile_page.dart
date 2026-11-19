@@ -172,7 +172,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(height: DT.s3),
                 Text(_error!,
                     style:
-                        const TextStyle(color: DT.cardRed, fontSize: DT.s3)),
+                        TextStyle(color: DT.of(context).accentDanger, fontSize: DT.s3)),
               ],
               const SizedBox(height: DT.s6),
               SizedBox(
@@ -181,20 +181,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: ElevatedButton(
                   onPressed: _loading ? null : _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue,
+                    backgroundColor: DT.of(context).accentPrimary,
                     shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(DT.rCardSmall)),
                   ),
                   child: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
-                      : const Text('Mentés',
+                              strokeWidth: 2, color: DT.of(context).textOnAccent))
+                      : Text('Mentés',
                           style: TextStyle(
-                              color: DT.textWhite,
+                              color: DT.of(context).textOnAccent,
                               fontSize: DT.s4,
                               fontWeight: FontWeight.w600)),
                 ),

@@ -132,16 +132,23 @@ class _CalendarHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
+              tooltip: 'Előző hónap',
               onPressed: onPrev,
               icon: const Icon(Icons.chevron_left)),
-          Text(
-            DateFormat('yyyy. MMMM', 'hu').format(month),
-            style: TextStyle(
-                color: DT.of(context).textPrimary,
-                fontSize: DT.s4,
-                fontWeight: FontWeight.w700),
+          Expanded(
+            child: Text(
+              DateFormat('yyyy. MMMM', 'hu').format(month),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  color: DT.of(context).textPrimary,
+                  fontSize: DT.s4,
+                  fontWeight: FontWeight.w700),
+            ),
           ),
           IconButton(
+              tooltip: 'Következő hónap',
               onPressed: onNext,
               icon: const Icon(Icons.chevron_right)),
         ],
@@ -220,9 +227,9 @@ class _CalendarGrid extends StatelessWidget {
                   margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? DT.metricBlue
+                        ? DT.of(context).accentPrimary
                         : isToday
-                            ? DT.metricBlue.withValues(alpha: 0.15)
+                            ? DT.of(context).accentPrimary.withValues(alpha: 0.15)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -233,7 +240,7 @@ class _CalendarGrid extends StatelessWidget {
                         '$day',
                         style: TextStyle(
                           color: isSelected
-                              ? Colors.white
+                              ? DT.of(context).textOnAccent
                               : DT.of(context).textPrimary,
                           fontWeight: isToday
                               ? FontWeight.w700
@@ -249,8 +256,8 @@ class _CalendarGrid extends StatelessWidget {
                             height: 4,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? Colors.white
-                                  : DT.metricBlue,
+                                  ? DT.of(context).textOnAccent
+                                  : DT.of(context).accentPrimary,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -311,12 +318,12 @@ class _DayWorkoutList extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: DT.s2, vertical: DT.s1),
                     decoration: BoxDecoration(
-                      color: DT.metricBlue.withValues(alpha: 0.15),
+                      color: DT.of(context).accentPrimary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(DT.rChip),
                     ),
                     child: Text(w.status.label,
-                        style: const TextStyle(
-                            color: DT.metricBlue,
+                        style: TextStyle(
+                            color: DT.of(context).accentPrimary,
                             fontSize: DT.s3,
                             fontWeight: FontWeight.w600)),
                   ),

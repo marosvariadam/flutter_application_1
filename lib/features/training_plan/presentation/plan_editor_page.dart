@@ -155,7 +155,7 @@ class _PlanEditorView extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.lastErrorMessage!),
-                backgroundColor: DT.cardRed,
+                backgroundColor: DT.of(context).accentDanger,
               ),
             );
           }
@@ -270,14 +270,14 @@ class _HeaderCard extends StatelessWidget {
               children: [
                 if (errCount > 0) ...[
                   _CountChip(
-                      count: errCount, label: 'Hiba', color: DT.cardRed),
+                      count: errCount, label: 'Hiba', color: DT.of(context).accentDanger),
                   const SizedBox(width: DT.s2),
                 ],
                 if (warnCount > 0)
                   _CountChip(
                       count: warnCount,
                       label: 'Figyelem',
-                      color: DT.cardOrange),
+                      color: DT.of(context).accentOrange),
               ],
             ),
           ],
@@ -291,19 +291,19 @@ class _HeaderCard extends StatelessWidget {
                       ? onAccept
                       : null,
                   icon: state.isAccepting
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2, color: DT.of(context).textOnAccent),
                         )
                       : const Icon(Icons.check_circle),
                   label: Text(plan.status == PlanStatuses.draft
                       ? 'Elfogad + Ütemez'
                       : 'Ütemezés'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: DT.of(context).accentPrimary,
+                    foregroundColor: DT.of(context).textOnAccent,
                     padding: const EdgeInsets.symmetric(vertical: DT.s3),
                     disabledBackgroundColor:
                         DT.of(context).borderGrey,
@@ -316,8 +316,8 @@ class _HeaderCard extends StatelessWidget {
             const SizedBox(height: DT.s2),
             Row(
               children: [
-                const Icon(Icons.info_outline,
-                    size: 14, color: DT.cardRed),
+                Icon(Icons.info_outline,
+                    size: 14, color: DT.of(context).accentDanger),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -343,11 +343,11 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = status == PlanStatuses.draft
-        ? DT.cardOrange
+        ? DT.of(context).accentOrange
         : status == PlanStatuses.accepted
-            ? DT.cardTeal
+            ? DT.of(context).accentTeal
             : status == PlanStatuses.materialized
-                ? DT.metricBlue
+                ? DT.of(context).accentPrimary
                 : DT.of(context).iconLight;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),

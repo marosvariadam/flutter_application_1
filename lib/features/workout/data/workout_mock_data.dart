@@ -1,4 +1,4 @@
-import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/design/dt_colors.dart';
 import 'models/workout_model.dart';
 
 class WorkoutMockData {
@@ -42,7 +42,7 @@ class WorkoutMockData {
       athleteId: athleteId,
       coachId: 'c1',
       difficulty: WorkoutDifficulty.moderate,
-      color: DT.cardBlue,
+      color: DTColors.light.accentBlueSoft,
       estimatedDuration: '60 perc',
       kcal: '450 kcal',
       exercises: [
@@ -99,7 +99,7 @@ class WorkoutMockData {
       athleteId: athleteId,
       coachId: 'c1',
       difficulty: WorkoutDifficulty.moderate,
-      color: DT.cardTeal,
+      color: DTColors.light.accentTeal,
       estimatedDuration: '55 perc',
       kcal: '380 kcal',
       exercises: [
@@ -165,7 +165,7 @@ class WorkoutMockData {
       athleteId: athleteId,
       coachId: 'c1',
       difficulty: WorkoutDifficulty.hard,
-      color: DT.cardOrange,
+      color: DTColors.light.accentOrange,
       estimatedDuration: '65 perc',
       kcal: '550 kcal',
       exercises: [

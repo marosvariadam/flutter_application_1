@@ -79,13 +79,26 @@ class SkeletonList extends StatelessWidget {
   final int itemCount;
   final double itemHeight;
 
-  const SkeletonList({super.key, this.itemCount = 4, this.itemHeight = 72});
+  /// Page bodies pass the list's own padding (usually `EdgeInsets.all(DT.s5)`).
+  final EdgeInsetsGeometry padding;
+
+  const SkeletonList({
+    super.key,
+    this.itemCount = 4,
+    this.itemHeight = 72,
+    this.padding = EdgeInsets.zero,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = DT.of(context);
     return SkeletonPulse(
-      child: Column(
+      // Clips instead of overflowing when the screen is shorter than the
+      // placeholder rows.
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: padding,
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < itemCount; i++)
@@ -122,6 +135,7 @@ class SkeletonList extends StatelessWidget {
               ),
             ),
         ],
+        ),
       ),
     );
   }

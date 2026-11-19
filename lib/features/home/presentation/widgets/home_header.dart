@@ -4,34 +4,47 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/widgets/user_avatar.dart';
 import 'package:flutter_application_1/app/user_session.dart';
+import 'package:flutter_application_1/app/shared/greeting.dart';
 
-/// App-bar content of the athlete home: profile avatar, greeting with
-/// today's date, search button.
+/// App-bar content of the athlete home: the user's avatar (opens the
+/// profile) and a time-of-day greeting with today's date.
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  /// Injectable clock for tests.
+  final DateTime Function() now;
+
+  const HomeHeader({super.key, this.now = DateTime.now});
 
   @override
   Widget build(BuildContext context) {
     final c = DT.of(context);
     final t = DTText.of(context);
+    final session = UserSession.instance;
+    final time = now();
+    final firstName = session.firstName?.trim() ?? '';
+    final name = session.displayName;
     return Row(
       children: [
-        GestureDetector(
-          onTap: () => context.go('/profile'),
-          child: Container(
-            margin: const EdgeInsets.only(right: DT.s3),
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: c.bg, width: 2),
-              boxShadow: DT.shadowCard(context),
-            ),
-            child: ClipOval(
-              child: ColoredBox(
-                color: c.accentPrimary.withValues(alpha: 0.15),
-                child: Icon(Icons.person, color: c.accentPrimary),
+        Tooltip(
+          message: 'Profil',
+          child: Semantics(
+            button: true,
+            label: 'Profil',
+            onTap: () => context.go('/profile'),
+            excludeSemantics: true,
+            child: InkResponse(
+              onTap: () => context.go('/profile'),
+              radius: 28,
+              child: Container(
+                margin: const EdgeInsets.only(right: DT.s3),
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: c.cardSurface,
+                  boxShadow: DT.shadowCard(context),
+                ),
+                child: UserAvatar(name: name, size: 44),
               ),
             ),
           ),
@@ -42,26 +55,20 @@ class HomeHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Szia, ${UserSession.instance.firstName ?? ''}!',
+                firstName.isEmpty
+                    ? '${timeOfDayGreeting(time)}!'
+                    : '${timeOfDayGreeting(time)}, $firstName!',
                 style: t.title,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                DateFormat('yyyy.MM.dd').format(DateTime.now()),
+                DateFormat('yyyy.MM.dd').format(time),
                 style: t.caption,
+                maxLines: 1,
               ),
             ],
           ),
-        ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: c.cardSurface,
-            borderRadius: BorderRadius.circular(DT.rCardSmall),
-            boxShadow: DT.shadowCard(context),
-          ),
-          child: Icon(Icons.search, color: c.iconLight),
         ),
       ],
     );

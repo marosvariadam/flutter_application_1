@@ -72,8 +72,8 @@ class _PlanEditorRefineBarState extends State<PlanEditorRefineBar> {
                             : () => context
                                 .read<PlanEditorBloc>()
                                 .add(const PlanEditorUndoRefine()),
-                        child: const Text('Visszavonás',
-                            style: TextStyle(color: DT.metricBlue)),
+                        child: Text('Visszavonás',
+                            style: TextStyle(color: DT.of(context).accentPrimary)),
                       ),
                     ],
                   ),
@@ -115,8 +115,8 @@ class _PlanEditorRefineBarState extends State<PlanEditorRefineBar> {
                             ? null
                             : () => _submit(context.read<PlanEditorBloc>()),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: DT.metricBlue,
-                          foregroundColor: Colors.white,
+                          backgroundColor: DT.of(context).accentPrimary,
+                          foregroundColor: DT.of(context).textOnAccent,
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
                             borderRadius:
@@ -124,11 +124,11 @@ class _PlanEditorRefineBarState extends State<PlanEditorRefineBar> {
                           ),
                         ),
                         child: state.isRefining
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 18,
                                 height: 18,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
+                                    strokeWidth: 2, color: DT.of(context).textOnAccent),
                               )
                             : const Icon(Icons.send, size: 20),
                       ),

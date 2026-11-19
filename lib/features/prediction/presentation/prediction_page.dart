@@ -7,6 +7,8 @@ import 'package:flutter_application_1/features/exercise/data/models/exercise_mod
 import 'package:flutter_application_1/features/prediction/bloc/prediction_cubit.dart';
 import 'package:flutter_application_1/features/prediction/data/models/prediction_models.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application_1/app/shared/chart_style.dart';
+import 'package:flutter/services.dart';
 
 /// Progress prediction screen.
 ///
@@ -225,7 +227,10 @@ class _WeeksAheadSelector extends StatelessWidget {
           ),
           backgroundColor: DT.of(context).cardSurface,
           side: BorderSide(color: DT.of(context).borderGrey),
-          onSelected: (_) => onChanged(v),
+          onSelected: (_) {
+            HapticFeedback.selectionClick();
+            onChanged(v);
+          },
         );
       }).toList(),
     );
@@ -329,18 +334,18 @@ class _Legend extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _LegendDot(
-          color: DT.metricBlue,
+          color: DT.of(context).accentPrimary,
           label: 'Tényleges',
           dashed: false,
         ),
         const SizedBox(width: DT.s4),
         _LegendDot(
-          color: DT.metricBlue,
+          color: DT.of(context).accentPrimary,
           label: 'Előrejelzés',
           dashed: true,
         ),
         const SizedBox(width: DT.s4),
-        _LegendBand(color: DT.metricBlue.withValues(alpha: 0.2)),
+        _LegendBand(color: DT.of(context).accentPrimary.withValues(alpha: 0.2)),
       ],
     );
   }
@@ -505,26 +510,13 @@ class _PredictionChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: [
-          BoxShadow(
-            color: DT.of(context).shadowLight,
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: DT.shadowCard(context),
       ),
       child: LineChart(
         LineChartData(
           minY: yMin,
           maxY: yMax,
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (_) => FlLine(
-              color: DT.of(context).borderLight,
-              strokeWidth: 1,
-            ),
-          ),
+          gridData: DTChart.grid(context),
           titlesData: FlTitlesData(
             topTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false)),
@@ -533,9 +525,12 @@ class _PredictionChart extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 28,
+                reservedSize: DTChart.reserved(context, 28),
                 interval: _xInterval(allWeeks.length),
                 getTitlesWidget: (value, meta) {
+                  if (DTChart.isOffStepEdge(value, meta)) {
+                    return const SizedBox.shrink();
+                  }
                   final idx = value.toInt();
                   if (idx < 0 || idx >= allWeeks.length) {
                     return const SizedBox.shrink();
@@ -544,10 +539,7 @@ class _PredictionChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: DT.s2),
                     child: Text(
                       DateFormat('MM.dd').format(allWeeks[idx].toLocal()),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: DT.of(context).textSecondary,
-                      ),
+                      style: DTChart.axisLabel(context),
                     ),
                   );
                 },
@@ -556,14 +548,14 @@ class _PredictionChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 42,
+                reservedSize: DTChart.reserved(context, 48),
                 getTitlesWidget: (value, meta) {
+                  if (DTChart.isOffStepEdge(value, meta)) {
+                    return const SizedBox.shrink();
+                  }
                   return Text(
                     '${value.toStringAsFixed(0)} kg',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: DT.of(context).textSecondary,
-                    ),
+                    style: DTChart.axisLabel(context),
                   );
                 },
               ),
@@ -572,7 +564,8 @@ class _PredictionChart extends StatelessWidget {
           borderData: FlBorderData(show: false),
           lineTouchData: LineTouchData(
             handleBuiltInTouches: true,
-            touchTooltipData: LineTouchTooltipData(
+            touchTooltipData: DTChart.tooltip(
+              context,
               maxContentWidth: 220,
               getTooltipItems: (touched) {
                 // De-duplicate by x - the band lines stack on the same point.
@@ -611,11 +604,7 @@ class _PredictionChart extends StatelessWidget {
 
                   items.add(LineTooltipItem(
                     text,
-                    TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w600,
-                      fontSize: DT.s3,
-                    ),
+                    DTChart.tooltipText(context, color),
                   ));
                 }
                 return items;
@@ -661,19 +650,8 @@ class _PredictionChart extends StatelessWidget {
                 isCurved: false,
                 color: color,
                 barWidth: 3,
-                dotData: FlDotData(
-                  show: true,
-                  getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
-                    radius: 3.5,
-                    color: color,
-                    strokeColor: Colors.white,
-                    strokeWidth: 1.5,
-                  ),
-                ),
-                belowBarData: BarAreaData(
-                  show: true,
-                  color: color.withValues(alpha: 0.06),
-                ),
+                dotData: DTChart.dots(context, color, radius: 3.5),
+                belowBarData: DTChart.gradientFill(color),
               ),
             // Predicted - dotted/dashed (only when model has predictions)
             if (hasPredicted)
@@ -728,13 +706,7 @@ class _Placeholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: DT.of(context).cardSurface,
         borderRadius: BorderRadius.circular(DT.rCard),
-        boxShadow: [
-          BoxShadow(
-            color: DT.of(context).shadowLight,
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: DT.shadowCard(context),
       ),
       child: Center(
         child: Padding(

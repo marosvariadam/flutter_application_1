@@ -8,6 +8,7 @@ import 'package:flutter_application_1/features/trainer/presentation/roster_page.
 import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
+import 'package:flutter_application_1/features/workout/presentation/widgets/workout_colors.dart';
 
 /// Central hub for the middle tab.
 /// Trainers see their athlete roster; athletes see their workout list.
@@ -57,6 +58,7 @@ class _AthleteWorkoutView extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: 'Naptár',
             icon: Icon(Icons.calendar_month_outlined,
                 color: DT.of(context).textPrimary),
             onPressed: () => context.push('/workout/calendar'),
@@ -162,8 +164,8 @@ class WorkoutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _statusColor(workout.status);
-    final diffColor = _diffColor(workout.difficulty);
+    final statusColor = workout.status.color(DT.of(context));
+    final diffColor = workout.difficulty.color(DT.of(context));
 
     return Material(
       color: DT.of(context).cardSurface,
@@ -243,30 +245,6 @@ class WorkoutCard extends StatelessWidget {
       ),
     );
   }
-
-  Color _statusColor(WorkoutStatus s) {
-    switch (s) {
-      case WorkoutStatus.planned:
-        return DT.metricBlue;
-      case WorkoutStatus.inProgress:
-        return DT.cardOrange;
-      case WorkoutStatus.completed:
-        return Colors.green;
-    }
-  }
-
-  Color _diffColor(WorkoutDifficulty d) {
-    switch (d) {
-      case WorkoutDifficulty.easy:
-        return DT.difficultyLight;
-      case WorkoutDifficulty.moderate:
-        return DT.difficultyMedium;
-      case WorkoutDifficulty.hard:
-        return DT.difficultyHard;
-      case WorkoutDifficulty.intense:
-        return Colors.purple;
-    }
-  }
 }
 
 class _Badge extends StatelessWidget {
@@ -303,7 +281,7 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
+          Icon(Icons.error_outline, size: 48, color: DT.of(context).accentDanger),
           const SizedBox(height: DT.s4),
           Text(message,
               style:

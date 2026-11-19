@@ -125,6 +125,7 @@ class _UserProfileSection extends StatelessWidget {
         ),
         _ProfileActionButton(
           icon: Icons.edit_outlined,
+          tooltip: 'Profil szerkesztése',
           onTap: () => context.push('/profile/edit'),
         ),
       ],
@@ -142,22 +143,23 @@ class _UserProfileSection extends StatelessWidget {
 
 class _ProfileActionButton extends StatelessWidget {
   final IconData icon;
+  final String tooltip;
   final VoidCallback onTap;
-  const _ProfileActionButton({required this.icon, required this.onTap});
+  const _ProfileActionButton(
+      {required this.icon, required this.tooltip, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: DT.of(context).iconLight.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(DT.s2),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(DT.s2),
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Center(child: Icon(icon, color: DT.of(context).iconLight, size: DT.s4)),
-        ),
+    final c = DT.of(context);
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onTap,
+      icon: Icon(icon, color: c.iconLight, size: 18),
+      style: IconButton.styleFrom(
+        fixedSize: const Size.square(DT.minTap),
+        backgroundColor: c.iconLight.withValues(alpha: 0.1),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DT.rXs)),
       ),
     );
   }
@@ -345,8 +347,8 @@ class _MenuSection extends StatelessWidget {
           _MenuItem(
             icon: Icons.exit_to_app,
             title: 'Edző elhagyása',
-            iconColor: DT.cardRed,
-            textColor: DT.cardRed,
+            iconColor: DT.of(context).accentDanger,
+            textColor: DT.of(context).accentDanger,
             onTap: () => _confirmLeaveTrainer(context),
           ),
         ],
@@ -361,8 +363,8 @@ class _MenuSection extends StatelessWidget {
         _MenuItem(
           icon: Icons.delete_outline,
           title: 'Fiók törlése',
-          iconColor: DT.cardRed,
-          textColor: DT.cardRed,
+          iconColor: DT.of(context).accentDanger,
+          textColor: DT.of(context).accentDanger,
           onTap: () => _confirmDeleteAccount(context),
         ),
       ],
@@ -403,7 +405,7 @@ class _MenuSection extends StatelessWidget {
                 }
               }
             },
-            style: TextButton.styleFrom(foregroundColor: DT.cardRed),
+            style: TextButton.styleFrom(foregroundColor: DT.of(context).accentDanger),
             child: const Text('Elhagyás'),
           ),
         ],
@@ -429,7 +431,7 @@ class _MenuSection extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(foregroundColor: DT.cardRed),
+            style: TextButton.styleFrom(foregroundColor: DT.of(context).accentDanger),
             child: const Text('Törlés'),
           ),
         ],
@@ -566,7 +568,7 @@ class _MenuItem extends StatelessWidget {
                       color: textCol)),
             ),
             Icon(Icons.arrow_forward_ios,
-                color: DT.of(context).textGrey, size: 14),
+                color: DT.of(context).textSecondary, size: 14),
           ],
         ),
       ),
@@ -583,11 +585,11 @@ class _LogoutButton extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () => _confirm(context),
-        icon: const Icon(Icons.logout, color: DT.cardRed),
-        label: const Text('Kijelentkezés',
-            style: TextStyle(color: DT.cardRed)),
+        icon: Icon(Icons.logout, color: DT.of(context).accentDanger),
+        label: Text('Kijelentkezés',
+            style: TextStyle(color: DT.of(context).accentDanger)),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: DT.cardRed),
+          side: BorderSide(color: DT.of(context).accentDanger),
           padding: const EdgeInsets.symmetric(vertical: DT.s3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -616,7 +618,7 @@ class _LogoutButton extends StatelessWidget {
               Navigator.pop(ctx);
               context.read<AuthBloc>().add(LogoutRequested());
             },
-            style: TextButton.styleFrom(foregroundColor: DT.cardRed),
+            style: TextButton.styleFrom(foregroundColor: DT.of(context).accentDanger),
             child: const Text('Kijelentkezés'),
           ),
         ],

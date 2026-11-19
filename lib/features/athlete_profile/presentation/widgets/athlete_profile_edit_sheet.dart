@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/athlete_profile/bloc/athlete_profile_cubit.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/models/athlete_profile_model.dart';
+import 'package:flutter_application_1/app/design/dt_colors.dart';
+import 'package:flutter/services.dart';
 
 /// Trainer's edit sheet for an athlete's structured profile, including the
 /// muscle-group priority sliders (0.5–1.5). Saves through the
@@ -93,9 +95,9 @@ class _AthleteProfileEditSheetState extends State<AthleteProfileEditSheet> {
                                   child: CircularProgressIndicator(
                                       strokeWidth: 2),
                                 )
-                              : const Text('Mentés',
+                              : Text('Mentés',
                                   style: TextStyle(
-                                      color: DT.metricBlue,
+                                      color: DT.of(context).accentPrimary,
                                       fontWeight: FontWeight.w600)),
                         );
                       },
@@ -258,24 +260,27 @@ class _ChoiceGrid extends StatelessWidget {
       children: options.map((o) {
         final isSelected = selected == o;
         return GestureDetector(
-          onTap: () => onSelect(o),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onSelect(o);
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: DT.s3, vertical: DT.s2),
             decoration: BoxDecoration(
               color: isSelected
-                  ? DT.metricBlue.withValues(alpha: 0.12)
+                  ? DT.of(context).accentPrimary.withValues(alpha: 0.12)
                   : DT.of(context).bg,
               borderRadius: BorderRadius.circular(DT.rCardSmall),
               border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey,
+                  color: isSelected ? DT.of(context).accentPrimary : DT.of(context).borderGrey,
                   width: 1.5),
             ),
             child: Text(
               labels[o] ?? o,
               style: TextStyle(
                 color: isSelected
-                    ? DT.metricBlue
+                    ? DT.of(context).accentPrimary
                     : DT.of(context).textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -308,24 +313,27 @@ class _MultiChips extends StatelessWidget {
       children: options.map((o) {
         final isSelected = selected.contains(o);
         return GestureDetector(
-          onTap: () => onToggle(o),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onToggle(o);
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: DT.s3, vertical: DT.s2),
             decoration: BoxDecoration(
               color: isSelected
-                  ? DT.metricBlue.withValues(alpha: 0.12)
+                  ? DT.of(context).accentPrimary.withValues(alpha: 0.12)
                   : DT.of(context).bg,
               borderRadius: BorderRadius.circular(DT.rChip),
               border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey,
+                  color: isSelected ? DT.of(context).accentPrimary : DT.of(context).borderGrey,
                   width: 1.5),
             ),
             child: Text(
               labels[o] ?? o,
               style: TextStyle(
                 color: isSelected
-                    ? DT.metricBlue
+                    ? DT.of(context).accentPrimary
                     : DT.of(context).textPrimary,
                 fontWeight: FontWeight.w600,
                 fontSize: DT.s3,
@@ -376,7 +384,7 @@ class _IntSlider extends StatelessWidget {
           min: min.toDouble(),
           max: max.toDouble(),
           divisions: divisions,
-          activeColor: DT.metricBlue,
+          activeColor: DT.of(context).accentPrimary,
           onChanged: (v) {
             // Snap to the configured step so e.g. 5-minute increments stay
             // on sensible values.
@@ -420,7 +428,7 @@ class _PrioritySlider extends StatelessWidget {
               min: kProfilePriorityMin,
               max: kProfilePriorityMax,
               divisions: 10,
-              activeColor: _priorityColor(value),
+              activeColor: _priorityColor(DT.of(context), value),
               label: '${value.toStringAsFixed(2)}×',
               onChanged: onChanged,
             ),
@@ -439,9 +447,9 @@ class _PrioritySlider extends StatelessWidget {
     );
   }
 
-  Color _priorityColor(double v) {
-    if (v > kProfilePriorityDefault) return DT.metricBlue;
-    if (v < kProfilePriorityDefault) return DT.cardOrange;
-    return DT.cardTeal;
+  Color _priorityColor(DTColors c, double v) {
+    if (v > kProfilePriorityDefault) return c.accentPrimary;
+    if (v < kProfilePriorityDefault) return c.accentOrange;
+    return c.accentTeal;
   }
 }

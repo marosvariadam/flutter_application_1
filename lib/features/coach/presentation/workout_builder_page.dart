@@ -244,7 +244,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Edzés sikeresen létrehozva!'),
-          backgroundColor: DT.difficultyLight,
+          backgroundColor: DT.of(context).difficultyEasy,
         ),
       );
       Navigator.of(context).pop();
@@ -280,6 +280,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
         backgroundColor: DT.of(context).bg,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Bezárás',
           icon: Icon(Icons.close, color: DT.of(context).textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -300,9 +301,9 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
           else
             TextButton(
               onPressed: _save,
-              child: const Text('Mentés',
+              child: Text('Mentés',
                   style: TextStyle(
-                      color: DT.metricBlue,
+                      color: DT.of(context).accentPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: DT.s4)),
             ),
@@ -361,8 +362,8 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                   child: BuilderWhiteCard(
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today,
-                            color: DT.metricBlue, size: 20),
+                        Icon(Icons.calendar_today,
+                            color: DT.of(context).accentPrimary, size: 20),
                         const SizedBox(width: DT.s3),
                         Text(DateFormat('yyyy.MM.dd').format(_date),
                             style: TextStyle(
@@ -371,7 +372,7 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                                 color: DT.of(context).textPrimary)),
                         const Spacer(),
                         Icon(Icons.arrow_forward_ios,
-                            size: 14, color: DT.of(context).textGrey),
+                            size: 14, color: DT.of(context).textSecondary),
                       ],
                     ),
                   ),
@@ -432,14 +433,14 @@ class _WorkoutBuilderPageState extends State<WorkoutBuilderPage> {
                       borderRadius: BorderRadius.circular(DT.rCardSmall),
                       border: Border.all(color: DT.of(context).borderGrey, width: 1.5),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_circle_outline, color: DT.metricBlue),
+                        Icon(Icons.add_circle_outline, color: DT.of(context).accentPrimary),
                         SizedBox(width: DT.s2),
                         Text('Gyakorlat hozzáadása',
                             style: TextStyle(
-                                color: DT.metricBlue,
+                                color: DT.of(context).accentPrimary,
                                 fontWeight: FontWeight.w600,
                                 fontSize: DT.s4)),
                       ],

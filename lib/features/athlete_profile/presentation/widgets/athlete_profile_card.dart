@@ -68,7 +68,7 @@ class _TrainerProfileCardView extends StatelessWidget {
     if (state is AthleteProfileError) {
       return Row(
         children: [
-          const Icon(Icons.error_outline, color: DT.cardRed),
+          Icon(Icons.error_outline, color: DT.of(context).accentDanger),
           const SizedBox(width: DT.s2),
           Expanded(
             child: Text(state.message,
@@ -159,7 +159,7 @@ class _TrainerProfileCardView extends StatelessWidget {
             children: profile.avoidStressTags
                 .map((t) => _MetaChip(
                       label: AthleteProfileStressTags.labels[t] ?? t,
-                      color: DT.cardRed,
+                      color: DT.of(context).accentDanger,
                     ))
                 .toList(),
           ),
@@ -233,10 +233,10 @@ class _CardHeader extends StatelessWidget {
         TextButton.icon(
           onPressed: onEdit,
           icon: Icon(isMissing ? Icons.add : Icons.edit,
-              size: 16, color: DT.metricBlue),
+              size: 16, color: DT.of(context).accentPrimary),
           label: Text(
             isMissing ? 'Felvétel' : 'Szerkesztés',
-            style: const TextStyle(color: DT.metricBlue),
+            style: TextStyle(color: DT.of(context).accentPrimary),
           ),
           style: TextButton.styleFrom(padding: EdgeInsets.zero),
         ),
@@ -281,7 +281,7 @@ class _MetaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? DT.cardTeal;
+    final c = color ?? DT.of(context).accentTeal;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
       decoration: BoxDecoration(

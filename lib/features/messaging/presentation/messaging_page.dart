@@ -10,6 +10,14 @@ import 'package:flutter_application_1/features/messaging/data/models/conversatio
 import 'package:flutter_application_1/features/trainer/bloc/roster_bloc.dart';
 import 'package:flutter_application_1/features/trainer/bloc/trainer_request_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
+import 'package:flutter_application_1/app/shared/widgets/user_avatar.dart';
 
 //
 // Page
@@ -112,7 +120,7 @@ class _MessagingPageState extends State<MessagingPage> {
   Widget _buildTrainerView(BuildContext context) {
     return Scaffold(
       backgroundColor: DT.of(context).cardSurface,
-      appBar: _AppBar(title: 'Sportolók'),
+      appBar: const _AppBar(title: 'Sportolók'),
       body: Column(
         children: [
           Padding(
@@ -128,41 +136,39 @@ class _MessagingPageState extends State<MessagingPage> {
           ),
           Expanded(
             child: BlocBuilder<RosterBloc, RosterState>(
-              builder: (context, rosterState) {
-                if (rosterState is RosterLoading ||
-                    rosterState is RosterInitial) {
-                  return const Center(
-                      child: CircularProgressIndicator(color: DT.metricBlue));
-                }
+              builder: (context, rosterState) => FadeSwitcher(
+                  child: _trainerList(context, rosterState)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refreshTrainer() {
+    final roster = context.read<RosterBloc>();
+    context.read<MessagingBloc>().add(LoadConversations());
+    return reloadAndWait(
+        roster, () => roster.add(LoadRoster()), (s) => s is! RosterLoading);
+  }
+
+  Widget _trainerList(BuildContext context, RosterState rosterState) {
                 if (rosterState is RosterError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline,
-                            size: 48, color: DT.of(context).iconLightGrey),
-                        const SizedBox(height: DT.s3),
-                        Text(rosterState.message,
-                            style: TextStyle(
-                                color: DT.of(context).textSecondary)),
-                        const SizedBox(height: DT.s4),
-                        ElevatedButton(
-                          onPressed: () =>
-                              context.read<RosterBloc>().add(LoadRoster()),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: DT.metricBlue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(DT.rCard))),
-                          child: const Text('Újra'),
-                        ),
-                      ],
-                    ),
+                  return ErrorState(
+                    key: const ValueKey('error'),
+                    message: rosterState.message,
+                    onRetry: () =>
+                        context.read<RosterBloc>().add(LoadRoster()),
                   );
                 }
-                if (rosterState is RosterLoaded) {
+                if (rosterState is! RosterLoaded) {
+                  return const SkeletonList(
+                      key: ValueKey('loading'),
+                      padding: EdgeInsets.all(DT.s4));
+                }
+                {
                   return BlocBuilder<MessagingBloc, MessagingState>(
+                    key: const ValueKey('content'),
                     builder: (context, msgState) {
                       // Build normalised-id->conversation map.
                       // Lowercase both keys and lookups to handle GUID casing
@@ -195,28 +201,28 @@ class _MessagingPageState extends State<MessagingPage> {
                       });
 
                       if (athletes.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.people_outline,
-                                  size: 64,
-                                  color: DT.of(context).iconLightGrey),
-                              const SizedBox(height: DT.s4),
-                              Text(
-                                _searchQuery.isEmpty
-                                    ? 'Még nincs sportoló a csapatodban.'
-                                    : 'Nincs találat.',
-                                style: TextStyle(
-                                    color: DT.of(context).textSecondary,
-                                    fontSize: 15),
-                              ),
-                            ],
+                        return RefreshIndicator(
+                          onRefresh: _refreshTrainer,
+                          child: RefreshableFill(
+                            child: _searchQuery.isEmpty
+                                ? const EmptyState(
+                                    icon: Icons.people_outline,
+                                    title: 'Még nincs sportoló a csapatodban',
+                                    message:
+                                        'Az elfogadott jelentkezőknek itt tudsz írni.',
+                                  )
+                                : const EmptyState(
+                                    icon: Icons.search_off,
+                                    title: 'Nincs találat',
+                                  ),
                           ),
                         );
                       }
 
-                      return ListView.builder(
+                      return RefreshIndicator(
+                        onRefresh: _refreshTrainer,
+                        child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: athletes.length,
                         itemBuilder: (context, i) {
                           final athlete = athletes[i];
@@ -230,17 +236,11 @@ class _MessagingPageState extends State<MessagingPage> {
                           }
                           return _AthleteContactTile(athlete: athlete);
                         },
+                        ),
                       );
                     },
                   );
                 }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   //
@@ -300,17 +300,16 @@ class _MessagingPageState extends State<MessagingPage> {
           if (state is MessagingLoading || state is MessagingInitial) {
             return Scaffold(
               backgroundColor: DT.of(context).cardSurface,
-              appBar: _AppBar(title: 'Üzenetek'),
-              body: const Center(
-                  child: CircularProgressIndicator(color: DT.metricBlue)),
+              appBar: const _AppBar(title: 'Üzenetek'),
+              body: const SkeletonList(padding: EdgeInsets.all(DT.s4)),
             );
           }
 
           if (state is MessagingError) {
             return Scaffold(
               backgroundColor: DT.of(context).cardSurface,
-              appBar: _AppBar(title: 'Üzenetek'),
-              body: _ErrorView(
+              appBar: const _AppBar(title: 'Üzenetek'),
+              body: ErrorState(
                 message: state.message,
                 onRetry: () {
                   setState(() => _trainerLookupStarted = false);
@@ -319,6 +318,12 @@ class _MessagingPageState extends State<MessagingPage> {
               ),
             );
           }
+
+          final messaging = context.read<MessagingBloc>();
+          Future<void> refresh() => reloadAndWait(
+              messaging,
+              () => messaging.add(LoadConversations()),
+              (s) => s is MessagingLoaded || s is MessagingError);
 
           // MessagingLoaded - show conversation list.
           final loaded = state is MessagingLoaded ? state : null;
@@ -342,32 +347,28 @@ class _MessagingPageState extends State<MessagingPage> {
 
           return Scaffold(
             backgroundColor: DT.of(context).cardSurface,
-            appBar: _AppBar(title: 'Üzenetek'),
-            body: convs.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.chat_bubble_outline,
-                            size: 64, color: DT.of(context).iconLightGrey),
-                        const SizedBox(height: DT.s4),
-                        Text(
-                          'Még nincs üzeneted az edződdel.',
-                          style: TextStyle(
-                              color: DT.of(context).textSecondary,
-                              fontSize: 15),
-                        ),
-                      ],
+            appBar: const _AppBar(title: 'Üzenetek'),
+            body: RefreshIndicator(
+              onRefresh: refresh,
+              child: convs.isEmpty
+                  ? const RefreshableFill(
+                      child: EmptyState(
+                        icon: Icons.chat_bubble_outline,
+                        title: 'Még nincs üzeneted az edződdel',
+                        message:
+                            'Ha egy edző elfogadja a kérésed, itt tudsz neki írni.',
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: convs.length,
+                      itemBuilder: (ctx, i) => _ConversationTile(
+                        conversation: convs[i],
+                        onTap: () =>
+                            _openChat(ctx, convs[i].id, convs[i].contactName),
+                      ),
                     ),
-                  )
-                : ListView.builder(
-                    itemCount: convs.length,
-                    itemBuilder: (ctx, i) => _ConversationTile(
-                      conversation: convs[i],
-                      onTap: () =>
-                          _openChat(ctx, convs[i].id, convs[i].contactName),
-                    ),
-                  ),
+            ),
           );
         },
       ),
@@ -381,6 +382,7 @@ class _MessagingPageState extends State<MessagingPage> {
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  // ignore: unused_element_parameter
   const _AppBar({required this.title});
 
   @override
@@ -393,19 +395,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
-      title: Text(
-        title,
-        style: TextStyle(
-          color: DT.of(context).textPrimary,
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.4,
-        ),
-      ),
-      actions: [
-        _CircleBtn(icon: Icons.edit_note_outlined, onTap: () {}),
-        const SizedBox(width: DT.s3),
-      ],
+      title: Text(title, style: DTText.of(context).h1),
     );
   }
 }
@@ -443,9 +433,10 @@ class _SearchBar extends StatelessWidget {
           prefixIcon:
               Icon(Icons.search, color: DT.of(context).iconLight, size: 20),
           suffixIcon: controller.text.isNotEmpty
-              ? GestureDetector(
-                  onTap: onClear,
-                  child: Icon(Icons.cancel,
+              ? IconButton(
+                  tooltip: 'Keresés törlése',
+                  onPressed: onClear,
+                  icon: Icon(Icons.cancel,
                       color: DT.of(context).iconLight, size: 18),
                 )
               : null,
@@ -487,7 +478,7 @@ class _ConversationTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        splashColor: DT.metricBlue.withValues(alpha: 0.06),
+        splashColor: DT.of(context).accentPrimary.withValues(alpha: 0.06),
         highlightColor: DT.of(context).bg,
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -498,8 +489,7 @@ class _ConversationTile extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  AvatarWidget(
-                      name: conversation.contactName, size: 56),
+                  UserAvatar(name: conversation.contactName, size: 56),
                   if (conversation.isOnline)
                     Positioned(
                       right: 1,
@@ -508,10 +498,10 @@ class _ConversationTile extends StatelessWidget {
                         width: 14,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: DT.of(context).accentSuccess,
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: DT.of(context).textOnAccent, width: 2.5),
+                              color: DT.of(context).cardSurface, width: 2.5),
                         ),
                       ),
                     ),
@@ -546,7 +536,7 @@ class _ConversationTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             color: _unread
-                                ? DT.metricBlue
+                                ? DT.of(context).accentPrimary
                                 : DT.of(context).textSecondary,
                             fontWeight: _unread
                                 ? FontWeight.w600
@@ -579,15 +569,15 @@ class _ConversationTile extends StatelessWidget {
                           Container(
                             width: 20,
                             height: 20,
-                            decoration: const BoxDecoration(
-                              color: DT.metricBlue,
+                            decoration: BoxDecoration(
+                              color: DT.of(context).accentPrimary,
                               shape: BoxShape.circle,
                             ),
                             child: Center(
                               child: Text(
                                 '${conversation.unreadCount}',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: DT.of(context).textOnAccent,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -609,44 +599,6 @@ class _ConversationTile extends StatelessWidget {
 }
 
 //
-// Error view
-//
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline,
-              size: 48, color: DT.cardRed),
-          const SizedBox(height: DT.s4),
-          Text(message,
-              style: TextStyle(
-                  color: DT.of(context).textSecondary, fontSize: 15)),
-          const SizedBox(height: DT.s4),
-          ElevatedButton(
-            onPressed: onRetry,
-            style: ElevatedButton.styleFrom(
-                backgroundColor: DT.metricBlue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(DT.rCard))),
-            child: const Text('Újra'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-//
 // Athlete contact tile (trainer view)
 //
 
@@ -661,14 +613,14 @@ class _AthleteContactTile extends StatelessWidget {
       child: InkWell(
         onTap: () =>
             context.push('/messages/${athlete.id}', extra: athlete.fullName),
-        splashColor: DT.metricBlue.withValues(alpha: 0.06),
+        splashColor: DT.of(context).accentPrimary.withValues(alpha: 0.06),
         highlightColor: DT.of(context).bg,
         child: Padding(
           padding:
               const EdgeInsets.symmetric(horizontal: DT.s4, vertical: 10),
           child: Row(
             children: [
-              AvatarWidget(name: athlete.fullName, size: 56),
+              UserAvatar(name: athlete.fullName, size: 56),
               const SizedBox(width: DT.s3),
               Expanded(
                 child: Column(
@@ -696,87 +648,6 @@ class _AthleteContactTile extends StatelessWidget {
               Icon(Icons.chevron_right,
                   color: DT.of(context).iconLight, size: 20),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-//
-// Small helpers
-//
-
-class _CircleBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _CircleBtn({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: DT.of(context).bg,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: DT.of(context).textPrimary, size: 20),
-      ),
-    );
-  }
-}
-
-//
-// AvatarWidget - PUBLIC so chat_page.dart can import it
-//
-
-class AvatarWidget extends StatelessWidget {
-  final String name;
-  final double size;
-
-  const AvatarWidget({super.key, required this.name, this.size = 50});
-
-  static const _palette = [
-    Color(0xFF428AE9), // blue
-    Color(0xFF4ECDC4), // teal
-    Color(0xFFFF6B35), // orange
-    Color(0xFFFFC85D), // yellow
-    Color(0xFFFF6B6B), // red
-    Color(0xFF9B59B6), // purple
-  ];
-
-  Color get _color => _palette[name.codeUnitAt(0) % _palette.length];
-
-  String get _initials {
-    final trimmed = name.trim();
-    if (trimmed.isEmpty) return '?';
-    final parts = trimmed.split(' ');
-    if (parts.length >= 2 && parts[1].isNotEmpty) {
-      return '${parts[0][0]}${parts[1][0]}';
-    }
-    return parts[0][0];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: _color.withValues(alpha: 0.18),
-      ),
-      child: Center(
-        child: Text(
-          _initials.toUpperCase(),
-          style: TextStyle(
-            color: _color,
-            fontSize: size * 0.36,
-            fontWeight: FontWeight.w700,
           ),
         ),
       ),

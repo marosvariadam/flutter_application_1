@@ -18,7 +18,7 @@ class PlanEditorViolationBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isError = violation.isError;
-    final color = isError ? DT.cardRed : DT.cardOrange;
+    final color = isError ? DT.of(context).accentDanger : DT.of(context).accentOrange;
     return InkWell(
       onTap: onTap ??
           () => showModalBottomSheet<void>(
@@ -68,7 +68,7 @@ class _ViolationDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isError = violation.isError;
-    final color = isError ? DT.cardRed : DT.cardOrange;
+    final color = isError ? DT.of(context).accentDanger : DT.of(context).accentOrange;
     return Padding(
       padding: const EdgeInsets.all(DT.s5),
       child: Column(

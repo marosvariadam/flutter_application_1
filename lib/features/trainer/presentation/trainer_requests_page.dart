@@ -5,6 +5,14 @@ import 'package:flutter_application_1/features/trainer/bloc/trainer_request_bloc
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/trainer_request_repository.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
+import 'package:flutter_application_1/app/shared/widgets/user_avatar.dart';
 
 class TrainerRequestsPage extends StatelessWidget {
   /// [isTrainer] = true -> trainer sees incoming requests
@@ -44,8 +52,7 @@ class _RequestsView extends StatelessWidget {
         leading: BackButton(color: DT.of(context).textPrimary),
         title: Text(
             isTrainer ? 'Csatlakozási kérések' : 'Az én kéréseim',
-            style: TextStyle(
-                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
+            style: DTText.of(context).title),
         centerTitle: true,
       ),
       body: BlocConsumer<TrainerRequestBloc, TrainerRequestState>(
@@ -59,42 +66,60 @@ class _RequestsView extends StatelessWidget {
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
-        builder: (context, state) {
-          if (state is TrainerRequestLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is TrainerRequestsLoaded) {
-            if (state.requests.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.inbox_outlined,
-                        size: 64, color: DT.of(context).iconLightGrey),
-                    const SizedBox(height: DT.s4),
-                    Text(
-                        isTrainer
-                            ? 'Nincs függőben lévő kérés.'
-                            : 'Még nem küldtél kérést.',
-                        style: TextStyle(
-                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
-                  ],
-                ),
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(DT.s5),
-              itemCount: state.requests.length,
-              separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
-              itemBuilder: (context, i) {
-                final req = state.requests[i];
-                return isTrainer
-                    ? _IncomingRequestCard(request: req)
-                    : _OutgoingRequestCard(request: req);
-              },
-            );
-          }
-          return const SizedBox.shrink();
+        builder: (context, state) =>
+            FadeSwitcher(child: _body(context, state)),
+      ),
+    );
+  }
+
+  void _load(TrainerRequestBloc bloc) =>
+      bloc.add(isTrainer ? LoadPendingRequests() : LoadMyRequests());
+
+  Widget _body(BuildContext context, TrainerRequestState state) {
+    final bloc = context.read<TrainerRequestBloc>();
+    Future<void> refresh() => reloadAndWait(bloc, () => _load(bloc),
+        (s) => s is TrainerRequestsLoaded || s is TrainerRequestError);
+
+    if (state is TrainerRequestError) {
+      return ErrorState(
+        key: const ValueKey('error'),
+        message: state.message,
+        onRetry: () => _load(bloc),
+      );
+    }
+    if (state is! TrainerRequestsLoaded) {
+      return const SkeletonList(
+          key: ValueKey('loading'),
+          itemHeight: 120,
+          padding: EdgeInsets.all(DT.s5));
+    }
+    if (state.requests.isEmpty) {
+      return RefreshIndicator(
+        key: const ValueKey('empty'),
+        onRefresh: refresh,
+        child: RefreshableFill(
+          child: EmptyState(
+            icon: Icons.inbox_outlined,
+            title: isTrainer
+                ? 'Nincs függőben lévő kérés'
+                : 'Még nem küldtél kérést',
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      key: const ValueKey('content'),
+      onRefresh: refresh,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(DT.s5),
+        itemCount: state.requests.length,
+        separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
+        itemBuilder: (context, i) {
+          final req = state.requests[i];
+          return isTrainer
+              ? _IncomingRequestCard(request: req)
+              : _OutgoingRequestCard(request: req);
         },
       ),
     );
@@ -117,18 +142,7 @@ class _IncomingRequestCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: DT.metricBlue.withValues(alpha: 0.15),
-                  child: Text(
-                    request.athleteFirstName.isNotEmpty
-                        ? request.athleteFirstName[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                        color: DT.metricBlue,
-                        fontWeight: FontWeight.w700),
-                  ),
-                ),
+                UserAvatar(name: request.athleteFullName),
                 const SizedBox(width: DT.s3),
                 Expanded(
                   child: Column(
@@ -167,25 +181,26 @@ class _IncomingRequestCard extends StatelessWidget {
               ),
             ],
             const SizedBox(height: DT.s3),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: DT.s3,
+              runSpacing: DT.s2,
               children: [
                 OutlinedButton(
                   onPressed: () => _confirmReject(context, request.id),
                   style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: DT.cardRed)),
-                  child: const Text('Elutasítás',
-                      style: TextStyle(color: DT.cardRed)),
+                      side: BorderSide(color: DT.of(context).accentDanger)),
+                  child: Text('Elutasítás',
+                      style: TextStyle(color: DT.of(context).accentDanger)),
                 ),
-                const SizedBox(width: DT.s3),
                 ElevatedButton(
                   onPressed: () => context
                       .read<TrainerRequestBloc>()
                       .add(AcceptRequest(request.id)),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: DT.metricBlue),
-                  child: const Text('Elfogadás',
-                      style: TextStyle(color: DT.textWhite)),
+                      backgroundColor: DT.of(context).accentPrimary),
+                  child: Text('Elfogadás',
+                      style: TextStyle(color: DT.of(context).textOnAccent)),
                 ),
               ],
             ),
@@ -213,8 +228,8 @@ class _IncomingRequestCard extends StatelessWidget {
                   .read<TrainerRequestBloc>()
                   .add(RejectRequest(requestId));
             },
-            child: const Text('Elutasítás',
-                style: TextStyle(color: DT.cardRed)),
+            child: Text('Elutasítás',
+                style: TextStyle(color: DT.of(context).accentDanger)),
           ),
         ],
       ),
@@ -229,10 +244,10 @@ class _OutgoingRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = request.status == 'Accepted'
-        ? Colors.green
+        ? DT.of(context).accentSuccess
         : request.status == 'Rejected'
-            ? DT.cardRed
-            : DT.metricBlue;
+            ? DT.of(context).accentDanger
+            : DT.of(context).accentPrimary;
     final statusLabel = request.status == 'Accepted'
         ? 'Elfogadva'
         : request.status == 'Rejected'
@@ -303,9 +318,9 @@ class _OutgoingRequestCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => _confirmCancel(context, request.id),
                   style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: DT.cardRed)),
-                  child: const Text('Visszavonás',
-                      style: TextStyle(color: DT.cardRed)),
+                      side: BorderSide(color: DT.of(context).accentDanger)),
+                  child: Text('Visszavonás',
+                      style: TextStyle(color: DT.of(context).accentDanger)),
                 ),
               ),
             ],
@@ -332,8 +347,8 @@ class _OutgoingRequestCard extends StatelessWidget {
                   .read<TrainerRequestBloc>()
                   .add(CancelRequest(requestId));
             },
-            child: const Text('Visszavonás',
-                style: TextStyle(color: DT.cardRed)),
+            child: Text('Visszavonás',
+                style: TextStyle(color: DT.of(context).accentDanger)),
           ),
         ],
       ),

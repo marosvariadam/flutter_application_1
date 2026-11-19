@@ -36,7 +36,7 @@ class PlanResultView extends StatelessWidget {
         if (result.errors.isNotEmpty) ...[
           _ViolationsCard(
             title: 'Hibák (${result.errors.length})',
-            color: DT.cardRed,
+            color: DT.of(context).accentDanger,
             violations: result.errors,
           ),
           const SizedBox(height: DT.s3),
@@ -44,7 +44,7 @@ class PlanResultView extends StatelessWidget {
         if (result.warnings.isNotEmpty) ...[
           _ViolationsCard(
             title: 'Figyelmeztetések (${result.warnings.length})',
-            color: DT.cardOrange,
+            color: DT.of(context).accentOrange,
             violations: result.warnings,
           ),
           const SizedBox(height: DT.s3),
@@ -63,8 +63,8 @@ class PlanResultView extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Újragenerálás'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: DT.metricBlue,
-                  side: const BorderSide(color: DT.metricBlue),
+                  foregroundColor: DT.of(context).accentPrimary,
+                  side: BorderSide(color: DT.of(context).accentPrimary),
                   padding: const EdgeInsets.symmetric(vertical: DT.s3),
                 ),
               ),
@@ -76,8 +76,8 @@ class PlanResultView extends StatelessWidget {
                 icon: const Icon(Icons.edit),
                 label: const Text('Szerkesztő'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: DT.metricBlue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: DT.of(context).accentPrimary,
+                  foregroundColor: DT.of(context).textOnAccent,
                   padding: const EdgeInsets.symmetric(vertical: DT.s3),
                 ),
               ),
@@ -153,7 +153,7 @@ class _ResultHeader extends StatelessWidget {
           Row(
             children: [
               Icon(usedPredictor ? Icons.auto_graph : Icons.calculate,
-                  size: 18, color: DT.metricBlue),
+                  size: 18, color: DT.of(context).accentPrimary),
               const SizedBox(width: DT.s2),
               Expanded(
                 child: Text(
@@ -181,11 +181,11 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = status == PlanStatuses.draft
-        ? DT.cardOrange
+        ? DT.of(context).accentOrange
         : status == PlanStatuses.accepted
-            ? DT.cardTeal
+            ? DT.of(context).accentTeal
             : status == PlanStatuses.materialized
-                ? DT.metricBlue
+                ? DT.of(context).accentPrimary
                 : DT.of(context).iconLight;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
@@ -427,7 +427,7 @@ class _CandidatesSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(DT.rCardSmall),
               border: i == 0
                   ? Border.all(
-                      color: DT.metricBlue.withValues(alpha: 0.4), width: 1.5)
+                      color: DT.of(context).accentPrimary.withValues(alpha: 0.4), width: 1.5)
                   : null,
             ),
             child: Row(
@@ -435,13 +435,13 @@ class _CandidatesSection extends StatelessWidget {
                 CircleAvatar(
                   radius: 12,
                   backgroundColor: i == 0
-                      ? DT.metricBlue
+                      ? DT.of(context).accentPrimary
                       : DT.of(context).borderGrey,
                   child: Text(
                     '${i + 1}',
                     style: TextStyle(
                         color: i == 0
-                            ? Colors.white
+                            ? DT.of(context).textOnAccent
                             : DT.of(context).textPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w700),
@@ -471,7 +471,7 @@ class _CandidatesSection extends StatelessWidget {
                 Text(
                   c.score.toStringAsFixed(2),
                   style: TextStyle(
-                      color: i == 0 ? DT.metricBlue : DT.of(context).textPrimary,
+                      color: i == 0 ? DT.of(context).accentPrimary : DT.of(context).textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: DT.s3),
                 ),
@@ -481,13 +481,13 @@ class _CandidatesSection extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
                     decoration: BoxDecoration(
-                      color: DT.metricBlue.withValues(alpha: 0.15),
+                      color: DT.of(context).accentPrimary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(DT.rChip),
                     ),
-                    child: const Text(
+                    child: Text(
                       'mentett',
                       style: TextStyle(
-                        color: DT.metricBlue,
+                        color: DT.of(context).accentPrimary,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),

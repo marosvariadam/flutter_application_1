@@ -9,6 +9,7 @@ import 'package:flutter_application_1/features/training_plan/bloc/plan_editor_bl
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/violation_model.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_editor_exercise_row.dart';
+import 'package:flutter/services.dart';
 
 /// Horizontal tab bar for the plan's days + the day's content. Keeps all
 /// day-switching state inside this widget so the page doesn't have to
@@ -154,9 +155,10 @@ class _DayTabBar extends StatelessWidget {
       ),
       child: TabBar(
         controller: controller,
+        onTap: (_) => HapticFeedback.selectionClick(),
         isScrollable: true,
-        indicatorColor: DT.metricBlue,
-        labelColor: DT.metricBlue,
+        indicatorColor: DT.of(context).accentPrimary,
+        labelColor: DT.of(context).accentPrimary,
         unselectedLabelColor: DT.of(context).textSecondary,
         labelStyle: const TextStyle(fontWeight: FontWeight.w700),
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
@@ -171,14 +173,14 @@ class _DayTabBar extends StatelessWidget {
                     const SizedBox(width: 6),
                     _CountDot(
                       count: errorsByDay[d.dayIndex]!,
-                      color: DT.cardRed,
+                      color: DT.of(context).accentDanger,
                     ),
                   ],
                   if ((warningsByDay[d.dayIndex] ?? 0) > 0) ...[
                     const SizedBox(width: 4),
                     _CountDot(
                       count: warningsByDay[d.dayIndex]!,
-                      color: DT.cardOrange,
+                      color: DT.of(context).accentOrange,
                     ),
                   ],
                 ],
@@ -297,8 +299,8 @@ class _AddExerciseButton extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text('Gyakorlat hozzáadása'),
         style: OutlinedButton.styleFrom(
-          foregroundColor: DT.metricBlue,
-          side: const BorderSide(color: DT.metricBlue),
+          foregroundColor: DT.of(context).accentPrimary,
+          side: BorderSide(color: DT.of(context).accentPrimary),
           padding: const EdgeInsets.symmetric(vertical: DT.s2),
         ),
       ),

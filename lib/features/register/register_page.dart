@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
+import 'package:flutter/services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -86,6 +87,7 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Vissza',
           icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary),
           onPressed: () => context.pop(),
         ),
@@ -218,17 +220,17 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue,
+                    backgroundColor: DT.of(context).accentPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DT.rCardSmall),
                     ),
                   ),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? CircularProgressIndicator(color: DT.of(context).textOnAccent)
                       : Text(
                           'Regisztráció',
                           style: TextStyle(
-                            color: DT.textWhite,
+                            color: DT.of(context).textOnAccent,
                             fontSize: DT.s4,
                             fontWeight: FontWeight.w600,
                           ),
@@ -246,13 +248,16 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildRoleCard(String title, int value, IconData icon) {
     final isSelected = _selectedRole == value;
     return GestureDetector(
-      onTap: () => setState(() => _selectedRole = value),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedRole = value);
+      },
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: isSelected ? DT.metricBlue.withValues(alpha: 0.1) : Colors.white,
+          color: isSelected ? DT.of(context).accentPrimary.withValues(alpha: 0.1) : DT.of(context).cardSurface,
           border: Border.all(
-            color: isSelected ? DT.metricBlue : Colors.grey.shade300,
+            color: isSelected ? DT.of(context).accentPrimary : DT.of(context).borderGrey,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -260,12 +265,12 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isSelected ? DT.metricBlue : Colors.grey),
+            Icon(icon, color: isSelected ? DT.of(context).accentPrimary : DT.of(context).textSecondary),
             const SizedBox(height: 5),
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? DT.metricBlue : Colors.grey,
+                color: isSelected ? DT.of(context).accentPrimary : DT.of(context).textSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),

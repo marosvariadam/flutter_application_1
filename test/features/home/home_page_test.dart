@@ -15,6 +15,8 @@ import 'package:flutter_application_1/features/home/presentation/widgets/today_w
 import 'package:flutter_application_1/features/home/presentation/widgets/weekly_strip.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
+import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:go_router/go_router.dart';
 
 class _MockWorkouts extends Mock implements WorkoutRepository {}
 
@@ -67,6 +69,9 @@ void main() {
 
     pending.complete([_workoutOn(today)]);
     await tester.pump();
+    // The fade's ticker starts on the next frame, then runs DT.normal.
+    await tester.pump(DT.normal);
+    await tester.pump(DT.normal);
 
     expect(find.byType(HomeSkeleton), findsNothing);
     expect(find.byType(TodayWorkoutCard), findsOneWidget);
@@ -119,11 +124,46 @@ void main() {
 
     await tester.tap(find.text('Újra'));
     await tester.pump();
-    await tester.pump();
+    await tester.pump(DT.normal);
+    await tester.pump(DT.normal);
 
     expect(calls, 2);
     expect(find.byType(ErrorState), findsNothing);
     expect(find.byType(RestDayCard), findsOneWidget);
+  });
+
+  testWidgets('tapping the workout opens its detail by id', (tester) async {
+    when(() => repo.getAthleteCalendar(any(), any()))
+        .thenAnswer((_) async => [_workoutOn(today)]);
+    Object? extra;
+    final router = GoRouter(routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => RepositoryProvider<WorkoutRepository>.value(
+          value: repo,
+          child: const AthleteHomePage(),
+        ),
+      ),
+      GoRoute(
+        path: '/workout-detail',
+        builder: (_, state) {
+          extra = state.extra;
+          return const Scaffold(body: Text('detail'));
+        },
+      ),
+    ]);
+    await tester.pumpWidget(MaterialApp.router(
+      theme: buildTheme(),
+      routerConfig: router,
+    ));
+    await tester.pump(DT.normal);
+    await tester.pump(DT.normal);
+
+    await tester.tap(find.text('Felsőtest'));
+    await tester.pumpAndSettle();
+    // The route casts `extra` to the workout id (a String).
+    expect(extra, 'w1');
+    expect(find.text('detail'), findsOneWidget);
   });
 
   testWidgets('dark theme uses the dark palette', (tester) async {
@@ -139,7 +179,8 @@ void main() {
     expect(
         _decorationColor(tester, find.text(DateFormat('d').format(today))),
         c.accentPrimary);
-    expect(_decorationColor(tester, find.text('Nehéz')), c.difficultyHard);
+    expect(_decorationColor(tester, find.text('Nehéz')),
+        c.difficultyHard.withValues(alpha: 0.15));
     expect(tester.widget<Text>(find.text('Felsőtest')).style?.color,
         c.textPrimary);
   });

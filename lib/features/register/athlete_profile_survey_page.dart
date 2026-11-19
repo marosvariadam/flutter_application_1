@@ -185,6 +185,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
         elevation: 0,
         leading: _currentPage > 0
             ? IconButton(
+                tooltip: 'Vissza',
                 icon: Icon(Icons.arrow_back, color: DT.of(context).textPrimary),
                 onPressed: _back,
               )
@@ -205,7 +206,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
             value: (_currentPage + 1) / _totalPages,
             minHeight: 4,
             backgroundColor: DT.of(context).borderLight,
-            valueColor: const AlwaysStoppedAnimation<Color>(DT.metricBlue),
+            valueColor: AlwaysStoppedAnimation<Color>(DT.of(context).accentPrimary),
           ),
           Expanded(
             child: PageView(
@@ -231,24 +232,24 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _next,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: DT.metricBlue,
+                  backgroundColor: DT.of(context).accentPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(DT.rCardSmall),
                   ),
                 ),
                 child: _isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2, color: DT.of(context).textOnAccent),
                       )
                     : Text(
                         _currentPage < _totalPages - 1
                             ? 'Következő'
                             : 'Befejezés',
-                        style: const TextStyle(
-                          color: DT.textWhite,
+                        style: TextStyle(
+                          color: DT.of(context).textOnAccent,
                           fontSize: DT.s4,
                           fontWeight: FontWeight.w600,
                         ),
@@ -313,16 +314,16 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: DT.metricBlue,
+                    style: TextStyle(
+                      color: DT.of(context).accentPrimary,
                       fontSize: 56,
                       fontWeight: FontWeight.w800,
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: '70',
                       hintStyle: TextStyle(
-                        color: DT.metricBlue,
+                        color: DT.of(context).accentPrimary,
                         fontSize: 56,
                         fontWeight: FontWeight.w800,
                       ),
@@ -393,7 +394,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
             hintText: 'Pl. Foci – 8 év, úszás – 3 év, futás alkalmanként...',
             hintStyle: TextStyle(color: DT.of(context).textGrey),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: DT.of(context).cardSurface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(DT.rCardSmall),
               borderSide: BorderSide(color: DT.of(context).borderGrey),
@@ -404,7 +405,7 @@ class _AthleteProfileSurveyPageState extends State<AthleteProfileSurveyPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(DT.rCardSmall),
-              borderSide: const BorderSide(color: DT.metricBlue, width: 2),
+              borderSide: BorderSide(color: DT.of(context).accentPrimary, width: 2),
             ),
           ),
         ),

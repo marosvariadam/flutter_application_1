@@ -5,6 +5,14 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/trainer/bloc/roster_bloc.dart';
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/roster_repository.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
+import 'package:flutter_application_1/app/shared/widgets/user_avatar.dart';
 
 class RosterPage extends StatelessWidget {
   const RosterPage({super.key});
@@ -30,58 +38,69 @@ class _RosterView extends StatelessWidget {
         backgroundColor: DT.of(context).bg,
         elevation: 0,
         leading: BackButton(color: DT.of(context).textPrimary),
-        title: Text('Sportolók',
-            style: TextStyle(
-                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
+        title: Text('Sportolók', style: DTText.of(context).title),
         centerTitle: true,
       ),
       body: BlocBuilder<RosterBloc, RosterState>(
-        builder: (context, state) {
-          if (state is RosterLoading) {
-            return const Center(child: CircularProgressIndicator());
+        builder: (context, state) =>
+            FadeSwitcher(child: _body(context, state)),
+      ),
+    );
+  }
+
+  Widget _body(BuildContext context, RosterState state) {
+    final bloc = context.read<RosterBloc>();
+    Future<void> refresh() => reloadAndWait(
+        bloc, () => bloc.add(LoadRoster()), (s) => s is! RosterLoading);
+
+    if (state is RosterError) {
+      return ErrorState(
+        key: const ValueKey('error'),
+        message: state.message,
+        title: 'Nem sikerült betölteni a sportolókat',
+        onRetry: () => bloc.add(LoadRoster()),
+      );
+    }
+    if (state is! RosterLoaded) {
+      return const SkeletonList(
+          key: ValueKey('loading'), padding: EdgeInsets.all(DT.s5));
+    }
+    if (state.athletes.isEmpty) {
+      return RefreshIndicator(
+        key: const ValueKey('empty'),
+        onRefresh: refresh,
+        child: const RefreshableFill(
+          child: EmptyState(
+            icon: Icons.people_outline,
+            title: 'Még nincs sportoló a csapatodban',
+            message: 'A sportolók csatlakozási kéréssel tudnak csatlakozni.',
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      key: const ValueKey('content'),
+      onRefresh: refresh,
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (n) {
+          if (n is ScrollEndNotification &&
+              n.metrics.pixels >= n.metrics.maxScrollExtent - 200) {
+            bloc.add(LoadMoreRoster());
           }
-          if (state is RosterError) {
-            return _ErrorView(
-              message: state.message,
-              onRetry: () =>
-                  context.read<RosterBloc>().add(LoadRoster()),
-            );
-          }
-          if (state is RosterLoaded) {
-            if (state.athletes.isEmpty) {
-              return const _EmptyView();
-            }
-            return NotificationListener<ScrollNotification>(
-              onNotification: (n) {
-                if (n is ScrollEndNotification &&
-                    n.metrics.pixels >=
-                        n.metrics.maxScrollExtent - 200) {
-                  context.read<RosterBloc>().add(LoadMoreRoster());
-                }
-                return false;
-              },
-              child: ListView.separated(
-                padding: const EdgeInsets.all(DT.s5),
-                itemCount: state.athletes.length +
-                    (state.hasMore ? 1 : 0),
-                separatorBuilder: (_, __) =>
-                    const SizedBox(height: DT.s3),
-                itemBuilder: (context, i) {
-                  if (i == state.athletes.length) {
-                    return const Center(
-                        child: Padding(
-                      padding: EdgeInsets.all(DT.s4),
-                      child: CircularProgressIndicator(),
-                    ));
-                  }
-                  final athlete = state.athletes[i];
-                  return _AthleteCard(athlete: athlete);
-                },
-              ),
-            );
-          }
-          return const SizedBox.shrink();
+          return false;
         },
+        child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(DT.s5),
+          itemCount: state.athletes.length + (state.hasMore ? 1 : 0),
+          separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
+          itemBuilder: (context, i) {
+            if (i == state.athletes.length) {
+              return const SkeletonList(itemCount: 1);
+            }
+            return _AthleteCard(athlete: state.athletes[i]);
+          },
+        ),
       ),
     );
   }
@@ -93,6 +112,7 @@ class _AthleteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = DTText.of(context);
     return Material(
       color: DT.of(context).cardSurface,
       borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -103,40 +123,27 @@ class _AthleteCard extends StatelessWidget {
           padding: const EdgeInsets.all(DT.s4),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: DT.metricBlue.withValues(alpha: 0.15),
-                child: Text(
-                  athlete.firstName.isNotEmpty
-                      ? athlete.firstName[0].toUpperCase()
-                      : '?',
-                  style: const TextStyle(
-                      color: DT.metricBlue,
-                      fontWeight: FontWeight.w700,
-                      fontSize: DT.s5),
-                ),
-              ),
+              UserAvatar(name: athlete.fullName, size: 48),
               const SizedBox(width: DT.s4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(athlete.fullName,
-                        style: TextStyle(
-                            color: DT.of(context).textPrimary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: DT.s4)),
+                        style: t.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Text(athlete.email,
-                        style: TextStyle(
-                            color: DT.of(context).textSecondary,
-                            fontSize: DT.s3)),
+                        style: t.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.person_remove_outlined,
-                    color: DT.cardRed),
+                icon: Icon(Icons.person_remove_outlined,
+                    color: DT.of(context).accentDanger),
                 tooltip: 'Eltávolítás',
                 onPressed: () => _showDeleteDialog(context, athlete),
               ),
@@ -163,66 +170,12 @@ class _AthleteCard extends StatelessWidget {
               Navigator.pop(ctx);
               context.read<RosterBloc>().add(DeleteAthlete(athlete.id));
             },
-            child: const Text('Eltávolítás',
-                style: TextStyle(color: DT.cardRed)),
+            child: Text('Eltávolítás',
+                style: TextStyle(color: DT.of(context).accentDanger)),
           ),
         ],
       ),
     );
   }
 
-}
-
-class _EmptyView extends StatelessWidget {
-  const _EmptyView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people_outline,
-              size: 64, color: DT.of(context).iconLightGrey),
-          const SizedBox(height: DT.s4),
-          Text('Még nincs sportoló a csapatodban.',
-              style:
-                  TextStyle(color: DT.of(context).textSecondary, fontSize: DT.s4)),
-          const SizedBox(height: DT.s4),
-          Text(
-            'A sportolók csatlakozási kéréssel tudnak csatlakozni.',
-            style: TextStyle(
-                color: DT.of(context).textSecondary,
-                fontSize: DT.s3),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: DT.cardRed),
-          const SizedBox(height: DT.s4),
-          Text(message,
-              style: TextStyle(
-                  color: DT.of(context).textSecondary, fontSize: DT.s4)),
-          const SizedBox(height: DT.s4),
-          ElevatedButton(
-              onPressed: onRetry, child: const Text('Újra')),
-        ],
-      ),
-    );
-  }
 }

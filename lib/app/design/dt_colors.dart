@@ -40,6 +40,7 @@ class DTColors extends ThemeExtension<DTColors> {
     required this.bottomNavUnselected,
     // Accents (theme-tuned)
     required this.accentPrimary,
+    required this.accentPrimaryDeep,
     required this.accentSuccess,
     required this.accentWarning,
     required this.accentDanger,
@@ -102,6 +103,9 @@ class DTColors extends ThemeExtension<DTColors> {
 
   // Accents
   final Color accentPrimary;
+
+  /// Darker end of primary gradients (avatar discs).
+  final Color accentPrimaryDeep;
   final Color accentSuccess;
   final Color accentWarning;
   final Color accentDanger;
@@ -163,6 +167,7 @@ class DTColors extends ThemeExtension<DTColors> {
     bottomNavUnselected: Color(0x80FFFFFF), // 50% white
 
     accentPrimary: Color(0xFF3D7AE5),  // refined metricBlue
+    accentPrimaryDeep: Color(0xFF1565C0),
     accentSuccess: Color(0xFF22A06B),
     accentWarning: Color(0xFFE08530),
     accentDanger: Color(0xFFE04D4D),
@@ -232,6 +237,7 @@ class DTColors extends ThemeExtension<DTColors> {
     bottomNavUnselected: Color(0x80A1A8B3),
 
     accentPrimary: Color(0xFF5FA0FF),    // brighter blue for dark bg
+    accentPrimaryDeep: Color(0xFF2F6BD8),
     accentSuccess: Color(0xFF3DCB7F),    // brighter green
     accentWarning: Color(0xFFFF9C5C),    // softer orange
     accentDanger: Color(0xFFFF6B6B),     // existing cardRed works on dark
@@ -290,6 +296,7 @@ class DTColors extends ThemeExtension<DTColors> {
     Color? bottomNavSelectedLabel,
     Color? bottomNavUnselected,
     Color? accentPrimary,
+    Color? accentPrimaryDeep,
     Color? accentSuccess,
     Color? accentWarning,
     Color? accentDanger,
@@ -337,6 +344,7 @@ class DTColors extends ThemeExtension<DTColors> {
             bottomNavSelectedLabel ?? this.bottomNavSelectedLabel,
         bottomNavUnselected: bottomNavUnselected ?? this.bottomNavUnselected,
         accentPrimary: accentPrimary ?? this.accentPrimary,
+        accentPrimaryDeep: accentPrimaryDeep ?? this.accentPrimaryDeep,
         accentSuccess: accentSuccess ?? this.accentSuccess,
         accentWarning: accentWarning ?? this.accentWarning,
         accentDanger: accentDanger ?? this.accentDanger,
@@ -391,6 +399,8 @@ class DTColors extends ThemeExtension<DTColors> {
       bottomNavUnselected:
           Color.lerp(bottomNavUnselected, other.bottomNavUnselected, t)!,
       accentPrimary: Color.lerp(accentPrimary, other.accentPrimary, t)!,
+      accentPrimaryDeep:
+          Color.lerp(accentPrimaryDeep, other.accentPrimaryDeep, t)!,
       accentSuccess: Color.lerp(accentSuccess, other.accentSuccess, t)!,
       accentWarning: Color.lerp(accentWarning, other.accentWarning, t)!,
       accentDanger: Color.lerp(accentDanger, other.accentDanger, t)!,

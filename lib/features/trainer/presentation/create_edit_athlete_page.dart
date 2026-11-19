@@ -164,6 +164,7 @@ class _CreateEditAthletePageState extends State<CreateEditAthletePage> {
                     labelText: 'Kezdő jelszó',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
+                      tooltip: 'Jelszó megjelenítése / elrejtése',
                       icon: Icon(_obscure
                           ? Icons.visibility
                           : Icons.visibility_off),
@@ -181,8 +182,8 @@ class _CreateEditAthletePageState extends State<CreateEditAthletePage> {
               if (_error != null) ...[
                 const SizedBox(height: DT.s3),
                 Text(_error!,
-                    style: const TextStyle(
-                        color: DT.cardRed, fontSize: DT.s3)),
+                    style: TextStyle(
+                        color: DT.of(context).accentDanger, fontSize: DT.s3)),
               ],
               const SizedBox(height: DT.s6),
               SizedBox(
@@ -191,20 +192,20 @@ class _CreateEditAthletePageState extends State<CreateEditAthletePage> {
                 child: ElevatedButton(
                   onPressed: _loading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue,
+                    backgroundColor: DT.of(context).accentPrimary,
                     shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(DT.rCardSmall)),
                   ),
                   child: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
+                              strokeWidth: 2, color: DT.of(context).textOnAccent))
                       : Text(widget.isEdit ? 'Mentés' : 'Létrehozás',
-                          style: const TextStyle(
-                              color: DT.textWhite,
+                          style: TextStyle(
+                              color: DT.of(context).textOnAccent,
                               fontSize: DT.s4,
                               fontWeight: FontWeight.w600)),
                 ),

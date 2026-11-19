@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
+import 'package:flutter_application_1/features/workout/presentation/widgets/workout_colors.dart';
 
 class WorkoutDifficultySelector extends StatelessWidget {
   final WorkoutDifficulty selected;
@@ -9,40 +13,54 @@ class WorkoutDifficultySelector extends StatelessWidget {
       {super.key, required this.selected, required this.onChanged});
 
   static const _opts = [
-    (WorkoutDifficulty.easy, 'Könnyű', DT.difficultyLight),
-    (WorkoutDifficulty.moderate, 'Közepes', DT.difficultyMedium),
-    (WorkoutDifficulty.hard, 'Nehéz', DT.difficultyHard),
+    WorkoutDifficulty.easy,
+    WorkoutDifficulty.moderate,
+    WorkoutDifficulty.hard,
   ];
 
   @override
   Widget build(BuildContext context) {
+    final c = DT.of(context);
+    final t = DTText.of(context);
     return Row(
       children: _opts.map((opt) {
-        final isSelected = opt.$1 == selected;
+        final isSelected = opt == selected;
+        final color = opt.color(c);
         return Expanded(
-          child: GestureDetector(
-            onTap: () => onChanged(opt.$1),
-            child: Container(
-              margin: EdgeInsets.only(
-                  right: opt.$1 == WorkoutDifficulty.hard ? 0 : DT.s2),
-              padding:
-                  const EdgeInsets.symmetric(vertical: DT.s3),
-              decoration: BoxDecoration(
-                color: isSelected ? opt.$3 : DT.of(context).cardSurface,
-                borderRadius:
-                    BorderRadius.circular(DT.rCardSmall),
-                border: Border.all(
-                    color: isSelected ? opt.$3 : DT.of(context).borderGrey,
-                    width: 2),
-              ),
-              child: Text(opt.$2,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: DT.s3,
+          child: Padding(
+            padding: EdgeInsets.only(
+                right: opt == WorkoutDifficulty.hard ? 0 : DT.s2),
+            child: Semantics(
+              button: true,
+              selected: isSelected,
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onChanged(opt);
+                },
+                child: AnimatedContainer(
+                  duration: DT.fast,
+                  constraints: const BoxConstraints(minHeight: DT.minTap),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: DT.s3),
+                  decoration: BoxDecoration(
+                    color: isSelected ? color : c.cardSurface,
+                    borderRadius: BorderRadius.circular(DT.rCardSmall),
+                    border: Border.all(
+                        color: isSelected ? color : c.borderGrey, width: 2),
+                  ),
+                  child: Text(
+                    opt.label,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.caption.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? Colors.white
-                          : DT.of(context).textSecondary)),
+                      color: isSelected ? c.textOnAccent : c.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         );

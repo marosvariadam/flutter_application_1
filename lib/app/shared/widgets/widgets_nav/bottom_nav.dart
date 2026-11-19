@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
 import 'package:flutter_application_1/app/user_session.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,17 +24,11 @@ class BottomNavScaffold extends StatelessWidget {
         color: dt.bg,
         padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset : DT.s2),
         child: Container(
-          height: 64,
+          constraints: const BoxConstraints(minHeight: 64),
           decoration: BoxDecoration(
             color: dt.bottomNavBg,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: dt.shadowMedium,
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(DT.rCard),
+            boxShadow: DT.shadowFloating(context),
           ),
           margin: const EdgeInsets.only(
             bottom: DT.s2,
@@ -40,34 +36,33 @@ class BottomNavScaffold extends StatelessWidget {
             left: DT.s6,
             right: DT.s6,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: DT.s4),
+          padding: const EdgeInsets.symmetric(horizontal: DT.s2),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(
+              Expanded(child: _NavItem(
                 icon: Icons.home_outlined,
                 label: isCoach ? 'Áttekintés' : 'Kezdőlap',
                 isSelected: shell.currentIndex == 0,
                 onTap: () => _onTap(0),
-              ),
-              _NavItem(
+              )),
+              Expanded(child: _NavItem(
                 icon: isCoach ? Icons.people_outline : Icons.fitness_center_outlined,
                 label: isCoach ? 'Atlétáim' : 'Edzés',
                 isSelected: shell.currentIndex == 1,
                 onTap: () => _onTap(1),
-              ),
-              _NavItem(
+              )),
+              Expanded(child: _NavItem(
                 icon: Icons.chat_bubble_outline,
                 label: 'Üzenetek',
                 isSelected: shell.currentIndex == 2,
                 onTap: () => _onTap(2),
-              ),
-              _NavItem(
+              )),
+              Expanded(child: _NavItem(
                 icon: Icons.person_outline,
                 label: 'Profil',
                 isSelected: shell.currentIndex == 3,
                 onTap: () => _onTap(3),
-              ),
+              )),
             ],
           ),
         ),
@@ -97,39 +92,61 @@ class _NavItem extends StatelessWidget {
     final labelColor =
         isSelected ? dt.bottomNavSelectedLabel : dt.bottomNavUnselected;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(DT.rCard),
-      splashColor: dt.textOnAccent.withValues(alpha: 0.1),
-      highlightColor: dt.textOnAccent.withValues(alpha: 0.05),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s1),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color:
-                    isSelected ? dt.bottomNavSelectedBg : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: DT.s5),
+    void handleTap() {
+      HapticFeedback.selectionClick();
+      onTap();
+    }
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
+      onTap: handleTap,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: handleTap,
+        borderRadius: BorderRadius.circular(DT.rCard),
+        splashColor: dt.textOnAccent.withValues(alpha: 0.1),
+        highlightColor: dt.textOnAccent.withValues(alpha: 0.05),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: DT.minTap),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: DT.s1, vertical: DT.s1),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: DT.normal,
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? dt.bottomNavSelectedBg
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: iconColor, size: DT.s5),
+                ),
+                const SizedBox(height: 2),
+                // Long labels ("Áttekintés") shrink to fit instead of
+                // overflowing at large system font sizes.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: AnimatedDefaultTextStyle(
+                    duration: DT.normal,
+                    style: DTText.of(context).caption.copyWith(
+                          color: labelColor,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
+                        ),
+                    child: Text(label, maxLines: 1),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 2),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                fontSize: 10,
-                color: labelColor,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-              child: Text(label),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -4,6 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/onboarding/bloc/onboarding_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/models/onboarding_models.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
 
 class TrainerResponsesPage extends StatelessWidget {
   const TrainerResponsesPage({super.key});
@@ -22,64 +28,55 @@ class TrainerResponsesPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: BlocBuilder<OnboardingBloc, OnboardingState>(
-        builder: (context, state) {
-          if (state is OnboardingInitial) {
-            context.read<OnboardingBloc>().add(LoadAllResponses());
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is OnboardingLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is OnboardingError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline,
-                      size: 48, color: DT.cardRed),
-                  const SizedBox(height: DT.s4),
-                  Text(state.message,
-                      style:
-                          TextStyle(color: DT.of(context).textSecondary)),
-                  const SizedBox(height: DT.s4),
-                  ElevatedButton(
-                    onPressed: () => context
-                        .read<OnboardingBloc>()
-                        .add(LoadAllResponses()),
-                    child: const Text('Újra'),
-                  ),
-                ],
-              ),
-            );
-          }
-          if (state is OnboardingResponsesLoaded) {
-            if (state.responses.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.assignment_outlined,
-                        size: 64, color: DT.of(context).iconLightGrey),
-                    const SizedBox(height: DT.s4),
-                    Text('Még nincs beérkezett válasz.',
-                        style: TextStyle(
-                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
-                  ],
-                ),
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(DT.s4),
-              itemCount: state.responses.length,
-              separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
-              itemBuilder: (context, i) {
-                final response = state.responses[i];
-                return _ResponseCard(response: response);
-              },
-            );
-          }
-          return const SizedBox.shrink();
-        },
+        builder: (context, state) =>
+            FadeSwitcher(child: _body(context, state)),
+      ),
+    );
+  }
+
+  Widget _body(BuildContext context, OnboardingState state) {
+    final bloc = context.read<OnboardingBloc>();
+    if (state is OnboardingInitial) {
+      bloc.add(LoadAllResponses());
+    }
+    if (state is OnboardingError) {
+      return ErrorState(
+        key: const ValueKey('error'),
+        message: state.message,
+        onRetry: () => bloc.add(LoadAllResponses()),
+      );
+    }
+    if (state is! OnboardingResponsesLoaded) {
+      return const SkeletonList(
+          key: ValueKey('loading'), padding: EdgeInsets.all(DT.s4));
+    }
+    Future<void> refresh() => reloadAndWait(
+        bloc,
+        () => bloc.add(LoadAllResponses()),
+        (s) => s is OnboardingResponsesLoaded || s is OnboardingError);
+    if (state.responses.isEmpty) {
+      return RefreshIndicator(
+        key: const ValueKey('empty'),
+        onRefresh: refresh,
+        child: const RefreshableFill(
+          child: EmptyState(
+            icon: Icons.assignment_outlined,
+            title: 'Még nincs beérkezett válasz',
+            message: 'Az atléták kérdőív-válaszai itt jelennek meg.',
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      key: const ValueKey('content'),
+      onRefresh: refresh,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(DT.s4),
+        itemCount: state.responses.length,
+        separatorBuilder: (_, __) => const SizedBox(height: DT.s3),
+        itemBuilder: (context, i) =>
+            _ResponseCard(response: state.responses[i]),
       ),
     );
   }
@@ -105,11 +102,11 @@ class _ResponseCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: DT.metricBlue.withValues(alpha: 0.1),
+                  color: DT.of(context).accentPrimary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_outline,
-                    color: DT.metricBlue, size: 20),
+                child: Icon(Icons.person_outline,
+                    color: DT.of(context).accentPrimary, size: 20),
               ),
               const SizedBox(width: DT.s3),
               Expanded(
@@ -132,7 +129,7 @@ class _ResponseCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: DT.of(context).textGrey),
+              Icon(Icons.chevron_right, color: DT.of(context).textSecondary),
             ],
           ),
         ),

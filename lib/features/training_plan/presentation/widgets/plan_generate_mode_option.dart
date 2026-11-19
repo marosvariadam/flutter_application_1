@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter/services.dart';
 
 /// One selectable generation mode row (radio icon, label, description).
 class PlanGenerateModeOption extends StatelessWidget {
@@ -22,18 +23,21 @@ class PlanGenerateModeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onSelect,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onSelect();
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: DT.s2),
         padding: const EdgeInsets.all(DT.s3),
         decoration: BoxDecoration(
           color: selected
-              ? DT.metricBlue.withValues(alpha: 0.08)
+              ? DT.of(context).accentPrimary.withValues(alpha: 0.08)
               : DT.of(context).cardSurface,
           borderRadius: BorderRadius.circular(DT.rCardSmall),
           border: Border.all(
             color:
-                selected ? DT.metricBlue : DT.of(context).borderGrey,
+                selected ? DT.of(context).accentPrimary : DT.of(context).borderGrey,
             width: selected ? 2 : 1,
           ),
         ),
@@ -44,7 +48,7 @@ class PlanGenerateModeOption extends StatelessWidget {
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               color:
-                  selected ? DT.metricBlue : DT.of(context).iconLight,
+                  selected ? DT.of(context).accentPrimary : DT.of(context).iconLight,
             ),
             const SizedBox(width: DT.s3),
             Expanded(
@@ -55,7 +59,7 @@ class PlanGenerateModeOption extends StatelessWidget {
                     label,
                     style: TextStyle(
                       color: selected
-                          ? DT.metricBlue
+                          ? DT.of(context).accentPrimary
                           : DT.of(context).textPrimary,
                       fontWeight: FontWeight.w700,
                     ),

@@ -70,8 +70,8 @@ class _TrainingBlocksSectionState extends State<TrainingBlocksSection> {
                     athleteId: widget.athleteId,
                   ));
             },
-            child: const Text('Törlés',
-                style: TextStyle(color: DT.cardRed)),
+            child: Text('Törlés',
+                style: TextStyle(color: DT.of(context).accentDanger)),
           ),
         ],
       ),
@@ -92,17 +92,17 @@ class _TrainingBlocksSectionState extends State<TrainingBlocksSection> {
         if (state is TrainingBlockOverlap) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(state.message),
-            backgroundColor: DT.cardOrange,
+            backgroundColor: DT.of(context).accentOrange,
           ));
         } else if (state is TrainingBlockForbidden) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Not authorized'),
-            backgroundColor: DT.cardRed,
+            backgroundColor: DT.of(context).accentDanger,
           ));
         } else if (state is TrainingBlockError) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(state.message),
-            backgroundColor: DT.cardRed,
+            backgroundColor: DT.of(context).accentDanger,
           ));
         }
       },
@@ -117,21 +117,24 @@ class _TrainingBlocksSectionState extends State<TrainingBlocksSection> {
           children: [
             Row(
               children: [
-                Text(
-                  'Tréningblokkok',
-                  style: TextStyle(
-                    fontSize: DT.s4,
-                    fontWeight: FontWeight.w700,
-                    color: DT.of(context).textPrimary,
+                Expanded(
+                  child: Text(
+                    'Tréningblokkok',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: DT.s4,
+                      fontWeight: FontWeight.w700,
+                      color: DT.of(context).textPrimary,
+                    ),
                   ),
                 ),
-                const Spacer(),
                 TextButton.icon(
                   onPressed: () => _openForm(),
                   icon: const Icon(Icons.add, size: 18),
                   label: const Text('Új'),
                   style: TextButton.styleFrom(
-                    foregroundColor: DT.metricBlue,
+                    foregroundColor: DT.of(context).accentPrimary,
                   ),
                 ),
               ],
@@ -203,7 +206,7 @@ class _BlockRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = block.covers(DateTime.now());
-    final accent = isActive ? DT.metricBlue : DT.of(context).borderGrey;
+    final accent = isActive ? DT.of(context).accentPrimary : DT.of(context).borderGrey;
 
     return Container(
       margin: const EdgeInsets.only(bottom: DT.s3),
@@ -228,13 +231,17 @@ class _BlockRow extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
+                    Flexible(
+                      child: Text(
                       block.focus,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: DT.s4,
                         fontWeight: FontWeight.w700,
                         color: DT.of(context).textPrimary,
                       ),
+                    ),
                     ),
                     if (isActive) ...[
                       const SizedBox(width: DT.s2),
@@ -242,13 +249,13 @@ class _BlockRow extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: DT.s2, vertical: 1),
                         decoration: BoxDecoration(
-                          color: DT.metricBlue.withValues(alpha: 0.15),
+                          color: DT.of(context).accentPrimary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(DT.rChip),
                         ),
-                        child: const Text(
+                        child: Text(
                           'aktív',
                           style: TextStyle(
-                            color: DT.metricBlue,
+                            color: DT.of(context).accentPrimary,
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
@@ -289,8 +296,8 @@ class _BlockRow extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Törlés',
-            icon: const Icon(Icons.delete_outline,
-                color: DT.cardRed, size: 20),
+            icon: Icon(Icons.delete_outline,
+                color: DT.of(context).accentDanger, size: 20),
             onPressed: onDelete,
           ),
         ],
@@ -440,6 +447,7 @@ class _TrainingBlockFormState extends State<_TrainingBlockForm> {
                   ),
                   const Spacer(),
                   IconButton(
+                    tooltip: 'Bezárás',
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -486,8 +494,8 @@ class _TrainingBlockFormState extends State<_TrainingBlockForm> {
                 const SizedBox(height: DT.s2),
                 Text(
                   _dateError!,
-                  style: const TextStyle(
-                    color: DT.cardRed,
+                  style: TextStyle(
+                    color: DT.of(context).accentDanger,
                     fontSize: DT.s3,
                   ),
                 ),
@@ -509,19 +517,19 @@ class _TrainingBlockFormState extends State<_TrainingBlockForm> {
                 child: ElevatedButton(
                   onPressed: _saving ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue,
-                    foregroundColor: DT.textWhite,
+                    backgroundColor: DT.of(context).accentPrimary,
+                    foregroundColor: DT.of(context).textOnAccent,
                     padding: const EdgeInsets.symmetric(vertical: DT.s3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DT.rCardSmall),
                     ),
                   ),
                   child: _saving
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                            color: DT.textWhite,
+                            color: DT.of(context).textOnAccent,
                             strokeWidth: 2,
                           ),
                         )

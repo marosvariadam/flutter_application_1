@@ -7,6 +7,13 @@ import 'package:flutter_application_1/features/exercise/bloc/exercise_bloc.dart'
 import 'package:flutter_application_1/features/exercise/data/models/exercise_model.dart';
 import 'package:flutter_application_1/features/exercise/data/repositories/exercise_repository.dart';
 import 'package:flutter_application_1/features/exercise/presentation/widgets/exercise_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
 
 class ExerciseCataloguePage extends StatelessWidget {
   /// If true, tapping an exercise returns it to the caller (workout form).
@@ -72,6 +79,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
         actions: [
           if (isTrainer && !widget.selectionMode)
             IconButton(
+              tooltip: 'Új gyakorlat',
               icon: Icon(Icons.add, color: DT.of(context).textPrimary),
               onPressed: () =>
                   context.push('/exercise/new').then((_) {
@@ -96,6 +104,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchCtrl.text.isNotEmpty
                     ? IconButton(
+                        tooltip: 'Keresés törlése',
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchCtrl.clear();
@@ -107,7 +116,8 @@ class _CatalogueViewState extends State<_CatalogueView> {
             ),
           ),
           SizedBox(
-            height: 44,
+            // Chip height grows with the system font size.
+            height: MediaQuery.textScalerOf(context).scale(32) + 2 * DT.s2 + 4,
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(
                   horizontal: DT.s4, vertical: DT.s2),
@@ -120,6 +130,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
                     label: const Text('Összes'),
                     selected: _selectedMuscleGroup == null,
                     onSelected: (_) {
+                      HapticFeedback.selectionClick();
                       setState(() => _selectedMuscleGroup = null);
                       _search();
                     },
@@ -130,6 +141,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
                   label: Text(mg),
                   selected: _selectedMuscleGroup == mg,
                   onSelected: (_) {
+                    HapticFeedback.selectionClick();
                     setState(() => _selectedMuscleGroup =
                         _selectedMuscleGroup == mg ? null : mg);
                     _search();
@@ -140,42 +152,59 @@ class _CatalogueViewState extends State<_CatalogueView> {
           ),
           Expanded(
             child: BlocBuilder<ExerciseBloc, ExerciseState>(
-              builder: (context, state) {
-                if (state is ExerciseLoading) {
-                  return const Center(
-                      child: CircularProgressIndicator());
-                }
+              builder: (context, state) =>
+                  FadeSwitcher(child: _list(context, state)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refresh() {
+    final bloc = context.read<ExerciseBloc>();
+    return reloadAndWait(
+        bloc,
+        _searchCtrl.text.trim().isEmpty && _selectedMuscleGroup == null
+            ? () => bloc.add(LoadExercises())
+            : _search,
+        (s) => s is ExercisesLoaded || s is ExerciseError);
+  }
+
+  Widget _list(BuildContext context, ExerciseState state) {
+    final isTrainer = (context.read<AuthBloc>().state) is AuthAuthenticated &&
+        (context.read<AuthBloc>().state as AuthAuthenticated).user.isTrainer;
                 if (state is ExerciseError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            size: 48, color: DT.cardRed),
-                        const SizedBox(height: DT.s4),
-                        Text(state.message,
-                            style: TextStyle(
-                                color: DT.of(context).textSecondary)),
-                        const SizedBox(height: DT.s4),
-                        ElevatedButton(
-                            onPressed: () => context
-                                .read<ExerciseBloc>()
-                                .add(LoadExercises()),
-                            child: const Text('Újra')),
-                      ],
-                    ),
+                  return ErrorState(
+                    key: const ValueKey('error'),
+                    message: state.message,
+                    onRetry: () =>
+                        context.read<ExerciseBloc>().add(LoadExercises()),
                   );
                 }
-                if (state is ExercisesLoaded) {
+                if (state is! ExercisesLoaded) {
+                  return const SkeletonList(
+                      key: ValueKey('loading'),
+                      padding: EdgeInsets.all(DT.s4));
+                }
+                {
                   if (state.exercises.isEmpty) {
-                    return Center(
-                      child: Text('Nincs találat.',
-                          style: TextStyle(
-                              color: DT.of(context).textSecondary,
-                              fontSize: DT.s4)),
+                    return RefreshIndicator(
+                      key: const ValueKey('empty'),
+                      onRefresh: _refresh,
+                      child: const RefreshableFill(
+                        child: EmptyState(
+                          icon: Icons.search_off,
+                          title: 'Nincs találat',
+                          message: 'Próbálj másik keresést vagy izomcsoportot.',
+                        ),
+                      ),
                     );
                   }
-                  return NotificationListener<ScrollNotification>(
+                  return RefreshIndicator(
+                    key: const ValueKey('content'),
+                    onRefresh: _refresh,
+                    child: NotificationListener<ScrollNotification>(
                     onNotification: (n) {
                       if (n is ScrollEndNotification &&
                           n.metrics.pixels >=
@@ -187,6 +216,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
                       return false;
                     },
                     child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(DT.s4),
                       itemCount: state.exercises.length +
                           (state.hasMore ? 1 : 0),
@@ -194,11 +224,7 @@ class _CatalogueViewState extends State<_CatalogueView> {
                           const SizedBox(height: DT.s2),
                       itemBuilder: (context, i) {
                         if (i == state.exercises.length) {
-                          return const Center(
-                              child: Padding(
-                            padding: EdgeInsets.all(DT.s4),
-                            child: CircularProgressIndicator(),
-                          ));
+                          return const SkeletonList(itemCount: 1);
                         }
                         final e = state.exercises[i];
                         return _ExerciseTile(
@@ -208,15 +234,9 @@ class _CatalogueViewState extends State<_CatalogueView> {
                         );
                       },
                     ),
+                    ),
                   );
                 }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -247,11 +267,11 @@ class _ExerciseTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: DT.metricBlue.withValues(alpha: 0.12),
+                  color: DT.of(context).accentPrimary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.fitness_center,
-                    color: DT.metricBlue, size: 20),
+                child: Icon(Icons.fitness_center,
+                    color: DT.of(context).accentPrimary, size: 20),
               ),
               const SizedBox(width: DT.s3),
               Expanded(
@@ -277,7 +297,7 @@ class _ExerciseTile extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: DT.s2, vertical: 2),
                             decoration: BoxDecoration(
-                              color: DT.metricOrange,
+                              color: DT.of(context).warningSoft,
                               borderRadius:
                                   BorderRadius.circular(DT.rChip),
                             ),
@@ -307,10 +327,10 @@ class _ExerciseTile extends StatelessWidget {
                     const PopupMenuItem(
                         value: 'edit',
                         child: Text('Szerkesztés')),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                         value: 'delete',
                         child: Text('Törlés',
-                            style: TextStyle(color: DT.cardRed))),
+                            style: TextStyle(color: DT.of(context).accentDanger))),
                   ],
                 ),
               if (selectionMode)

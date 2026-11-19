@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter/services.dart';
 
 /// Single-choice row used by the profile survey's goal and level steps.
 class SurveyOptionRow extends StatelessWidget {
@@ -17,17 +18,20 @@ class SurveyOptionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(bottom: DT.s3),
         padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s4),
         decoration: BoxDecoration(
           color: selected
-              ? DT.metricBlue.withValues(alpha: 0.08)
-              : Colors.white,
+              ? DT.of(context).accentPrimary.withValues(alpha: 0.08)
+              : DT.of(context).cardSurface,
           border: Border.all(
-            color: selected ? DT.metricBlue : DT.of(context).borderGrey,
+            color: selected ? DT.of(context).accentPrimary : DT.of(context).borderGrey,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(DT.rCardSmall),
@@ -38,13 +42,13 @@ class SurveyOptionRow extends StatelessWidget {
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              color: selected ? DT.metricBlue : DT.of(context).iconLight,
+              color: selected ? DT.of(context).accentPrimary : DT.of(context).iconLight,
             ),
             const SizedBox(width: DT.s3),
             Text(
               label,
               style: TextStyle(
-                color: selected ? DT.metricBlue : DT.of(context).textPrimary,
+                color: selected ? DT.of(context).accentPrimary : DT.of(context).textPrimary,
                 fontSize: DT.s4,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),
@@ -71,15 +75,18 @@ class SurveyChipOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: DT.s4, vertical: DT.s3),
         decoration: BoxDecoration(
           color: selected
-              ? DT.metricBlue.withValues(alpha: 0.08)
-              : Colors.white,
+              ? DT.of(context).accentPrimary.withValues(alpha: 0.08)
+              : DT.of(context).cardSurface,
           border: Border.all(
-            color: selected ? DT.metricBlue : DT.of(context).borderGrey,
+            color: selected ? DT.of(context).accentPrimary : DT.of(context).borderGrey,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(DT.rChip),
@@ -87,7 +94,7 @@ class SurveyChipOption extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? DT.metricBlue : DT.of(context).textPrimary,
+            color: selected ? DT.of(context).accentPrimary : DT.of(context).textPrimary,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
         ),

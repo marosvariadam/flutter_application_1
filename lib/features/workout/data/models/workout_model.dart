@@ -138,6 +138,11 @@ class WorkoutModel {
   }
 
   int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets);
+
+  /// Exercises whose logged sets reach the planned count.
+  int get completedExercises => exercises
+      .where((e) => e.sets > 0 && (e.actualSets ?? 0) >= e.sets)
+      .length;
 }
 
 /// Returned by paginated list endpoints.

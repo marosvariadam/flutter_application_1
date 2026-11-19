@@ -67,13 +67,13 @@ class PlanGenerateFormView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(DT.s3),
             decoration: BoxDecoration(
-              color: DT.cardRed.withValues(alpha: 0.08),
+              color: DT.of(context).accentDanger.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(DT.rCardSmall),
-              border: Border.all(color: DT.cardRed.withValues(alpha: 0.4)),
+              border: Border.all(color: DT.of(context).accentDanger.withValues(alpha: 0.4)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.error_outline, color: DT.cardRed),
+                Icon(Icons.error_outline, color: DT.of(context).accentDanger),
                 const SizedBox(width: DT.s2),
                 Expanded(
                   child: Text(

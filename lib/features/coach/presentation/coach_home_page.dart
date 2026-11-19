@@ -9,6 +9,11 @@ import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
+import 'package:flutter_application_1/app/shared/widgets/user_avatar.dart';
+import 'package:flutter_application_1/app/shared/greeting.dart';
 
 class CoachHomePage extends StatefulWidget {
   const CoachHomePage({super.key});
@@ -29,6 +34,20 @@ class _CoachHomePageState extends State<CoachHomePage> {
     });
   }
 
+  /// Pull-to-refresh: reloads the three sections, waits for roster and
+  /// workouts (the request badge updates on its own).
+  Future<void> _refresh() async {
+    final roster = context.read<RosterBloc>();
+    final workouts = context.read<WorkoutBloc>();
+    context.read<TrainerRequestBloc>().add(LoadPendingRequests());
+    await Future.wait([
+      reloadAndWait(roster, () => roster.add(LoadRoster()),
+          (s) => s is! RosterLoading),
+      reloadAndWait(workouts, () => workouts.add(LoadTrainerWorkouts()),
+          (s) => s is WorkoutsLoaded || s is WorkoutError),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -43,14 +62,14 @@ class _CoachHomePageState extends State<CoachHomePage> {
         title: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: DT.metricBlue.withValues(alpha: 0.15),
-                border: Border.all(color: DT.of(context).textOnAccent, width: 2),
+                color: DT.of(context).cardSurface,
+                boxShadow: DT.shadowCard(context),
               ),
-              child: const Icon(Icons.person, color: DT.metricBlue),
+              child: UserAvatar(
+                  name: UserSession.instance.displayName, size: 44),
             ),
             const SizedBox(width: DT.s3),
             Expanded(
@@ -59,19 +78,15 @@ class _CoachHomePageState extends State<CoachHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Szia, $trainerName!',
-                    style: TextStyle(
-                      fontSize: DT.s4,
-                      fontWeight: FontWeight.w600,
-                      color: DT.of(context).textPrimary,
-                    ),
+                    '${timeOfDayGreeting(now)}, $trainerName!',
+                    style: DTText.of(context).title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     DateFormat('yyyy. MMMM d.', 'hu').format(now),
-                    style: TextStyle(
-                      fontSize: DT.s3,
-                      color: DT.of(context).textSecondary,
-                    ),
+                    style: DTText.of(context).caption,
+                    maxLines: 1,
                   ),
                 ],
               ),
@@ -82,24 +97,28 @@ class _CoachHomePageState extends State<CoachHomePage> {
                 final pending = state is TrainerRequestsLoaded
                     ? state.requests.where((r) => r.isPending).length
                     : 0;
-                return GestureDetector(
+                final label = pending > 0
+                    ? 'Csatlakozási kérések, $pending új'
+                    : 'Csatlakozási kérések';
+                return Tooltip(
+                  message: 'Csatlakozási kérések',
+                  child: Semantics(
+                  button: true,
+                  label: label,
+                  onTap: () => context.push('/trainer-requests'),
+                  excludeSemantics: true,
+                  child: GestureDetector(
                   onTap: () => context.push('/trainer-requests'),
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: DT.minTap,
+                        height: DT.minTap,
                         decoration: BoxDecoration(
                           color: DT.of(context).cardSurface,
                           borderRadius: BorderRadius.circular(DT.rCardSmall),
-                          boxShadow: [
-                            BoxShadow(
-                              color: DT.of(context).shadowLight,
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          boxShadow: DT.shadowCard(context),
                         ),
                         child: Icon(Icons.notifications_outlined,
                             color: DT.of(context).iconLight),
@@ -111,23 +130,26 @@ class _CoachHomePageState extends State<CoachHomePage> {
                           child: Container(
                             width: 18,
                             height: 18,
-                            decoration: const BoxDecoration(
-                              color: DT.cardRed,
+                            decoration: BoxDecoration(
+                              color: DT.of(context).accentDanger,
                               shape: BoxShape.circle,
                             ),
                             child: Center(
                               child: Text(
-                                '$pending',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                pending > 9 ? '9+' : '$pending',
+                                textScaler: TextScaler.noScaling,
+                                style: DTText.of(context).caption.copyWith(
+                                      color: DT.of(context).textOnAccent,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                             ),
                           ),
                         ),
                     ],
+                  ),
+                  ),
                   ),
                 );
               },
@@ -135,7 +157,10 @@ class _CoachHomePageState extends State<CoachHomePage> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(DT.s5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,9 +191,19 @@ class _CoachHomePageState extends State<CoachHomePage> {
             BlocBuilder<RosterBloc, RosterState>(
               builder: (context, state) {
                 if (state is RosterInitial || state is RosterLoading) {
-                  return const SizedBox(
+                  return SizedBox(
                     height: 110,
-                    child: Center(child: CircularProgressIndicator()),
+                    child: SkeletonPulse(
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 4,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(width: DT.s3),
+                        itemBuilder: (_, __) => const SkeletonBox(
+                            width: 84, height: 110, radius: DT.rCard),
+                      ),
+                    ),
                   );
                 }
                 final athletes =
@@ -217,7 +252,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
             BlocBuilder<WorkoutBloc, WorkoutState>(
               builder: (context, state) {
                 if (state is WorkoutInitial || state is WorkoutLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const SkeletonList(itemCount: 2);
                 }
                 final all =
                     state is WorkoutsLoaded ? state.workouts : <WorkoutModel>[];
@@ -274,6 +309,7 @@ class _CoachHomePageState extends State<CoachHomePage> {
             const SizedBox(height: 80),
           ],
         ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/workout-builder'),
@@ -300,7 +336,7 @@ class _StatsRow extends StatelessWidget {
               final count =
                   state is RosterLoaded ? state.athletes.length : null;
               return _StatCard(
-                color: DT.cardBlue.withValues(alpha: 0.35),
+                color: DT.of(context).accentBlueSoft.withValues(alpha: 0.35),
                 value: count != null ? '$count' : '…',
                 label: 'Atléta',
                 icon: Icons.people_outline,
@@ -326,7 +362,7 @@ class _StatsRow extends StatelessWidget {
                 }).length;
               }
               return _StatCard(
-                color: DT.cardTeal.withValues(alpha: 0.35),
+                color: DT.of(context).accentTeal.withValues(alpha: 0.35),
                 value: count != null ? '$count' : '…',
                 label: 'Edzés e héten',
                 icon: Icons.fitness_center_outlined,
@@ -343,7 +379,7 @@ class _StatsRow extends StatelessWidget {
                   ? state.requests.where((r) => r.isPending).length
                   : null;
               return _StatCard(
-                color: DT.cardYellow.withValues(alpha: 0.5),
+                color: DT.of(context).accentYellow.withValues(alpha: 0.5),
                 value: count != null ? '$count' : '…',
                 label: 'Kérés',
                 icon: Icons.person_add_outlined,
@@ -441,15 +477,15 @@ class _AthleteChip extends StatelessWidget {
               height: 46,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: DT.metricBlue.withValues(alpha: 0.12),
+                color: DT.of(context).accentPrimary.withValues(alpha: 0.12),
               ),
               child: Center(
                 child: Text(
                   initials,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: DT.s4,
                     fontWeight: FontWeight.w700,
-                    color: DT.metricBlue,
+                    color: DT.of(context).accentPrimary,
                   ),
                 ),
               ),
@@ -482,9 +518,9 @@ class _WorkoutRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = switch (workout.status) {
-      WorkoutStatus.completed => Colors.green,
-      WorkoutStatus.inProgress => DT.cardOrange,
-      WorkoutStatus.planned => DT.metricBlue,
+      WorkoutStatus.completed => DT.of(context).accentSuccess,
+      WorkoutStatus.inProgress => DT.of(context).accentOrange,
+      WorkoutStatus.planned => DT.of(context).accentPrimary,
     };
     final statusLabel = switch (workout.status) {
       WorkoutStatus.completed => 'Teljesítve',
@@ -540,11 +576,15 @@ class _WorkoutRow extends StatelessWidget {
                             size: 12,
                             color: DT.of(context).textSecondary),
                         const SizedBox(width: 4),
-                        Text(
-                          workout.athleteName!,
-                          style: TextStyle(
-                            fontSize: DT.s3,
-                            color: DT.of(context).textSecondary,
+                        Flexible(
+                          child: Text(
+                            workout.athleteName!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: DT.s3,
+                              color: DT.of(context).textSecondary,
+                            ),
                           ),
                         ),
                       ],
@@ -574,7 +614,7 @@ class _WorkoutRow extends StatelessWidget {
                 ),
                 const SizedBox(height: DT.s2),
                 Icon(Icons.arrow_forward_ios,
-                    size: 12, color: DT.of(context).textGrey),
+                    size: 12, color: DT.of(context).textSecondary),
               ],
             ),
           ],

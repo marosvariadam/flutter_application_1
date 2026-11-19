@@ -23,8 +23,8 @@ class PlanGenerateWeeksSelector extends StatelessWidget {
           children: [
             Text(
               '$weeks',
-              style: const TextStyle(
-                color: DT.metricBlue,
+              style: TextStyle(
+                color: DT.of(context).accentPrimary,
                 fontSize: 48,
                 fontWeight: FontWeight.w800,
               ),
@@ -44,7 +44,7 @@ class PlanGenerateWeeksSelector extends StatelessWidget {
           min: 2,
           max: 12,
           divisions: 10,
-          activeColor: DT.metricBlue,
+          activeColor: DT.of(context).accentPrimary,
           onChanged: (v) => onChanged(v.round()),
         ),
       ],

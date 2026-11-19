@@ -7,6 +7,7 @@ import 'package:flutter_application_1/features/trainer/data/models/trainer_reque
 import 'package:flutter_application_1/features/trainer/data/repositories/roster_repository.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
+import 'package:flutter/services.dart';
 
 class WorkoutFormPage extends StatefulWidget {
   final String? workoutId; // null = create; non-null = edit
@@ -209,8 +210,10 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                           .map((d) => ChoiceChip(
                                 label: Text(d.label),
                                 selected: _difficulty == d,
-                                onSelected: (_) =>
-                                    setState(() => _difficulty = d),
+                                onSelected: (_) {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => _difficulty = d);
+                                },
                               ))
                           .toList(),
                     ),
@@ -235,6 +238,7 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                               fontWeight: FontWeight.w600)),
                       const SizedBox(height: DT.s2),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _selectedAthleteId,
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.person_outline),
@@ -242,7 +246,9 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                         items: _athletes
                             .map((a) => DropdownMenuItem(
                                   value: a.id,
-                                  child: Text(a.fullName),
+                                  child: Text(a.fullName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
                                 ))
                             .toList(),
                         onChanged: (v) {
@@ -255,11 +261,15 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Gyakorlatok',
-                            style: TextStyle(
-                                color: DT.of(context).textPrimary,
-                                fontSize: DT.s4,
-                                fontWeight: FontWeight.w700)),
+                        Expanded(
+                          child: Text('Gyakorlatok',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: DT.of(context).textPrimary,
+                                  fontSize: DT.s4,
+                                  fontWeight: FontWeight.w700)),
+                        ),
                         TextButton.icon(
                           onPressed: () =>
                               _showAddExerciseDialog(context),
@@ -285,8 +295,8 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                     if (_error != null) ...[
                       const SizedBox(height: DT.s3),
                       Text(_error!,
-                          style: const TextStyle(
-                              color: DT.cardRed, fontSize: DT.s3)),
+                          style: TextStyle(
+                              color: DT.of(context).accentDanger, fontSize: DT.s3)),
                     ],
                     const SizedBox(height: DT.s6),
                     SizedBox(
@@ -295,20 +305,20 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                       child: ElevatedButton(
                         onPressed: _saving ? null : _save,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: DT.metricBlue,
+                          backgroundColor: DT.of(context).accentPrimary,
                           shape: RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.circular(DT.rCardSmall)),
                         ),
                         child: _saving
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white))
-                            : const Text('Mentés',
+                                    strokeWidth: 2, color: DT.of(context).textOnAccent))
+                            : Text('Mentés',
                                 style: TextStyle(
-                                    color: DT.textWhite,
+                                    color: DT.of(context).textOnAccent,
                                     fontSize: DT.s4,
                                     fontWeight: FontWeight.w600)),
                       ),
@@ -441,9 +451,9 @@ class _WorkoutFormPageState extends State<WorkoutFormPage> {
                   Navigator.pop(ctx);
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue),
-                child: const Text('Hozzáadás',
-                    style: TextStyle(color: DT.textWhite)),
+                    backgroundColor: DT.of(context).accentPrimary),
+                child: Text('Hozzáadás',
+                    style: TextStyle(color: DT.of(context).textOnAccent)),
               ),
             ),
           ],
@@ -511,7 +521,8 @@ class _ExerciseFormCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: DT.cardRed),
+            tooltip: 'Gyakorlat törlése',
+            icon: Icon(Icons.delete_outline, color: DT.of(context).accentDanger),
             onPressed: onDelete,
           ),
         ],

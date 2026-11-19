@@ -154,8 +154,8 @@ class _PlanEditorAcceptSheetState extends State<PlanEditorAcceptSheet> {
                       ? 'Elfogad + Ütemez'
                       : 'Ütemezés'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DT.metricBlue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: DT.of(context).accentPrimary,
+                    foregroundColor: DT.of(context).textOnAccent,
                     padding: const EdgeInsets.symmetric(vertical: DT.s3),
                   ),
                 ),

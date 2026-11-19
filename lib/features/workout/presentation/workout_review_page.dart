@@ -60,8 +60,8 @@ class _WorkoutReviewPageState extends State<WorkoutReviewPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline,
-                          size: 48, color: DT.cardRed),
+                      Icon(Icons.error_outline,
+                          size: 48, color: DT.of(context).accentDanger),
                       const SizedBox(height: DT.s4),
                       Text(_error!,
                           style: TextStyle(
@@ -134,14 +134,14 @@ class _ReviewCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(DT.s3),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.08),
+                    color: DT.of(context).accentSuccess.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(DT.rCardSmall),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.format_quote,
-                          color: Colors.green, size: 16),
+                      Icon(Icons.format_quote,
+                          color: DT.of(context).accentSuccess, size: 16),
                       const SizedBox(width: DT.s2),
                       Expanded(
                         child: Text(workout.athleteFeedback!,
@@ -159,14 +159,16 @@ class _ReviewCard extends StatelessWidget {
                         color: DT.of(context).textSecondary, fontSize: DT.s3)),
               ],
               const SizedBox(height: DT.s2),
-              Row(
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: DT.s1,
                 children: [
                   Text(
                     '${workout.exercises.length} gyakorlat',
                     style: TextStyle(
                         color: DT.of(context).textSecondary, fontSize: DT.s3),
                   ),
-                  ..._rpeBadges(workout),
+                  ..._rpeBadges(context, workout),
                 ],
               ),
             ],
@@ -178,7 +180,7 @@ class _ReviewCard extends StatelessWidget {
 
   /// Compact "RPE 8" chips for exercises that have an RPE logged. Capped at 3
   /// to avoid crowding the row; remainder shown as "+N".
-  List<Widget> _rpeBadges(WorkoutModel workout) {
+  List<Widget> _rpeBadges(BuildContext context, WorkoutModel workout) {
     final withRpe =
         workout.exercises.where((e) => e.rpe != null).toList(growable: false);
     if (withRpe.isEmpty) return const [];
@@ -193,13 +195,13 @@ class _ReviewCard extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
             decoration: BoxDecoration(
-              color: DT.metricBlue.withValues(alpha: 0.15),
+              color: DT.of(context).accentPrimary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(DT.rChip),
             ),
             child: Text(
               'RPE ${e.rpe}',
-              style: const TextStyle(
-                color: DT.metricBlue,
+              style: TextStyle(
+                color: DT.of(context).accentPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -210,8 +212,8 @@ class _ReviewCard extends StatelessWidget {
       if (overflow > 0)
         Text(
           '+$overflow',
-          style: const TextStyle(
-            color: DT.metricBlue,
+          style: TextStyle(
+            color: DT.of(context).accentPrimary,
             fontSize: 11,
             fontWeight: FontWeight.w700,
           ),

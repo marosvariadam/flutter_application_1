@@ -4,6 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/notifications/bloc/notification_bloc.dart';
 import 'package:flutter_application_1/features/notifications/data/models/notification_model.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/error_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -27,9 +34,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         backgroundColor: DT.of(context).bg,
         elevation: 0,
         leading: BackButton(color: DT.of(context).textPrimary),
-        title: Text('Értesítések',
-            style: TextStyle(
-                color: DT.of(context).textPrimary, fontWeight: FontWeight.w600)),
+        title: Text('Értesítések', style: DTText.of(context).title),
         centerTitle: true,
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
@@ -40,9 +45,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   onPressed: () => context
                       .read<NotificationBloc>()
                       .add(MarkAllNotificationsRead()),
-                  child: const Text('Mind olvasott',
-                      style: TextStyle(
-                          color: DT.metricBlue, fontSize: DT.s3)),
+                  child: Text('Mind olvasott',
+                      style: DTText.of(context)
+                          .label
+                          .copyWith(color: DT.of(context).accentPrimary)),
                 );
               }
               return const SizedBox.shrink();
@@ -51,61 +57,52 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ],
       ),
       body: BlocBuilder<NotificationBloc, NotificationState>(
-        builder: (context, state) {
-          if (state is NotificationInitial) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is NotificationError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline,
-                      size: 48, color: DT.cardRed),
-                  const SizedBox(height: DT.s4),
-                  Text(state.message,
-                      style: TextStyle(
-                          color: DT.of(context).textSecondary)),
-                  const SizedBox(height: DT.s4),
-                  ElevatedButton(
-                    onPressed: () => context
-                        .read<NotificationBloc>()
-                        .add(LoadNotifications()),
-                    child: const Text('Újra'),
-                  ),
-                ],
-              ),
-            );
-          }
-          if (state is NotificationsLoaded) {
-            if (state.notifications.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.notifications_none_outlined,
-                        size: 64, color: DT.of(context).iconLightGrey),
-                    const SizedBox(height: DT.s4),
-                    Text('Nincs értesítés.',
-                        style: TextStyle(
-                            color: DT.of(context).textSecondary, fontSize: DT.s4)),
-                  ],
-                ),
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(DT.s4),
-              itemCount: state.notifications.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(height: DT.s2),
-              itemBuilder: (context, i) {
-                final notif = state.notifications[i];
-                return _NotificationTile(notification: notif);
-              },
-            );
-          }
-          return const SizedBox.shrink();
-        },
+        builder: (context, state) =>
+            FadeSwitcher(child: _body(context, state)),
+      ),
+    );
+  }
+
+  Widget _body(BuildContext context, NotificationState state) {
+    final bloc = context.read<NotificationBloc>();
+    Future<void> refresh() => reloadAndWait(
+        bloc, () => bloc.add(LoadNotifications()),
+        (s) => s is NotificationsLoaded || s is NotificationError);
+
+    if (state is NotificationError) {
+      return ErrorState(
+        key: const ValueKey('error'),
+        message: state.message,
+        onRetry: () => bloc.add(LoadNotifications()),
+      );
+    }
+    if (state is! NotificationsLoaded) {
+      return const SkeletonList(
+          key: ValueKey('loading'), padding: EdgeInsets.all(DT.s4));
+    }
+    if (state.notifications.isEmpty) {
+      return RefreshIndicator(
+        key: const ValueKey('empty'),
+        onRefresh: refresh,
+        child: const RefreshableFill(
+          child: EmptyState(
+            icon: Icons.notifications_none_outlined,
+            title: 'Nincs értesítés',
+            message: 'Itt jelennek meg a kérések és az új edzések.',
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      key: const ValueKey('content'),
+      onRefresh: refresh,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(DT.s4),
+        itemCount: state.notifications.length,
+        separatorBuilder: (_, __) => const SizedBox(height: DT.s2),
+        itemBuilder: (context, i) =>
+            _NotificationTile(notification: state.notifications[i]),
       ),
     );
   }
@@ -162,8 +159,8 @@ class _NotificationTile extends StatelessWidget {
                   width: 8,
                   height: 8,
                   margin: const EdgeInsets.only(top: 4),
-                  decoration: const BoxDecoration(
-                    color: DT.metricBlue,
+                  decoration: BoxDecoration(
+                    color: DT.of(context).accentPrimary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -191,13 +188,13 @@ class _NotificationIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color) = switch (type.toLowerCase()) {
-      'trainerrequestreceived' => (Icons.person_add_outlined, DT.metricBlue),
-      'trainerrequestaccepted' => (Icons.check_circle, Colors.green),
-      'trainerrequestrejected' => (Icons.cancel, DT.cardRed),
+      'trainerrequestreceived' => (Icons.person_add_outlined, DT.of(context).accentPrimary),
+      'trainerrequestaccepted' => (Icons.check_circle, DT.of(context).accentSuccess),
+      'trainerrequestrejected' => (Icons.cancel, DT.of(context).accentDanger),
       'onboardingformavailable' =>
-        (Icons.assignment_outlined, DT.metricBlue),
+        (Icons.assignment_outlined, DT.of(context).accentPrimary),
       'workoutassigned' =>
-        (Icons.fitness_center, DT.cardOrange),
+        (Icons.fitness_center, DT.of(context).accentOrange),
       _ => (Icons.notifications, DT.of(context).iconLight),
     };
     return Container(

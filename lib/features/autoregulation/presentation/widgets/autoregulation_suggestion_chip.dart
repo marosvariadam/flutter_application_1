@@ -91,6 +91,8 @@ class _SuggestionPill extends StatelessWidget {
       child: Semantics(
         button: true,
         label: applied ? '$label, alkalmazva' : 'Javaslat alkalmazása: $label',
+        // excludeSemantics hides the InkWell's tap, so expose it here.
+        onTap: applied ? null : onTap,
         excludeSemantics: true,
         child: Material(
           color: tone.withValues(alpha: applied ? 0.22 : 0.12),

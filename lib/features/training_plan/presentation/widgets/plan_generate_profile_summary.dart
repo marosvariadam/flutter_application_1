@@ -67,7 +67,7 @@ class PlanGenerateProfileSummary extends StatelessWidget {
     if (state is AthleteProfileMissing) {
       return Row(
         children: [
-          const Icon(Icons.warning_amber, color: DT.cardOrange),
+          Icon(Icons.warning_amber, color: DT.of(context).accentOrange),
           const SizedBox(width: DT.s2),
           Expanded(
             child: Text(
@@ -103,8 +103,8 @@ class PlanGenerateProfileSummary extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => context.pop(),
-                child: const Text('Szerkesztés',
-                    style: TextStyle(color: DT.metricBlue)),
+                child: Text('Szerkesztés',
+                    style: TextStyle(color: DT.of(context).accentPrimary)),
               ),
             ],
           ),
@@ -127,7 +127,7 @@ class PlanGenerateProfileSummary extends StatelessWidget {
                 _MiniChip(
                   text:
                       'Kerül: ${profile.avoidStressTags.length}',
-                  color: DT.cardRed,
+                  color: DT.of(context).accentDanger,
                 ),
             ],
           ),
@@ -145,7 +145,7 @@ class _MiniChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? DT.cardTeal;
+    final c = color ?? DT.of(context).accentTeal;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: DT.s2, vertical: 2),
       decoration: BoxDecoration(

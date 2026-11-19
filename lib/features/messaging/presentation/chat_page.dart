@@ -6,8 +6,7 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/messaging/bloc/chat_bloc.dart';
 import 'package:flutter_application_1/features/messaging/data/models/conversation_model.dart';
 import 'package:flutter_application_1/features/messaging/data/models/message_model.dart';
-import 'package:flutter_application_1/features/messaging/presentation/messaging_page.dart'
-    show AvatarWidget;
+import 'package:flutter_application_1/app/shared/widgets/user_avatar.dart';
 
 //
 // Entry point
@@ -97,15 +96,16 @@ class _ChatViewState extends State<_ChatView> {
       },
       builder: (context, state) {
         if (state is ChatLoading) {
-          return const Scaffold(
+          return Scaffold(
             body: Center(
-                child: CircularProgressIndicator(color: DT.metricBlue)),
+                child: CircularProgressIndicator(color: DT.of(context).accentPrimary)),
           );
         }
         if (state is ChatError) {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
+                tooltip: 'Vissza',
                 icon: Icon(Icons.arrow_back_ios_new,
                     color: DT.of(context).textPrimary, size: 20),
                 onPressed: () => context.pop(),
@@ -213,6 +213,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       titleSpacing: 0,
       leading: IconButton(
+        tooltip: 'Vissza',
         icon: Icon(Icons.arrow_back_ios_new,
             color: DT.of(context).textPrimary, size: 20),
         onPressed: () => context.pop(),
@@ -226,7 +227,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                AvatarWidget(name: conversation.contactName, size: 40),
+                UserAvatar(name: conversation.contactName, size: 40),
                 if (conversation.isOnline)
                   Positioned(
                     right: 0,
@@ -235,7 +236,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: DT.of(context).accentSuccess,
                         shape: BoxShape.circle,
                         border:
                             Border.all(color: DT.of(context).textOnAccent, width: 2),
@@ -245,11 +246,14 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
             const SizedBox(width: DT.s3),
-            Column(
+            Expanded(
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   conversation.contactName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: DT.of(context).textPrimary,
                     fontSize: 15,
@@ -260,7 +264,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   conversation.isOnline ? 'Aktív most' : 'Offline',
                   style: TextStyle(
                     color: conversation.isOnline
-                        ? Colors.green
+                        ? DT.of(context).accentSuccess
                         : DT.of(context).textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -268,21 +272,10 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ],
             ),
+            ),
           ],
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.call_outlined,
-              color: DT.metricBlue, size: 24),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.video_call_outlined,
-              color: DT.metricBlue, size: 26),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 }
@@ -395,7 +388,7 @@ class _MessageRow extends StatelessWidget {
                 width: 28,
                 height: 28,
                 child: isGroupEnd
-                    ? AvatarWidget(name: contactName, size: 28)
+                    ? UserAvatar(name: contactName, size: 28)
                     : null,
               ),
               const SizedBox(width: 6),
@@ -410,7 +403,7 @@ class _MessageRow extends StatelessWidget {
                     horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: message.isSentByMe
-                      ? DT.metricBlue
+                      ? DT.of(context).accentPrimary
                       : DT.of(context).challengeCardGradientStart,
                   borderRadius: _radius(),
                   boxShadow: [
@@ -430,7 +423,7 @@ class _MessageRow extends StatelessWidget {
                       message.text,
                       style: TextStyle(
                         color: message.isSentByMe
-                            ? Colors.white
+                            ? DT.of(context).textOnAccent
                             : DT.of(context).textPrimary,
                         fontSize: 15,
                         height: 1.35,
@@ -442,7 +435,7 @@ class _MessageRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         color: message.isSentByMe
-                            ? Colors.white.withValues(alpha: 0.7)
+                            ? DT.of(context).textOnAccent.withValues(alpha: 0.7)
                             : DT.of(context).textSecondary,
                       ),
                     ),
@@ -507,19 +500,6 @@ class _InputBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Emoji button
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: GestureDetector(
-              onTap: () {},
-              child: const Icon(
-                Icons.sentiment_satisfied_alt_outlined,
-                color: DT.metricBlue,
-                size: 28,
-              ),
-            ),
-          ),
-          const SizedBox(width: DT.s2),
 
           // Text field (pill)
           Expanded(
@@ -551,7 +531,7 @@ class _InputBar extends StatelessWidget {
           ),
           const SizedBox(width: DT.s2),
 
-          // Right side: animated switch between media icons and send
+          // Send button; pops when it becomes enabled.
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: AnimatedSwitcher(
@@ -560,32 +540,19 @@ class _InputBar extends StatelessWidget {
               switchOutCurve: Curves.easeIn,
               transitionBuilder: (child, anim) =>
                   ScaleTransition(scale: anim, child: child),
-              child: canSend
-                  ? GestureDetector(
-                      key: const ValueKey('send'),
-                      onTap: onSend,
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: const BoxDecoration(
-                          color: DT.metricBlue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.send_rounded,
-                            color: Colors.white, size: 18),
-                      ),
-                    )
-                  : Row(
-                      key: const ValueKey('media'),
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.camera_alt_outlined,
-                            color: DT.metricBlue, size: 28),
-                        SizedBox(width: DT.s3),
-                        Icon(Icons.mic_none_outlined,
-                            color: DT.metricBlue, size: 28),
-                      ],
-                    ),
+              child: IconButton.filled(
+                key: ValueKey(canSend),
+                tooltip: 'Küldés',
+                onPressed: canSend ? onSend : null,
+                icon: const Icon(Icons.send_rounded, size: 20),
+                style: IconButton.styleFrom(
+                  fixedSize: const Size.square(DT.minTap),
+                  backgroundColor: DT.of(context).accentPrimary,
+                  foregroundColor: DT.of(context).textOnAccent,
+                  disabledBackgroundColor: DT.of(context).borderGrey,
+                  disabledForegroundColor: DT.of(context).textSecondary,
+                ),
+              ),
             ),
           ),
         ],
@@ -607,7 +574,7 @@ class _EmptyChat extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AvatarWidget(name: name, size: 72),
+          UserAvatar(name: name, size: 72),
           const SizedBox(height: DT.s4),
           Text(
             name,

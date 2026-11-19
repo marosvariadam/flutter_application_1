@@ -5,6 +5,12 @@ import 'package:flutter_application_1/features/trainer/bloc/trainer_request_bloc
 import 'package:flutter_application_1/features/trainer/data/models/trainer_request_model.dart';
 import 'package:flutter_application_1/features/trainer/data/repositories/trainer_request_repository.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/reload_and_wait.dart';
+import 'package:flutter_application_1/app/shared/widgets/empty_state.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
+import 'package:flutter_application_1/app/shared/widgets/section_header.dart';
 
 class AthleteRequestsPage extends StatelessWidget {
   const AthleteRequestsPage({super.key});
@@ -56,11 +62,7 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
         backgroundColor: DT.of(context).bg,
         elevation: 0,
         leading: BackButton(color: DT.of(context).textPrimary),
-        title: Text(
-          'Edzőhöz csatlakozás',
-          style: TextStyle(
-              color: DT.of(context).textPrimary, fontWeight: FontWeight.w600),
-        ),
+        title: Text('Edzőhöz csatlakozás', style: DTText.of(context).title),
         centerTitle: true,
       ),
       body: BlocConsumer<TrainerRequestBloc, TrainerRequestState>(
@@ -83,7 +85,14 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
           final requests =
               state is TrainerRequestsLoaded ? state.requests : <TrainerRequestModel>[];
 
-          return ListView(
+          final bloc = context.read<TrainerRequestBloc>();
+          return RefreshIndicator(
+            onRefresh: () => reloadAndWait(
+                bloc,
+                () => bloc.add(LoadMyRequests()),
+                (s) => s is TrainerRequestsLoaded || s is TrainerRequestError),
+            child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(DT.s5),
             children: [
               // Find trainer card
@@ -96,46 +105,34 @@ class _AthleteRequestsViewState extends State<_AthleteRequestsView> {
               ),
               const SizedBox(height: DT.s6),
               // My requests header
-              Text(
-                'Kéréseim',
-                style: TextStyle(
-                    color: DT.of(context).textPrimary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: DT.s4),
-              ),
-              const SizedBox(height: DT.s3),
+              const SectionHeader(title: 'Kéréseim'),
               // Requests list
-              if (isLoading)
-                const Center(
-                    child: Padding(
-                  padding: EdgeInsets.all(DT.s5),
-                  child: CircularProgressIndicator(),
-                ))
-              else if (requests.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: DT.s4),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Icon(Icons.inbox_outlined,
-                            size: 48, color: DT.of(context).iconLightGrey),
-                        const SizedBox(height: DT.s3),
-                        Text(
-                          'Még nem küldtél kérést.',
-                          style: TextStyle(
-                              color: DT.of(context).textSecondary,
-                              fontSize: DT.s3),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-                ...requests.map((req) => Padding(
-                      padding: const EdgeInsets.only(bottom: DT.s3),
-                      child: _RequestCard(request: req),
-                    )),
+              FadeSwitcher(
+                child: isLoading
+                    ? const SkeletonList(
+                        key: ValueKey('loading'), itemCount: 2)
+                    : requests.isEmpty
+                        ? const EmptyState(
+                            key: ValueKey('empty'),
+                            icon: Icons.inbox_outlined,
+                            title: 'Még nem küldtél kérést',
+                            message:
+                                'Add meg az edződ e-mail-címét a fenti mezőben.',
+                          )
+                        : Column(
+                            key: const ValueKey('content'),
+                            children: [
+                              for (final req in requests)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(bottom: DT.s3),
+                                  child: _RequestCard(request: req),
+                                ),
+                            ],
+                          ),
+              ),
             ],
+            ),
           );
         },
       ),
@@ -224,20 +221,20 @@ class _FindTrainerCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: loading ? null : onSend,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: DT.metricBlue,
+                  backgroundColor: DT.of(context).accentPrimary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DT.rCardSmall)),
                 ),
                 child: loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : const Text(
+                            strokeWidth: 2, color: DT.of(context).textOnAccent))
+                    : Text(
                         'Kérés küldése',
                         style: TextStyle(
-                            color: DT.textWhite,
+                            color: DT.of(context).textOnAccent,
                             fontWeight: FontWeight.w600,
                             fontSize: DT.s4),
                       ),
@@ -259,10 +256,10 @@ class _RequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = request.isAccepted
-        ? Colors.green
+        ? DT.of(context).accentSuccess
         : request.isRejected
-            ? DT.cardRed
-            : DT.metricBlue;
+            ? DT.of(context).accentDanger
+            : DT.of(context).accentPrimary;
     final statusLabel = request.isAccepted
         ? 'Elfogadva'
         : request.isRejected
@@ -334,9 +331,9 @@ class _RequestCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => _confirmCancel(context, request.id),
                   style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: DT.cardRed)),
-                  child: const Text('Visszavonás',
-                      style: TextStyle(color: DT.cardRed)),
+                      side: BorderSide(color: DT.of(context).accentDanger)),
+                  child: Text('Visszavonás',
+                      style: TextStyle(color: DT.of(context).accentDanger)),
                 ),
               ),
             ],
@@ -361,8 +358,8 @@ class _RequestCard extends StatelessWidget {
               Navigator.pop(ctx);
               context.read<TrainerRequestBloc>().add(CancelRequest(requestId));
             },
-            child: const Text('Visszavonás',
-                style: TextStyle(color: DT.cardRed)),
+            child: Text('Visszavonás',
+                style: TextStyle(color: DT.of(context).accentDanger)),
           ),
         ],
       ),

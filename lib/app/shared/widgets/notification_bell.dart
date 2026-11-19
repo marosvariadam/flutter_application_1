@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/notifications/bloc/notification_bloc.dart';
 
 /// AppBar action that shows an unread badge and navigates to /notifications.
@@ -16,6 +17,7 @@ class NotificationBell extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             IconButton(
+              tooltip: 'Értesítések',
               icon: const Icon(Icons.notifications_outlined),
               onPressed: () => context.push('/notifications'),
             ),
@@ -26,15 +28,15 @@ class NotificationBell extends StatelessWidget {
                 child: Container(
                   width: 16,
                   height: 16,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
+                  decoration: BoxDecoration(
+                    color: DT.of(context).accentDanger,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       unread > 9 ? '9+' : unread.toString(),
-                      style: const TextStyle(
-                          color: Colors.white,
+                      style: TextStyle(
+                          color: DT.of(context).textOnAccent,
                           fontSize: 9,
                           fontWeight: FontWeight.w700),
                     ),

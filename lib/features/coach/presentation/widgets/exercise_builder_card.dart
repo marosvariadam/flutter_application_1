@@ -164,20 +164,21 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: DT.s2, vertical: 2),
                         decoration: BoxDecoration(
-                          color: DT.metricBlue.withValues(alpha: 0.1),
+                          color: DT.of(context).accentPrimary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(ex.muscleGroup,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
-                                color: DT.metricBlue,
+                                color: DT.of(context).accentPrimary,
                                 fontWeight: FontWeight.w500)),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                    icon: const Icon(Icons.delete_outline, color: DT.cardRed),
+                    tooltip: 'Gyakorlat eltávolítása',
+                    icon: Icon(Icons.delete_outline, color: DT.of(context).accentDanger),
                     onPressed: widget.onRemove),
               ],
             ),
@@ -203,13 +204,13 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
                           horizontal: DT.s3, vertical: DT.s1),
                       decoration: BoxDecoration(
                         color: selected
-                            ? DT.metricBlue
+                            ? DT.of(context).accentPrimary
                             : DT.of(context).bg,
                         borderRadius:
                             BorderRadius.circular(DT.rCardSmall),
                         border: Border.all(
                             color: selected
-                                ? DT.metricBlue
+                                ? DT.of(context).accentPrimary
                                 : DT.of(context).borderGrey),
                       ),
                       child: Text(opt,
@@ -217,7 +218,7 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: selected
-                                  ? Colors.white
+                                  ? DT.of(context).textOnAccent
                                   : DT.of(context).textSecondary)),
                     ),
                   ),
@@ -284,10 +285,10 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
                           width: 28,
                           child: Center(
                             child: Text('${i + 1}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: DT.s3,
                                     fontWeight: FontWeight.w700,
-                                    color: DT.metricBlue)),
+                                    color: DT.of(context).accentPrimary)),
                           ),
                         ),
                         const SizedBox(width: DT.s3),
@@ -326,10 +327,25 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
                         SizedBox(
                           width: 28,
                           child: ex.setEntries.length > 1
-                              ? GestureDetector(
-                                  onTap: () => _removeSet(i),
-                                  child: const Icon(Icons.close,
-                                      size: 16, color: DT.cardRed),
+                              ? Tooltip(
+                                  message: 'Sorozat törlése',
+                                  child: Semantics(
+                                    button: true,
+                                    label: '${i + 1}. sorozat törlése',
+                                    onTap: () => _removeSet(i),
+                                    excludeSemantics: true,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () => _removeSet(i),
+                                      child: SizedBox(
+                                        height: DT.minTap,
+                                        child: Icon(Icons.close,
+                                            size: 16,
+                                            color:
+                                                DT.of(context).accentDanger),
+                                      ),
+                                    ),
+                                  ),
                                 )
                               : const SizedBox.shrink(),
                         ),
@@ -345,13 +361,13 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
                     padding: const EdgeInsets.symmetric(vertical: DT.s2),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.add, size: 15, color: DT.metricBlue),
+                      children: [
+                        Icon(Icons.add, size: 15, color: DT.of(context).accentPrimary),
                         SizedBox(width: 4),
                         Text('Sorozat hozzáadása',
                             style: TextStyle(
                                 fontSize: 12,
-                                color: DT.metricBlue,
+                                color: DT.of(context).accentPrimary,
                                 fontWeight: FontWeight.w600)),
                       ],
                     ),
@@ -368,7 +384,7 @@ class _ExerciseBuilderCardState extends State<ExerciseBuilderCard> {
               padding: const EdgeInsets.symmetric(
                   horizontal: DT.s4, vertical: DT.s2),
               decoration: BoxDecoration(
-                color: DT.metricGreen,
+                color: DT.of(context).successSoft,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(DT.rCardSmall),
                   bottomRight: Radius.circular(DT.rCardSmall),

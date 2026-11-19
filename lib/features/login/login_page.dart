@@ -110,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                           labelText: 'Jelszó',
                           prefixIcon: const Icon(Icons.lock),
                           suffixIcon: IconButton(
+                            tooltip: 'Jelszó megjelenítése / elrejtése',
                             icon: Icon(
                               _obscurePassword
                                   ? Icons.visibility
@@ -137,23 +138,23 @@ class _LoginPageState extends State<LoginPage> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: DT.metricBlue,
+                            backgroundColor: DT.of(context).accentPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.circular(DT.rCardSmall),
                             ),
                           ),
                           child: _isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: Colors.white))
+                                      color: DT.of(context).textOnAccent))
                               : Text(
                                   'Bejelentkezés',
                                   style: TextStyle(
-                                    color: DT.textWhite,
+                                    color: DT.of(context).textOnAccent,
                                     fontSize: DT.s4,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -167,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: OutlinedButton(
                           onPressed: () => context.push('/register'),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: DT.metricBlue),
+                            side: BorderSide(color: DT.of(context).accentPrimary),
                             shape: RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.circular(DT.rCardSmall),
@@ -176,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             'Regisztráció',
                             style: TextStyle(
-                              color: DT.metricBlue,
+                              color: DT.of(context).accentPrimary,
                               fontSize: DT.s4,
                               fontWeight: FontWeight.w600,
                             ),

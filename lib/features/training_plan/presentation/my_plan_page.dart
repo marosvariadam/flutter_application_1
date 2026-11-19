@@ -10,6 +10,11 @@ import 'package:flutter_application_1/features/training_plan/data/models/trainin
 import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_explanation_panel.dart';
 import 'package:flutter_application_1/features/training_plan/presentation/widgets/plan_read_only_days.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
+import 'package:flutter_application_1/app/shared/widgets/fade_switcher.dart';
+import 'package:flutter_application_1/app/shared/widgets/refreshable_fill.dart';
+import 'package:flutter_application_1/app/shared/widgets/skeleton.dart';
 
 /// Athlete's read-only view of their accepted training plans
 /// (`/plan/mine`). Shows the newest plan by default; older ones can be
@@ -46,40 +51,54 @@ class _MyPlanViewState extends State<_MyPlanView> {
         backgroundColor: c.bg,
         elevation: 0,
         leading: BackButton(color: c.textPrimary),
-        title: Text(
-          'Edzéstervem',
-          style: TextStyle(
-            color: c.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text('Edzéstervem', style: DTText.of(context).title),
         centerTitle: true,
       ),
       body: BlocBuilder<MyPlansCubit, MyPlansState>(
-        builder: (context, state) {
+        builder: (context, state) =>
+            FadeSwitcher(child: _body(context, state)),
+      ),
+    );
+  }
+
+  Widget _body(BuildContext context, MyPlansState state) {
+          final cubit = context.read<MyPlansCubit>();
           if (state is MyPlansEmpty) {
-            return const EmptyState(
-              icon: Icons.event_note,
-              title: 'Még nincs elfogadott edzésterved.',
-              message: 'Amint az edződ elfogad egy tervet, itt megjelenik.',
+            return RefreshIndicator(
+              key: const ValueKey('empty'),
+              onRefresh: cubit.load,
+              child: const RefreshableFill(
+                child: EmptyState(
+                  icon: Icons.event_note,
+                  title: 'Még nincs elfogadott edzésterved.',
+                  message: 'Amint az edződ elfogad egy tervet, itt megjelenik.',
+                ),
+              ),
             );
           }
           if (state is MyPlansError) {
             return ErrorState(
+              key: const ValueKey('error'),
               message: state.message,
-              onRetry: () => context.read<MyPlansCubit>().load(),
+              onRetry: cubit.load,
             );
           }
           if (state is! MyPlansLoaded) {
-            return Center(
-                child: CircularProgressIndicator(color: c.accentPrimary));
+            return const SkeletonList(
+                key: ValueKey('loading'),
+                itemCount: 3,
+                itemHeight: 120,
+                padding: EdgeInsets.all(DT.s4));
           }
           final plan = state.plans.firstWhere(
             (p) => p.id == _selectedId,
             orElse: () => state.current,
           );
-          return ListView(
+          return RefreshIndicator(
+            key: const ValueKey('content'),
+            onRefresh: cubit.load,
+            child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(DT.s4),
             children: [
               if (state.plans.length > 1) ...[
@@ -97,10 +116,8 @@ class _MyPlanViewState extends State<_MyPlanView> {
               PlanReadOnlyDays(plan: plan),
               const SizedBox(height: DT.s8),
             ],
+            ),
           );
-        },
-      ),
-    );
   }
 }
 
@@ -130,7 +147,10 @@ class _PlanSwitcher extends StatelessWidget {
           return ChoiceChip(
             label: Text(DateFormat('yyyy.MM.dd').format(p.createdAt.toLocal())),
             selected: selected,
-            onSelected: (_) => onSelect(p.id),
+            onSelected: (_) {
+              HapticFeedback.selectionClick();
+              onSelect(p.id);
+            },
             selectedColor: c.accentPrimary.withValues(alpha: 0.15),
             backgroundColor: c.cardSurface,
             labelStyle: TextStyle(

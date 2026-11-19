@@ -5,6 +5,7 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/onboarding/bloc/onboarding_bloc.dart';
 import 'package:flutter_application_1/features/onboarding/data/models/onboarding_models.dart';
 import 'package:flutter_application_1/features/trainer/bloc/athlete_status_cubit.dart';
+import 'package:flutter/services.dart';
 
 class AthleteSurveyPage extends StatefulWidget {
   const AthleteSurveyPage({super.key});
@@ -162,12 +163,12 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                     Container(
                       width: 80,
                       height: 80,
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
+                      decoration: BoxDecoration(
+                        color: DT.of(context).accentSuccess,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.check,
-                          color: Colors.white, size: 40),
+                      child: Icon(Icons.check,
+                          color: DT.of(context).textOnAccent, size: 40),
                     ),
                     const SizedBox(height: DT.s5),
                     Text(
@@ -194,16 +195,16 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                           context.go('/home');
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: DT.metricBlue,
+                          backgroundColor: DT.of(context).accentPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.circular(DT.rCardSmall),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Tovább a főoldalra',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: DT.of(context).textOnAccent,
                             fontWeight: FontWeight.w600,
                             fontSize: DT.s4,
                           ),
@@ -271,8 +272,8 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                     ? null
                     : () => _submit(form!),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: DT.metricBlue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: DT.of(context).accentPrimary,
+                  foregroundColor: DT.of(context).textOnAccent,
                   padding:
                       const EdgeInsets.symmetric(vertical: DT.s4),
                   shape: RoundedRectangleBorder(
@@ -281,11 +282,11 @@ class _AthleteSurveyPageState extends State<AthleteSurveyPage> {
                   ),
                 ),
                 child: state is OnboardingLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2, color: DT.of(context).textOnAccent),
                       )
                     : const Text('Felmérő beküldése',
                         style: TextStyle(fontWeight: FontWeight.w600)),
@@ -406,7 +407,7 @@ class _MultipleChoiceAnswer extends StatelessWidget {
                 value: o,
                 title: Text(o,
                     style: TextStyle(color: DT.of(context).textPrimary, fontSize: DT.s3)),
-                activeColor: DT.metricBlue,
+                activeColor: DT.of(context).accentPrimary,
                 contentPadding: EdgeInsets.zero,
                 dense: true,
               ),
@@ -432,21 +433,24 @@ class _ScaleAnswer extends StatelessWidget {
         final value = i + 1;
         final isSelected = selected == value;
         return GestureDetector(
-          onTap: () => onChanged(value.toString()),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onChanged(value.toString());
+          },
           child: Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isSelected ? DT.metricBlue : DT.of(context).bg,
+              color: isSelected ? DT.of(context).accentPrimary : DT.of(context).bg,
               borderRadius: BorderRadius.circular(DT.rCardSmall),
               border: Border.all(
-                  color: isSelected ? DT.metricBlue : DT.of(context).borderGrey),
+                  color: isSelected ? DT.of(context).accentPrimary : DT.of(context).borderGrey),
             ),
             child: Center(
               child: Text(
                 value.toString(),
                 style: TextStyle(
-                  color: isSelected ? Colors.white : DT.of(context).textPrimary,
+                  color: isSelected ? DT.of(context).textOnAccent : DT.of(context).textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),

@@ -5,6 +5,7 @@ import 'package:flutter_application_1/app/design/design_tokens.dart';
 import 'package:flutter_application_1/features/athlete_profile/data/models/athlete_profile_model.dart';
 import 'package:flutter_application_1/features/training_plan/data/models/training_plan_model.dart';
 import 'package:flutter_application_1/features/training_plan/data/plan_volume_landmarks.dart';
+import 'package:flutter_application_1/app/design/dt_text.dart';
 
 /// Per-muscle-group weekly set count bar chart with MEV / MRV reference
 /// lines. Secondary-muscle contributions aren't drawn — we only have the
@@ -42,7 +43,9 @@ class PlanEditorVolumeChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.end,
+            spacing: DT.s2,
             children: [
               Text(
                 'Heti volumen',
@@ -52,11 +55,9 @@ class PlanEditorVolumeChart extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(width: DT.s2),
               Text(
                 '(szett / izomcsoport)',
-                style: TextStyle(
-                    color: DT.of(context).textSecondary, fontSize: 11),
+                style: DTText.of(context).caption,
               ),
             ],
           ),
@@ -156,10 +157,10 @@ class PlanEditorVolumeChart extends StatelessWidget {
       final value = (sets[g] ?? 0).toDouble();
       final range = rangeFor(g, level);
       final color = value < range.mev
-          ? DT.cardOrange
+          ? DT.of(context).accentOrange
           : value > range.mrv
-              ? DT.cardRed
-              : DT.metricBlue;
+              ? DT.of(context).accentDanger
+              : DT.of(context).accentPrimary;
       groups.add(BarChartGroupData(
         x: i,
         barRods: [
@@ -198,7 +199,7 @@ class PlanEditorVolumeChart extends StatelessWidget {
       horizontalLines: [
         HorizontalLine(
           y: medianMev,
-          color: DT.cardOrange.withValues(alpha: 0.6),
+          color: DT.of(context).accentOrange.withValues(alpha: 0.6),
           strokeWidth: 1,
           dashArray: [4, 4],
           label: HorizontalLineLabel(
@@ -206,13 +207,13 @@ class PlanEditorVolumeChart extends StatelessWidget {
             alignment: Alignment.topRight,
             padding: const EdgeInsets.only(right: 4, bottom: 2),
             labelResolver: (_) => 'MEV (átl.)',
-            style: const TextStyle(
-                color: DT.cardOrange, fontSize: 9, fontWeight: FontWeight.w700),
+            style: TextStyle(
+                color: DT.of(context).accentOrange, fontSize: 9, fontWeight: FontWeight.w700),
           ),
         ),
         HorizontalLine(
           y: medianMrv,
-          color: DT.cardRed.withValues(alpha: 0.6),
+          color: DT.of(context).accentDanger.withValues(alpha: 0.6),
           strokeWidth: 1,
           dashArray: [4, 4],
           label: HorizontalLineLabel(
@@ -220,8 +221,8 @@ class PlanEditorVolumeChart extends StatelessWidget {
             alignment: Alignment.topRight,
             padding: const EdgeInsets.only(right: 4, bottom: 2),
             labelResolver: (_) => 'MRV (átl.)',
-            style: const TextStyle(
-                color: DT.cardRed, fontSize: 9, fontWeight: FontWeight.w700),
+            style: TextStyle(
+                color: DT.of(context).accentDanger, fontSize: 9, fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -235,18 +236,19 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      spacing: DT.s3,
+      runSpacing: DT.s1,
       children: [
-        _dot(context, DT.cardOrange, 'MEV alatt'),
-        const SizedBox(width: DT.s3),
-        _dot(context, DT.metricBlue, 'MEV–MRV'),
-        const SizedBox(width: DT.s3),
-        _dot(context, DT.cardRed, 'MRV felett'),
+        _dot(context, DT.of(context).accentOrange, 'MEV alatt'),
+        _dot(context, DT.of(context).accentPrimary, 'MEV–MRV'),
+        _dot(context, DT.of(context).accentDanger, 'MRV felett'),
       ],
     );
   }
 
   Widget _dot(BuildContext ctx, Color color, String label) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 10,
@@ -255,9 +257,7 @@ class _Legend extends StatelessWidget {
                 color: color, borderRadius: BorderRadius.circular(2)),
           ),
           const SizedBox(width: 4),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 10, color: DT.of(ctx).textSecondary)),
+          Text(label, style: DTText.of(ctx).caption),
         ],
       );
 }

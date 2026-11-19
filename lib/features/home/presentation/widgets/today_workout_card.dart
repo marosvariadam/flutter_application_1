@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_application_1/app/design/design_tokens.dart';
-import 'package:flutter_application_1/app/design/dt_colors.dart';
 import 'package:flutter_application_1/app/design/dt_text.dart';
 import 'package:flutter_application_1/app/shared/widgets/dt_card.dart';
+import 'package:flutter_application_1/app/shared/widgets/progress_ring.dart';
+import 'package:flutter_application_1/app/shared/widgets/status_chip.dart';
 import 'package:flutter_application_1/features/workout/data/models/workout_model.dart';
+import 'package:flutter_application_1/features/workout/presentation/widgets/workout_colors.dart';
 
 /// The selected day's workout: tinted in the workout's color with a left
-/// accent bar, difficulty badge, title, description and meta row.
+/// accent bar, difficulty chip, title, description, a progress ring
+/// (completed exercises / total) and a meta row. A completed workout turns
+/// the bar and ring green.
 class TodayWorkoutCard extends StatelessWidget {
   final WorkoutModel workout;
   final VoidCallback onTap;
@@ -18,20 +22,17 @@ class TodayWorkoutCard extends StatelessWidget {
     required this.onTap,
   });
 
-  static Color difficultyColor(DTColors c, WorkoutDifficulty d) => switch (d) {
-        WorkoutDifficulty.easy => c.difficultyEasy,
-        WorkoutDifficulty.moderate => c.difficultyMedium,
-        WorkoutDifficulty.hard => c.difficultyHard,
-        WorkoutDifficulty.intense => c.difficultyIntense,
-      };
-
   @override
   Widget build(BuildContext context) {
     final c = DT.of(context);
     final t = DTText.of(context);
     final radius = BorderRadius.circular(DT.rCardSmall);
+    final isCompleted = workout.status == WorkoutStatus.completed;
+    final total = workout.exercises.length;
+    final done = isCompleted ? total : workout.completedExercises;
+    final accent = isCompleted ? c.accentSuccess : workout.color;
     return Material(
-      color: workout.color.withValues(alpha: 0.25),
+      color: accent.withValues(alpha: isCompleted ? 0.12 : 0.25),
       borderRadius: radius,
       child: InkWell(
         onTap: onTap,
@@ -40,42 +41,60 @@ class TodayWorkoutCard extends StatelessWidget {
           padding: const EdgeInsets.all(DT.s5),
           decoration: BoxDecoration(
             borderRadius: radius,
-            border: Border(left: BorderSide(color: workout.color, width: 4)),
+            border: Border(left: BorderSide(color: accent, width: 4)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: DT.s2, vertical: DT.s1),
-                    decoration: BoxDecoration(
-                      color: difficultyColor(c, workout.difficulty),
-                      borderRadius: BorderRadius.circular(DT.rXs),
-                    ),
-                    child: Text(
-                      workout.difficulty.label,
-                      style: t.caption.copyWith(
-                          color: c.textOnAccent, fontWeight: FontWeight.w600),
+                  Expanded(
+                    child: Wrap(
+                      spacing: DT.s2,
+                      runSpacing: DT.s1,
+                      children: [
+                        DifficultyChip(workout.difficulty),
+                        if (isCompleted)
+                          const StatusChip('Teljesítve',
+                              tone: StatusTone.success, icon: Icons.check),
+                      ],
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: DT.s2),
                   Icon(Icons.arrow_forward_ios,
                       size: 14, color: c.textSecondary),
                 ],
               ),
               const SizedBox(height: DT.s3),
-              Text(workout.title, style: t.h2),
-              if (workout.description != null) ...[
-                const SizedBox(height: DT.s1),
-                Text(
-                  workout.description!,
-                  style: t.caption,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(workout.title,
+                            style: t.h2,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                        if (workout.description != null) ...[
+                          const SizedBox(height: DT.s1),
+                          Text(
+                            workout.description!,
+                            style: t.caption,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (total > 0) ...[
+                    const SizedBox(width: DT.s3),
+                    ProgressRing(done: done, total: total, unit: 'gyakorlat'),
+                  ],
+                ],
+              ),
               const SizedBox(height: DT.s4),
               Wrap(
                 spacing: DT.s4,

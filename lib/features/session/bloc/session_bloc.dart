@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_application_1/app/design/design_tokens.dart';
+import 'package:flutter_application_1/app/design/dt_colors.dart';
 import 'package:flutter_application_1/features/session/data/models/session_model.dart';
 
 part 'session_event.dart';
@@ -18,7 +18,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     try {
       // Mock data - replace with a repository/API call when the backend is ready
       final sessions = [
-        const SessionModel(
+        SessionModel(
           id: '1',
           title: 'Teljes test edzés',
           trainer: 'John Doe',
@@ -26,9 +26,9 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
           description: 'Egy átfogó edzésprogram az egész test erősítésére.',
           duration: '45 perc',
           difficulty: 'Könnyű',
-          color: DT.cardOrange,
+          color: DTColors.light.accentOrange,
         ),
-        const SessionModel(
+        SessionModel(
           id: '2',
           title: 'Felső test edzés',
           trainer: 'John Doe',
@@ -36,9 +36,9 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
           description: 'Edzés a felső test izmainak erősítésére.',
           duration: '45 perc',
           difficulty: 'Közepes',
-          color: DT.cardYellow,
+          color: DTColors.light.accentYellow,
         ),
-        const SessionModel(
+        SessionModel(
           id: '3',
           title: 'Alsó test edzés',
           trainer: 'John Doe',
@@ -46,9 +46,9 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
           description: 'Edzés az alsó test izmainak erősítésére.',
           duration: '45 perc',
           difficulty: 'Nehéz',
-          color: DT.cardBlue,
+          color: DTColors.light.accentBlueSoft,
         ),
-        const SessionModel(
+        SessionModel(
           id: '4',
           title: 'Kardio edzés',
           trainer: 'Jane Smith',
@@ -56,7 +56,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
           description: 'Intenzív kardio edzés az állóképesség fejlesztésére.',
           duration: '30 perc',
           difficulty: 'Közepes',
-          color: DT.cardTeal,
+          color: DTColors.light.accentTeal,
         ),
       ];
       emit(SessionLoaded(sessions));

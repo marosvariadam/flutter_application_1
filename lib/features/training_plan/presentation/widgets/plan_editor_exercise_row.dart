@@ -143,7 +143,7 @@ class _PlanEditorExerciseRowState extends State<PlanEditorExerciseRow> {
     final errs = widget.rowViolations.where((v) => v.isError).toList();
     final warns = widget.rowViolations.where((v) => v.isWarning).toList();
     final rowColor = widget.highlighted
-        ? DT.metricBlue.withValues(alpha: 0.10)
+        ? DT.of(context).accentPrimary.withValues(alpha: 0.10)
         : DT.of(context).cardSurface;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -193,7 +193,7 @@ class _PlanEditorExerciseRowState extends State<PlanEditorExerciseRow> {
               ),
               IconButton(
                 tooltip: 'Törlés',
-                icon: const Icon(Icons.delete_outline, color: DT.cardRed),
+                icon: Icon(Icons.delete_outline, color: DT.of(context).accentDanger),
                 onPressed: () => context
                     .read<PlanEditorBloc>()
                     .add(PlanEditorRemoveExercise(

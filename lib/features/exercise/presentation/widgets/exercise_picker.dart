@@ -237,11 +237,11 @@ class _ExercisePickerState extends State<ExercisePicker> {
                   }),
                   icon: Icon(
                       _mode == _PickerMode.custom ? Icons.list : Icons.add,
-                      size: 16, color: DT.metricBlue),
+                      size: 16, color: DT.of(context).accentPrimary),
                   label: Text(
                       _mode == _PickerMode.custom ? 'Lista' : 'Új gyakorlat',
-                      style: const TextStyle(
-                          color: DT.metricBlue, fontSize: DT.s3)),
+                      style: TextStyle(
+                          color: DT.of(context).accentPrimary, fontSize: DT.s3)),
                   style: TextButton.styleFrom(padding: EdgeInsets.zero),
                 ),
             ],
@@ -431,7 +431,7 @@ class ExercisePickerTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: DT.s2, vertical: 2),
               decoration: BoxDecoration(
-                color: DT.cardTeal.withValues(alpha: 0.2),
+                color: DT.of(context).accentTeal.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(DT.rChip),
               ),
               child: Text(
@@ -439,14 +439,14 @@ class ExercisePickerTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: DT.cardTeal.withValues(alpha: 0.9),
+                  color: DT.of(context).accentTeal.withValues(alpha: 0.9),
                 ),
               ),
             ),
         ],
       ),
       subtitle: _ExerciseSubtitle(exercise: exercise),
-      trailing: const Icon(Icons.add_circle, color: DT.metricBlue),
+      trailing: Icon(Icons.add_circle, color: DT.of(context).accentPrimary),
     );
   }
 }
@@ -603,17 +603,17 @@ class _CustomExerciseForm extends StatelessWidget {
             child: ElevatedButton(
               onPressed: isCreating ? null : onAdd,
               style: ElevatedButton.styleFrom(
-                backgroundColor: DT.metricBlue,
+                backgroundColor: DT.of(context).accentPrimary,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(DT.rCardSmall)),
               ),
               child: isCreating
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20, height: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Text('Létrehozás és hozzáadás',
-                      style: TextStyle(color: Colors.white)),
+                          strokeWidth: 2, color: DT.of(context).textOnAccent))
+                  : Text('Létrehozás és hozzáadás',
+                      style: TextStyle(color: DT.of(context).textOnAccent)),
             ),
           ),
           const SizedBox(height: DT.s4),
