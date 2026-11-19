@@ -36,6 +36,7 @@ import 'package:flutter_application_1/features/prediction/bloc/prediction_cubit.
 import 'package:flutter_application_1/features/prediction/data/repositories/prediction_repository.dart';
 import 'package:flutter_application_1/features/training_block/bloc/training_block_bloc.dart';
 import 'package:flutter_application_1/features/training_block/data/repositories/training_block_repository.dart';
+import 'package:flutter_application_1/features/training_plan/data/repositories/training_plan_repository.dart';
 import 'package:flutter_application_1/features/workout/bloc/workout_bloc.dart';
 import 'package:flutter_application_1/features/workout/data/repositories/workout_repository.dart';
 
@@ -65,6 +66,7 @@ class _AppState extends State<App> {
   late final ExerciseStatsRepository _exerciseStatsRepo;
   late final PredictionRepository _predictionRepo;
   late final TrainingBlockRepository _trainingBlockRepo;
+  late final TrainingPlanRepository _trainingPlanRepo;
   late final AthleteProfileRepository _athleteProfileRepo;
   late final AthleteStatusCubit _athleteStatusCubit;
 
@@ -101,6 +103,7 @@ class _AppState extends State<App> {
     _exerciseStatsRepo = ExerciseStatsRepository(_apiClient);
     _predictionRepo = PredictionRepository(_apiClient);
     _trainingBlockRepo = TrainingBlockRepository(_apiClient);
+    _trainingPlanRepo = TrainingPlanRepository(_apiClient);
     _athleteProfileRepo = AthleteProfileRepository(_apiClient);
 
     _authBloc = AuthBloc(authRepo: _authRepo, userRepo: _userRepo);
@@ -173,6 +176,7 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _exerciseStatsRepo),
         RepositoryProvider.value(value: _predictionRepo),
         RepositoryProvider.value(value: _trainingBlockRepo),
+        RepositoryProvider.value(value: _trainingPlanRepo),
         RepositoryProvider.value(value: _athleteProfileRepo),
       ],
       child: MultiBlocProvider(

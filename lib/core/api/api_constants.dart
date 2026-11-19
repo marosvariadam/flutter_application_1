@@ -89,6 +89,30 @@ class ApiConstants {
   static String athleteProfileForAthlete(String athleteId) =>
       '/api/athleteprofile/$athleteId';
 
+  // AI training plan generator (trainer-authored drafts, athlete reads).
+  /// POST → `GenerateResultModel`. Rate-limited server-side; generation
+  /// touches the LLM so clients should bump `receiveTimeout` to ~60s.
+  static const String planGenerate = '/api/plan/generate';
+  /// POST → `RefineResultModel`. Same rate limit + timeout notes as generate.
+  static String planRefine(String planId) => '/api/plan/$planId/refine';
+  /// PUT → `RefineResultModel` (diff is empty on manual edit).
+  static String planById(String planId) => '/api/plan/$planId';
+  /// POST → `ValidationResultModel`.
+  static String planValidate(String planId) => '/api/plan/$planId/validate';
+  /// POST → the updated `TrainingPlanModel`. 409 when already materialized.
+  static String planAccept(String planId) => '/api/plan/$planId/accept';
+  /// POST with `{ startDate }` → `MaterializeResultModel`.
+  static String planMaterialize(String planId) =>
+      '/api/plan/$planId/materialize';
+  /// GET → `PlanExplanationModel`. Rate-limited.
+  static String planExplanation(String planId) =>
+      '/api/plan/$planId/explanation';
+  /// GET → `List<TrainingPlanModel>` (trainer view, all plans).
+  static String planForAthlete(String athleteId) =>
+      '/api/plan/athlete/$athleteId';
+  /// GET → `List<TrainingPlanModel>` (athlete view, accepted only).
+  static const String planMine = '/api/plan/me';
+
   // SignalR Hubs
   static const String chatHub = '/hubs/chat';
   static const String notificationHub = '/hubs/notifications';

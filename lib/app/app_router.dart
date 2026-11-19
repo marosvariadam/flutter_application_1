@@ -12,6 +12,7 @@ import 'package:flutter_application_1/features/messaging/presentation/messaging_
 import 'package:flutter_application_1/features/notifications/presentation/notifications_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/athlete_survey_page.dart';
 import 'package:flutter_application_1/features/register/athlete_profile_survey_page.dart';
+import 'package:flutter_application_1/features/training_plan/presentation/plan_generate_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_form_builder_page.dart';
 import 'package:flutter_application_1/features/onboarding/presentation/trainer_responses_page.dart';
 import 'package:flutter_application_1/features/profiles/presentation/profiles_page.dart';
@@ -194,6 +195,18 @@ GoRouter buildRouter(AuthBloc authBloc, AthleteStatusCubit athleteStatusCubit) {
               athleteId: extra?['athleteId'],
               athleteName: extra?['athleteName'],
             ),
+          );
+        },
+      ),
+      // AI plan generator wizard. Reads athleteId from the query param so
+      // the entry link from athlete_detail_page doesn't depend on go_router
+      // extras (plain /plan/generate?athleteId=... also works from a push).
+      GoRoute(
+        path: '/plan/generate',
+        pageBuilder: (context, state) {
+          final athleteId = state.uri.queryParameters['athleteId'] ?? '';
+          return MaterialPage(
+            child: PlanGeneratePage(athleteId: athleteId),
           );
         },
       ),

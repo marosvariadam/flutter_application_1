@@ -213,6 +213,23 @@ class _AthleteDetailPageState extends State<AthleteDetailPage> {
                 ),
               ],
             ),
+            const SizedBox(height: DT.s3),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context
+                    .push('/plan/generate?athleteId=${widget.athleteId}'),
+                icon: const Icon(Icons.auto_awesome),
+                label: const Text('AI edzésterv'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: DT.metricBlue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(DT.rCardSmall)),
+                  padding: const EdgeInsets.symmetric(vertical: DT.s3),
+                ),
+              ),
+            ),
             const SizedBox(height: DT.s5),
             TrainerAthleteProfileCard(athleteId: widget.athleteId),
             const SizedBox(height: DT.s5),
