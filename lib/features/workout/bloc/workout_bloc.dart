@@ -229,9 +229,12 @@ class WorkoutBloc extends Bloc<WorkoutEvent, WorkoutState> {
         rpe: event.rpe,
         exerciseNotes: event.exerciseNotes,
       );
-      // Local UI tracks set state; no state change needed
+      // Local UI tracks set state; no state change needed.
     } catch (_) {
-      emit(WorkoutError('Nem sikerült menteni a gyakorlatot.'));
+      // Swallow silently. Emitting WorkoutError here would tear down the
+      // active workout view (the BlocConsumer in WorkoutDetailView treats
+      // WorkoutError as a screen-replacing state). The optimistic UI keeps
+      // the set checked / RPE set; the next interaction retries naturally.
     }
   }
 

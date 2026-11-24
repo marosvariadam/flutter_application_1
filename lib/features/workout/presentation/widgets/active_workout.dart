@@ -82,12 +82,47 @@ class _ActiveWorkoutBodyState extends State<ActiveWorkoutBody> {
       }
     }
 
+    _logExercise(exerciseIndex);
+  }
+
+  /// Fired on every slider tick during drag - UI only, no network.
+  void _onRpeChanged(int exerciseIndex, int? rpe) {
+    setState(() => _rpePerExercise[exerciseIndex] = rpe);
+  }
+
+  /// Fired once when the user releases the slider thumb - persists the value.
+  /// Skipped when no sets are done yet (RPE rides on the next set toggle).
+  void _onRpeChangeEnd(int exerciseIndex, int? rpe) {
+    final hasAnyDone = _sets[exerciseIndex].any((s) => s.isDone);
+    if (!hasAnyDone) return;
+    _logExercise(exerciseIndex);
+  }
+
+  /// Builds a complete LogExercise payload from current local state. The
+  /// backend rejects partial updates that include actualSets without
+  /// actualReps/actualWeightKg, so we always send all three together.
+  void _logExercise(int exerciseIndex) {
+    final exercise = widget.workout.exercises[exerciseIndex];
+    final sets = _sets[exerciseIndex];
+    final doneSets = sets.where((s) => s.isDone).length;
+
+    // Pull reps/weight from the last interacted set (the last done one, or
+    // the first row if none are done). Fall back to target values.
+    SetEntry? reference;
+    for (final s in sets) {
+      if (s.isDone) reference = s;
+    }
+    reference ??= sets.isNotEmpty ? sets.first : null;
+
+    final actualReps = reference?.reps ?? exercise.targetReps;
+    final actualWeight = reference?.weight ?? exercise.targetWeightKg;
+
     context.read<WorkoutBloc>().add(LogExercise(
           workoutId: widget.workout.id,
           index: exercise.index,
-          actualSets: sets.where((s) => s.isDone).length,
-          actualReps: set.reps ?? exercise.targetReps,
-          actualWeightKg: set.weight ?? exercise.targetWeightKg,
+          actualSets: doneSets,
+          actualReps: actualReps,
+          actualWeightKg: actualWeight,
           rpe: _rpePerExercise[exerciseIndex],
         ));
   }
@@ -120,21 +155,6 @@ class _ActiveWorkoutBodyState extends State<ActiveWorkoutBody> {
     });
   }
 
-  void _onRpeChanged(int exerciseIndex, int? rpe) {
-    setState(() => _rpePerExercise[exerciseIndex] = rpe);
-    final exercise = widget.workout.exercises[exerciseIndex];
-    final doneSets = _sets[exerciseIndex].where((s) => s.isDone).length;
-    // Persist immediately so RPE survives a refresh even without toggling a set.
-    if (doneSets > 0) {
-      context.read<WorkoutBloc>().add(LogExercise(
-            workoutId: widget.workout.id,
-            index: exercise.index,
-            actualSets: doneSets,
-            rpe: rpe,
-          ));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final done = _doneSets;
@@ -164,6 +184,7 @@ class _ActiveWorkoutBodyState extends State<ActiveWorkoutBody> {
                 onEdited: () => setState(() {}),
                 rpe: _rpePerExercise[i],
                 onRpeChanged: (v) => _onRpeChanged(i, v),
+                onRpeChangeEnd: (v) => _onRpeChangeEnd(i, v),
               );
             },
           ),
@@ -233,6 +254,7 @@ class _ActiveExerciseCard extends StatelessWidget {
   final VoidCallback onEdited;
   final int? rpe;
   final ValueChanged<int?> onRpeChanged;
+  final ValueChanged<int?> onRpeChangeEnd;
 
   const _ActiveExerciseCard({
     super.key,
@@ -243,6 +265,7 @@ class _ActiveExerciseCard extends StatelessWidget {
     required this.onEdited,
     required this.rpe,
     required this.onRpeChanged,
+    required this.onRpeChangeEnd,
   });
 
   @override
@@ -318,7 +341,11 @@ class _ActiveExerciseCard extends StatelessWidget {
               onToggle: () => onToggleSet(i),
               onEdited: onEdited,
             ),
-          RpeSlider(value: rpe, onChanged: onRpeChanged),
+          RpeSlider(
+            value: rpe,
+            onChanged: onRpeChanged,
+            onChangeEnd: onRpeChangeEnd,
+          ),
           const SizedBox(height: DT.s3),
         ],
       ),

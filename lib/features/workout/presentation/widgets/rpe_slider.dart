@@ -6,11 +6,21 @@ import 'package:flutter_application_1/app/design/dt_text.dart';
 /// Optional 0-10 Rate of Perceived Exertion control. Renders below the set
 /// rows of an exercise. Submitting without setting RPE works (the backend
 /// accepts null); tapping the "RPE n" chip clears it.
+///
+/// [onChanged] fires for every drag tick (for immediate UI feedback only).
+/// [onChangeEnd] fires once when the user releases the thumb - use it for
+/// the network call so dragging doesn't spam PATCH requests.
 class RpeSlider extends StatelessWidget {
   final int? value;
   final ValueChanged<int?> onChanged;
+  final ValueChanged<int?>? onChangeEnd;
 
-  const RpeSlider({super.key, required this.value, required this.onChanged});
+  const RpeSlider({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.onChangeEnd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +91,9 @@ class RpeSlider extends StatelessWidget {
               label: '${v ?? 0}',
               semanticFormatterCallback: (raw) => 'RPE ${raw.round()}',
               onChanged: (raw) => onChanged(raw.round()),
+              onChangeEnd: onChangeEnd == null
+                  ? null
+                  : (raw) => onChangeEnd!(raw.round()),
             ),
           ),
         ],
